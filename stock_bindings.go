@@ -96,3 +96,17 @@ func (a *App) DeleteStockItem(id int64) error {
 func (a *App) ClearDatabase() error {
 	return a.stockService.ClearDatabase()
 }
+
+// ConvertOreToLump converte uma quantidade de Ore em Lump (proporção 1:1)
+func (a *App) ConvertOreToLump(oreID int64, quantity int) error {
+	log.Printf("[App] ConvertOreToLump: Recebida requisição - oreID=%d, quantity=%d", oreID, quantity)
+	
+	err := a.stockService.ConvertOreToLump(oreID, quantity)
+	if err != nil {
+		log.Printf("[App] ConvertOreToLump: Erro ao converter: %v", err)
+		return err
+	}
+	
+	log.Printf("[App] ConvertOreToLump: Conversão concluída com sucesso")
+	return nil
+}

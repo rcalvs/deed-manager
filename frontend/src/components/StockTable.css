@@ -17,10 +17,72 @@
   gap: 1rem;
 }
 
+.table-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .stock-table-container h2 {
   color: #ffffff;
   margin: 0;
   font-size: 1.25rem;
+}
+
+.search-filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-icon {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+}
+
+.search-input {
+  padding: 0.5rem 0.75rem;
+  padding-right: 2rem;
+  border: 1px solid #3a4a62;
+  border-radius: 4px;
+  background-color: #1b2636;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  width: 200px;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #5a9fd4;
+}
+
+.search-input::placeholder {
+  color: #6a7a8a;
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.search-clear:hover {
+  color: #ffffff;
 }
 
 .category-filter {
@@ -100,16 +162,30 @@
   border-bottom: none;
 }
 
-.btn-delete {
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-delete,
+.btn-convert {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0.25rem 0.5rem;
   transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-delete:hover {
+  transform: scale(1.2);
+}
+
+.btn-convert:hover {
   transform: scale(1.2);
 }
 
@@ -172,6 +248,13 @@
   background-color: rgba(128, 128, 128, 0.2);
   color: #a0a0a0;
   border: 1px solid rgba(128, 128, 128, 0.4);
+}
+
+.category-badge[data-category="Wood"] {
+  background-color: rgba(139, 90, 43, 0.2);
+  border-color: rgba(139, 90, 43, 0.5);
+  color: #d4a373;
+  border: 1px solid rgba(139, 90, 43, 0.4);
 }
 
 

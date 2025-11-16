@@ -1,126 +1,59 @@
 import React, { useEffect, useState } from 'react'
-import { api } from './api'
+import { AiOutlineStock } from "react-icons/ai"
 import './App.css'
-import StockChart from './components/StockChart'
-import StockForm from './components/StockForm'
-import StockTable from './components/StockTable'
+import Settings from './components/Settings'
+import StockTab from './components/StockTab'
+import Tabs from './components/Tabs'
 
 function App() {
-  const [items, setItems] = useState([])
-  const [history, setHistory] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('stock')
+  const [developerMode, setDeveloperMode] = useState(() => {
+    // Carregar do localStorage
+    const saved = localStorage.getItem('developerMode')
+    return saved === 'true'
+  })
 
-  const loadItems = async () => {
-    try {
-      const data = await api.getStockItems()
-      setItems(data || [])
-    } catch (error) {
-      console.error('Erro ao carregar itens:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadHistory = async () => {
-    try {
-      console.log('[App] Carregando histórico...')
-      const data = await api.getStockHistory(365) // Últimos 365 dias (1 ano) para ter mais dados
-      console.log('[App] Histórico carregado:', data)
-      setHistory(data || [])
-    } catch (error) {
-      console.error('[App] Erro ao carregar histórico:', error)
-    }
-  }
-
+  // Salvar no localStorage quando mudar
   useEffect(() => {
-    loadItems()
-    loadHistory()
-  }, [])
+    localStorage.setItem('developerMode', developerMode.toString())
+  }, [developerMode])
 
-  const handleItemAdded = () => {
-    loadItems()
-    loadHistory()
-  }
-
-  const handleItemRemoved = () => {
-    loadItems()
-    loadHistory()
-  }
-
-  const handleItemDeleted = () => {
-    loadItems()
-    loadHistory()
-  }
-
-  const handleClearDatabase = async () => {
-    const confirmed = confirm(
-      '⚠️ ATENÇÃO: Esta ação irá apagar TODOS os dados do banco de dados!\n\n' +
-      'Isso inclui:\n' +
-      '- Todos os itens do estoque\n' +
-      '- Todo o histórico\n\n' +
-      'Esta ação NÃO pode ser desfeita!\n\n' +
-      'Tem certeza que deseja continuar?'
-    )
-
-    if (!confirmed) {
-      return
-    }
-
-    // Confirmação dupla para segurança
-    const doubleConfirmed = confirm(
-      '⚠️ ÚLTIMA CONFIRMAÇÃO ⚠️\n\n' +
-      'Você está prestes a apagar TODOS os dados permanentemente.\n\n' +
-      'Digite OK para confirmar ou Cancelar para abortar.'
-    )
-
-    if (!doubleConfirmed) {
-      return
-    }
-
-    try {
-      await api.clearDatabase()
-      alert('✅ Banco de dados limpo com sucesso!')
-      loadItems()
-      loadHistory()
-    } catch (error) {
-      console.error('Erro ao limpar banco:', error)
-      alert('❌ Erro ao limpar banco de dados')
-    }
-  }
+  const tabs = [
+    {
+      id: 'stock',
+      label: 'Estoque',
+      icon: <AiOutlineStock />,
+    },
+    // Futuras abas podem ser adicionadas aqui
+    // {
+    //   id: 'crafting',
+    //   label: 'Criação',
+    //   icon: '🔨',
+    // },
+  ]
 
   // Tratamento de erro para evitar crash da aplicação
   try {
     return (
       <div className="app">
         <header className="app-header">
-          <h1>Wurm Manager - Gerenciamento de Estoque</h1>
-          <div>
-            <button 
-              className="btn-clear-db"
-              onClick={handleClearDatabase}
-              title="Limpar todo o banco de dados"
-            >
-              Limpar
-            </button>
-            <span>v0.1.0</span>
+          <h1>Wurm Manager</h1>
+          <div className="header-actions">
+            <span className="version">v0.2.0</span>
+            <Settings 
+              developerMode={developerMode}
+              onDeveloperModeChange={setDeveloperMode}
+            />
           </div>
         </header>
-        <div className="app-content">
-          <div className="left-panel">
-            <StockForm 
-              onItemAdded={handleItemAdded}
-              onItemRemoved={handleItemRemoved}
-            />
-            <StockTable 
-              items={items || []}
-              loading={loading}
-              onItemDeleted={handleItemDeleted}
-            />
-          </div>
-          <div className="right-panel">
-            <StockChart history={history || []} items={items || []} />
-          </div>
-        </div>
+        <Tabs 
+          tabs={tabs} 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab}
+        >
+          {activeTab === 'stock' && <StockTab developerMode={developerMode} />}
+          {/* Futuras abas podem ser adicionadas aqui */}
+        </Tabs>
       </div>
     )
   } catch (error) {

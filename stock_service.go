@@ -365,6 +365,136 @@ func (s *StockService) recordHistoryWithTime(itemID int64, itemType ItemType, qu
 	log.Printf("[StockService] recordHistoryWithTime: Histórico inserido com sucesso (%d linha(s) afetada(s))", rowsAffected)
 }
 
+// ConvertOreToLump converte uma quantidade de Ore em Lump (proporção 1:1)
+func (s *StockService) ConvertOreToLump(oreID int64, quantity int) error {
+	log.Printf("[StockService] ConvertOreToLump: Iniciando conversão - oreID=%d, quantity=%d", oreID, quantity)
+
+	// Buscar o item Ore
+	var oreType ItemType
+	var oreQuality float64
+	var oreQuantity int
+	err := s.db.QueryRow(
+		"SELECT type, quality, quantity FROM stock_items WHERE id = ?",
+		oreID,
+	).Scan(&oreType, &oreQuality, &oreQuantity)
+
+	if err == sql.ErrNoRows {
+		log.Printf("[StockService] ConvertOreToLump: Ore ID=%d não encontrado", oreID)
+		return ErrItemNotFound
+	} else if err != nil {
+		log.Printf("[StockService] ConvertOreToLump: Erro ao buscar Ore: %v", err)
+		return err
+	}
+
+	// Verificar se é realmente um Ore
+	lumpType, ok := GetLumpFromOre(oreType)
+	if !ok {
+		log.Printf("[StockService] ConvertOreToLump: Item ID=%d não é um Ore (type=%s)", oreID, oreType)
+		return ErrInsufficientQuantity // Usando erro existente, mas poderia criar um específico
+	}
+
+	// Verificar se há quantidade suficiente
+	if oreQuantity < quantity {
+		log.Printf("[StockService] ConvertOreToLump: Quantidade insuficiente - disponível: %d, solicitada: %d", oreQuantity, quantity)
+		return ErrInsufficientQuantity
+	}
+
+	now := time.Now()
+
+	// Iniciar transação para garantir atomicidade
+	tx, err := s.db.Begin()
+	if err != nil {
+		log.Printf("[StockService] ConvertOreToLump: Erro ao iniciar transação: %v", err)
+		return err
+	}
+	defer tx.Rollback()
+
+	// 1. Reduzir quantidade do Ore
+	newOreQuantity := oreQuantity - quantity
+	_, err = tx.Exec(
+		"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+		newOreQuantity, now, oreID,
+	)
+	if err != nil {
+		log.Printf("[StockService] ConvertOreToLump: Erro ao atualizar Ore: %v", err)
+		return err
+	}
+
+	// Registrar remoção do Ore no histórico
+	s.recordHistoryWithTimeInTx(tx, oreID, oreType, oreQuality, newOreQuantity, -quantity, now)
+
+	// 2. Adicionar quantidade ao Lump (usar AddItem logic dentro da transação)
+	// Verificar se o Lump já existe
+	var lumpID int64
+	var existingLumpQuantity int
+	err = tx.QueryRow(
+		"SELECT id, quantity FROM stock_items WHERE type = ? AND quality = ?",
+		lumpType, oreQuality,
+	).Scan(&lumpID, &existingLumpQuantity)
+
+	if err == sql.ErrNoRows {
+		// Lump não existe, criar novo
+		result, err := tx.Exec(
+			"INSERT INTO stock_items (type, quality, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+			lumpType, oreQuality, quantity, now, now,
+		)
+		if err != nil {
+			log.Printf("[StockService] ConvertOreToLump: Erro ao criar Lump: %v", err)
+			return err
+		}
+
+		lumpID, err = result.LastInsertId()
+		if err != nil {
+			log.Printf("[StockService] ConvertOreToLump: Erro ao obter ID do Lump: %v", err)
+			return err
+		}
+
+		// Registrar no histórico
+		s.recordHistoryWithTimeInTx(tx, lumpID, lumpType, oreQuality, quantity, quantity, now)
+	} else if err != nil {
+		log.Printf("[StockService] ConvertOreToLump: Erro ao verificar Lump: %v", err)
+		return err
+	} else {
+		// Lump existe, atualizar quantidade
+		newLumpQuantity := existingLumpQuantity + quantity
+		_, err = tx.Exec(
+			"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+			newLumpQuantity, now, lumpID,
+		)
+		if err != nil {
+			log.Printf("[StockService] ConvertOreToLump: Erro ao atualizar Lump: %v", err)
+			return err
+		}
+
+		// Registrar no histórico
+		s.recordHistoryWithTimeInTx(tx, lumpID, lumpType, oreQuality, newLumpQuantity, quantity, now)
+	}
+
+	// Comitar transação
+	if err = tx.Commit(); err != nil {
+		log.Printf("[StockService] ConvertOreToLump: Erro ao commitar transação: %v", err)
+		return err
+	}
+
+	log.Printf("[StockService] ConvertOreToLump: Conversão concluída com sucesso - %d %s -> %d %s", 
+		quantity, oreType, quantity, lumpType)
+	return nil
+}
+
+// recordHistoryWithTimeInTx registra histórico dentro de uma transação
+func (s *StockService) recordHistoryWithTimeInTx(tx *sql.Tx, itemID int64, itemType ItemType, quality float64, quantity int, change int, timestamp time.Time) {
+	timestampStr := timestamp.Format("2006-01-02 15:04:05")
+	
+	_, err := tx.Exec(
+		"INSERT INTO stock_history (item_id, type, quality, quantity, change, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+		itemID, itemType, quality, quantity, change, timestampStr,
+	)
+	
+	if err != nil {
+		log.Printf("[StockService] recordHistoryWithTimeInTx: ERRO ao inserir histórico: %v", err)
+	}
+}
+
 // DeleteItem remove completamente um item do estoque
 func (s *StockService) DeleteItem(id int64) error {
 	log.Printf("[StockService] DeleteItem: Iniciando deleção do item ID=%d", id)

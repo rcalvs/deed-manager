@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { FaSearch } from 'react-icons/fa'
 import { api } from '../api'
 import { ITEM_TYPES } from '../constants'
 import './StockForm.css'
 
-function StockForm({ onItemAdded, onItemRemoved }) {
+function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
   const [itemType, setItemType] = useState('stone_brick')
   const [quality, setQuality] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -11,6 +12,21 @@ function StockForm({ onItemAdded, onItemRemoved }) {
   const [useCustomDate, setUseCustomDate] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [searchText, setSearchText] = useState('')
+
+  // Filtrar itens baseado no texto de busca
+  const filteredItems = useMemo(() => {
+    if (!searchText.trim()) {
+      return ITEM_TYPES
+    }
+    
+    const searchLower = searchText.toLowerCase().trim()
+    return ITEM_TYPES.filter((type) => {
+      const labelLower = type.label.toLowerCase()
+      const valueLower = type.value.toLowerCase()
+      return labelLower.includes(searchLower) || valueLower.includes(searchLower)
+    })
+  }, [searchText])
 
   const showMessage = (msg, isError = false) => {
     setMessage(msg)
@@ -102,18 +118,50 @@ function StockForm({ onItemAdded, onItemRemoved }) {
       <form className="stock-form">
         <div className="form-group">
           <label htmlFor="itemType">Tipo de Item</label>
-          <select
-            id="itemType"
-            value={itemType}
-            onChange={(e) => setItemType(e.target.value)}
-            disabled={loading}
-          >
-            {ITEM_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+          <div className="search-select-container">
+            <div className="search-input-wrapper">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Buscar item..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="search-input"
+                disabled={loading}
+              />
+              {searchText && (
+                <button
+                  type="button"
+                  className="search-clear"
+                  onClick={() => setSearchText('')}
+                  title="Limpar busca"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <select
+              id="itemType"
+              value={itemType}
+              onChange={(e) => setItemType(e.target.value)}
+              disabled={loading}
+            >
+              {filteredItems.length > 0 ? (
+                filteredItems.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))
+              ) : (
+                <option value="">Nenhum item encontrado</option>
+              )}
+            </select>
+            {searchText && filteredItems.length > 0 && (
+              <div className="search-results-count">
+                {filteredItems.length} {filteredItems.length === 1 ? 'item encontrado' : 'itens encontrados'}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="form-row">
@@ -146,26 +194,28 @@ function StockForm({ onItemAdded, onItemRemoved }) {
           </div>
         </div>
 
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={useCustomDate}
-              onChange={(e) => setUseCustomDate(e.target.checked)}
-              disabled={loading}
-            />
-            {' '}Usar data customizada (para testar gráfico)
-          </label>
-          {useCustomDate && (
-            <input
-              type="datetime-local"
-              value={customDate}
-              onChange={(e) => setCustomDate(e.target.value)}
-              disabled={loading}
-              style={{ marginTop: '0.5rem', width: '100%' }}
-            />
-          )}
-        </div>
+        {developerMode && (
+          <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                checked={useCustomDate}
+                onChange={(e) => setUseCustomDate(e.target.checked)}
+                disabled={loading}
+              />
+              {' '}Usar data customizada (para testar gráfico)
+            </label>
+            {useCustomDate && (
+              <input
+                type="datetime-local"
+                value={customDate}
+                onChange={(e) => setCustomDate(e.target.value)}
+                disabled={loading}
+                style={{ marginTop: '0.5rem', width: '100%' }}
+              />
+            )}
+          </div>
+        )}
 
         <div className="form-actions">
           <button

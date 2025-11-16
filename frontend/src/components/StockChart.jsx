@@ -12,7 +12,7 @@ import {
 } from 'chart.js'
 import React, { useMemo } from 'react'
 import { Bar, Line } from 'react-chartjs-2'
-import { ITEM_TYPE_COLORS, ITEM_TYPE_LABELS } from '../constants'
+import { ITEM_CATEGORIES, ITEM_TYPE_COLORS, ITEM_TYPE_LABELS } from '../constants'
 import './StockChart.css'
 
 ChartJS.register(
@@ -27,7 +27,37 @@ ChartJS.register(
   Filler
 )
 
-function StockChart({ history, items }) {
+function StockChart({ history, items, selectedCategory = 'all', searchText = '' }) {
+  // Função auxiliar para filtrar itens
+  const filterItems = useMemo(() => {
+    return (itemList) => {
+      if (!itemList || itemList.length === 0) {
+        return []
+      }
+      
+      let filtered = itemList
+      
+      // Filtrar por categoria
+      if (selectedCategory !== 'all') {
+        filtered = filtered.filter(item => {
+          const category = item.category || ITEM_CATEGORIES[item.type]
+          return category === selectedCategory
+        })
+      }
+      
+      // Filtrar por texto de busca
+      if (searchText && searchText.trim() !== '') {
+        const searchLower = searchText.toLowerCase().trim()
+        filtered = filtered.filter(item => {
+          const itemLabel = ITEM_TYPE_LABELS[item.type] || item.type || ''
+          return itemLabel.toLowerCase().includes(searchLower)
+        })
+      }
+      
+      return filtered
+    }
+  }, [selectedCategory, searchText])
+
   // Preparar dados para o gráfico de linha (histórico)
   const lineChartData = useMemo(() => {
     console.log('[StockChart] Processando histórico:', history)
@@ -36,34 +66,67 @@ function StockChart({ history, items }) {
       console.log('[StockChart] Nenhum histórico disponível')
       return null
     }
+    
+    // Filtrar histórico pelos mesmos filtros
+    const filteredHistory = history.filter(point => {
+      // Verificar categoria
+      if (selectedCategory !== 'all') {
+        const category = ITEM_CATEGORIES[point.type]
+        if (category !== selectedCategory) {
+          return false
+        }
+      }
+      
+      // Verificar busca por texto
+      if (searchText && searchText.trim() !== '') {
+        const searchLower = searchText.toLowerCase().trim()
+        const itemLabel = ITEM_TYPE_LABELS[point.type] || point.type || ''
+        if (!itemLabel.toLowerCase().includes(searchLower)) {
+          return false
+        }
+      }
+      
+      return true
+    })
+    
+    if (filteredHistory.length === 0) {
+      console.log('[StockChart] Nenhum histórico após filtros')
+      return null
+    }
 
-    // Agrupar por data e tipo, mantendo a maior quantidade para cada data/tipo
-    // Isso representa o estado do estoque naquele momento
-    const dataByDateType = {}
-    history.forEach((point) => {
-      const key = `${point.date}_${point.type}`
-      if (!dataByDateType[key]) {
-        dataByDateType[key] = {
-          date: point.date,
-          type: point.type,
-          quantity: point.quantity,
-        }
-      } else {
-        // Manter a maior quantidade para cada data/tipo (último estado do dia)
-        if (point.quantity > dataByDateType[key].quantity) {
-          dataByDateType[key].quantity = point.quantity
-        }
+    // Ordenar histórico por data e timestamp (para garantir ordem cronológica)
+    const sortedHistory = [...filteredHistory].sort((a, b) => {
+      const dateA = new Date(a.date + 'T00:00:00')
+      const dateB = new Date(b.date + 'T00:00:00')
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateA - dateB
+      }
+      // Se mesma data, manter ordem original (já vem ordenado do backend)
+      return 0
+    })
+
+    // Agrupar por data e tipo/qualidade, mantendo o ÚLTIMO registro de cada data/tipo/qualidade
+    // O quantity já representa a quantidade total acumulada após cada transação
+    const dataByDateTypeQuality = {}
+    sortedHistory.forEach((point) => {
+      const key = `${point.date}_${point.type}_${point.quality}`
+      // Sempre atualizar com o último valor (já está ordenado cronologicamente)
+      // Isso garante que pegamos o estado final de cada dia
+      dataByDateTypeQuality[key] = {
+        date: point.date,
+        type: point.type,
+        quality: point.quality,
+        quantity: point.quantity, // Esta é a quantidade total acumulada
       }
     })
 
-    console.log('[StockChart] Dados agrupados por data/tipo:', dataByDateType)
+    console.log('[StockChart] Dados agrupados por data/tipo/qualidade:', dataByDateTypeQuality)
 
-    // Coletar todas as datas únicas e ordenar corretamente (como datas, não strings)
+    // Coletar todas as datas únicas e ordenar corretamente
     const dateSet = new Set()
-    Object.values(dataByDateType).forEach(p => dateSet.add(p.date))
+    Object.values(dataByDateTypeQuality).forEach(p => dateSet.add(p.date))
     
     const dates = Array.from(dateSet).sort((a, b) => {
-      // Converter para Date para ordenação correta
       const dateA = new Date(a + 'T00:00:00')
       const dateB = new Date(b + 'T00:00:00')
       return dateA - dateB
@@ -71,9 +134,10 @@ function StockChart({ history, items }) {
 
     console.log('[StockChart] Datas ordenadas:', dates)
 
-    // Agrupar por tipo
+    // Agrupar por tipo (somando todas as qualidades do mesmo tipo para cada data)
+    // Isso mostra a quantidade total de cada tipo ao longo do tempo
     const datasets = {}
-    Object.values(dataByDateType).forEach((point) => {
+    Object.values(dataByDateTypeQuality).forEach((point) => {
       if (!datasets[point.type]) {
         datasets[point.type] = {
           label: ITEM_TYPE_LABELS[point.type] || point.type,
@@ -86,7 +150,9 @@ function StockChart({ history, items }) {
       }
       const dateIndex = dates.indexOf(point.date)
       if (dateIndex !== -1) {
-        datasets[point.type].data[dateIndex] = point.quantity
+        // Somar a quantidade para o mesmo tipo na mesma data
+        // (pode haver múltiplas qualidades do mesmo tipo)
+        datasets[point.type].data[dateIndex] += point.quantity
       }
     })
 
@@ -114,7 +180,7 @@ function StockChart({ history, items }) {
     
     console.log('[StockChart] Dados finais do gráfico:', result)
     return result
-  }, [history])
+  }, [history, selectedCategory, searchText])
 
   // Preparar dados para o gráfico de barras (estoque atual)
   const barChartData = useMemo(() => {
@@ -122,9 +188,16 @@ function StockChart({ history, items }) {
       return null
     }
 
+    // Aplicar filtros aos itens
+    const filteredItems = filterItems(items)
+    
+    if (filteredItems.length === 0) {
+      return null
+    }
+
     // Agrupar por tipo
     const dataByType = {}
-    items.forEach((item) => {
+    filteredItems.forEach((item) => {
       if (!dataByType[item.type]) {
         dataByType[item.type] = 0
       }
@@ -151,7 +224,7 @@ function StockChart({ history, items }) {
         },
       ],
     }
-  }, [items])
+  }, [items, filterItems])
 
   const chartOptions = {
     responsive: true,

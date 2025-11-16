@@ -58,6 +58,14 @@ export const api = {
     }
     throw new Error('Backend não disponível')
   },
+
+  // Converter Ore em Lump
+  convertOreToLump: async (oreID, quantity) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ConvertOreToLump(oreID, quantity)
+    }
+    throw new Error('Backend não disponível')
+  },
 }
 
 

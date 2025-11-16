@@ -1,25 +1,41 @@
 import React, { useMemo, useState } from 'react';
-import { FaTrashAlt } from "react-icons/fa";
+import { FaExchangeAlt, FaSearch, FaTrashAlt } from "react-icons/fa";
 import { api } from '../api';
-import { CATEGORIES, ITEM_CATEGORIES, ITEM_TYPE_LABELS } from '../constants';
+import { CATEGORIES, ITEM_CATEGORIES, ITEM_TYPE_LABELS, isOre } from '../constants';
+import ConvertModal from './ConvertModal';
 import './StockTable.css';
 
-function StockTable({ items, loading, onItemDeleted }) {
-  const [selectedCategory, setSelectedCategory] = useState('all')
+function StockTable({ items, loading, onItemDeleted, selectedCategory, searchText, onCategoryChange, onSearchChange }) {
+  const [convertModalOpen, setConvertModalOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null)
   
-  // Filtrar itens por categoria - DEVE estar antes de qualquer return
+  // Filtrar itens por categoria e texto de busca - DEVE estar antes de qualquer return
   const filteredItems = useMemo(() => {
     if (!items || items.length === 0) {
       return []
     }
-    if (selectedCategory === 'all') {
-      return items
+    
+    let filtered = items
+    
+    // Filtrar por categoria
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(item => {
+        const category = item.category || ITEM_CATEGORIES[item.type]
+        return category === selectedCategory
+      })
     }
-    return items.filter(item => {
-      const category = item.category || ITEM_CATEGORIES[item.type]
-      return category === selectedCategory
-    })
-  }, [items, selectedCategory])
+    
+    // Filtrar por texto de busca
+    if (searchText && searchText.trim() !== '') {
+      const searchLower = searchText.toLowerCase().trim()
+      filtered = filtered.filter(item => {
+        const itemLabel = ITEM_TYPE_LABELS[item.type] || item.type || ''
+        return itemLabel.toLowerCase().includes(searchLower)
+      })
+    }
+    
+    return filtered
+  }, [items, selectedCategory, searchText])
   
   const handleDelete = async (id) => {
     console.log('[StockTable] handleDelete: Iniciando processo de deleção do item ID=', id)
@@ -59,6 +75,21 @@ function StockTable({ items, loading, onItemDeleted }) {
     }
   }
 
+  const handleConvertClick = (item) => {
+    setSelectedItem(item)
+    setConvertModalOpen(true)
+  }
+
+  const handleConvert = async (quantity) => {
+    try {
+      await api.convertOreToLump(selectedItem.id, quantity)
+      onItemDeleted() // Atualizar lista após conversão
+    } catch (error) {
+      console.error('[StockTable] Erro ao converter:', error)
+      alert(`Erro ao converter: ${error.message || 'Erro desconhecido'}`)
+    }
+  }
+
   if (loading) {
     return (
       <div className="stock-table-container">
@@ -81,19 +112,40 @@ function StockTable({ items, loading, onItemDeleted }) {
     <div className="stock-table-container">
       <div className="table-header">
         <h2>Estoque Atual</h2>
-        <div className="category-filter">
-          <label htmlFor="category-filter">Filtrar por categoria:</label>
-          <select
-            id="category-filter"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="category-select"
-          >
-            <option value="all">Todas</option>
-            {CATEGORIES.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+        <div className="table-filters">
+          <div className="search-filter">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Buscar por tipo..."
+              value={searchText || ''}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="search-input"
+            />
+            {searchText && (
+              <button
+                className="search-clear"
+                onClick={() => onSearchChange('')}
+                title="Limpar busca"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <div className="category-filter">
+            <label htmlFor="category-filter">Filtrar por categoria:</label>
+            <select
+              id="category-filter"
+              value={selectedCategory || 'all'}
+              onChange={(e) => onCategoryChange(e.target.value)}
+              className="category-select"
+            >
+              <option value="all">Todas</option>
+              {CATEGORIES.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
       <div className="table-wrapper">
@@ -111,7 +163,9 @@ function StockTable({ items, loading, onItemDeleted }) {
             {filteredItems.length === 0 ? (
               <tr>
                 <td colSpan="5" className="empty-state-row">
-                  Nenhum item encontrado para a categoria selecionada
+                  {searchText || selectedCategory !== 'all' 
+                    ? 'Nenhum item encontrado com os filtros aplicados'
+                    : 'Nenhum item no estoque'}
                 </td>
               </tr>
             ) : (
@@ -129,13 +183,24 @@ function StockTable({ items, loading, onItemDeleted }) {
                     <td>{item.quality != null ? item.quality.toFixed(1) : '0.0'}</td>
                     <td>{item.quantity != null ? item.quantity.toLocaleString('pt-BR') : '0'}</td>
                     <td>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(item.id)}
-                        title="Remover item"
-                      >
-                        <FaTrashAlt color='#b0b0b0'/>
-                      </button>
+                      <div className="action-buttons">
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDelete(item.id)}
+                          title="Remover item"
+                        >
+                          <FaTrashAlt color='#b0b0b0'/>
+                        </button>
+                        {isOre(item.type) && (
+                          <button
+                            className="btn-convert"
+                            onClick={() => handleConvertClick(item)}
+                            title="Converter em Lump"
+                          >
+                            <FaExchangeAlt color='#5a9fd4'/>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )
@@ -144,6 +209,18 @@ function StockTable({ items, loading, onItemDeleted }) {
           </tbody>
         </table>
       </div>
+      {selectedItem && (
+        <ConvertModal
+          isOpen={convertModalOpen}
+          onClose={() => {
+            setConvertModalOpen(false)
+            setSelectedItem(null)
+          }}
+          item={selectedItem}
+          onConvert={handleConvert}
+          maxQuantity={selectedItem.quantity || 0}
+        />
+      )}
     </div>
   )
 }

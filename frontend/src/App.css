@@ -22,6 +22,18 @@
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.version {
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
 .btn-clear-db {
   background-color: #d44a4a;
   color: white;
@@ -47,7 +59,7 @@
   transform: translateY(0);
 }
 
-.app-content {
+.stock-tab-content {
   display: flex;
   flex: 1;
   overflow: hidden;
