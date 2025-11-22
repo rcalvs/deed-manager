@@ -495,6 +495,302 @@ func (s *StockService) recordHistoryWithTimeInTx(tx *sql.Tx, itemID int64, itemT
 	}
 }
 
+// ConvertLogToPlank converte Log em Plank (proporção 1:6)
+func (s *StockService) ConvertLogToPlank(logID int64, quantity int) error {
+	log.Printf("[StockService] ConvertLogToPlank: Iniciando conversão - logID=%d, quantity=%d", logID, quantity)
+
+	// Buscar o item Log
+	var logType ItemType
+	var logQuality float64
+	var logQuantity int
+	err := s.db.QueryRow(
+		"SELECT type, quality, quantity FROM stock_items WHERE id = ?",
+		logID,
+	).Scan(&logType, &logQuality, &logQuantity)
+
+	if err == sql.ErrNoRows {
+		log.Printf("[StockService] ConvertLogToPlank: Log ID=%d não encontrado", logID)
+		return ErrItemNotFound
+	} else if err != nil {
+		log.Printf("[StockService] ConvertLogToPlank: Erro ao buscar Log: %v", err)
+		return err
+	}
+
+	// Verificar se é realmente um Log
+	plankType, ok := GetPlankFromLog(logType)
+	if !ok {
+		log.Printf("[StockService] ConvertLogToPlank: Item ID=%d não é um Log (type=%s)", logID, logType)
+		return ErrInsufficientQuantity
+	}
+
+	// Verificar se há quantidade suficiente
+	if logQuantity < quantity {
+		log.Printf("[StockService] ConvertLogToPlank: Quantidade insuficiente - disponível: %d, solicitada: %d", logQuantity, quantity)
+		return ErrInsufficientQuantity
+	}
+
+	now := time.Now()
+	plankQuantity := quantity * 6 // 1 Log = 6 Planks
+
+	// Iniciar transação
+	tx, err := s.db.Begin()
+	if err != nil {
+		log.Printf("[StockService] ConvertLogToPlank: Erro ao iniciar transação: %v", err)
+		return err
+	}
+	defer tx.Rollback()
+
+	// 1. Reduzir quantidade do Log
+	newLogQuantity := logQuantity - quantity
+	_, err = tx.Exec(
+		"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+		newLogQuantity, now, logID,
+	)
+	if err != nil {
+		log.Printf("[StockService] ConvertLogToPlank: Erro ao atualizar Log: %v", err)
+		return err
+	}
+
+	s.recordHistoryWithTimeInTx(tx, logID, logType, logQuality, newLogQuantity, -quantity, now)
+
+	// 2. Adicionar Planks
+	var plankID int64
+	var existingPlankQuantity int
+	err = tx.QueryRow(
+		"SELECT id, quantity FROM stock_items WHERE type = ? AND quality = ?",
+		plankType, logQuality,
+	).Scan(&plankID, &existingPlankQuantity)
+
+	if err == sql.ErrNoRows {
+		result, err := tx.Exec(
+			"INSERT INTO stock_items (type, quality, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+			plankType, logQuality, plankQuantity, now, now,
+		)
+		if err != nil {
+			log.Printf("[StockService] ConvertLogToPlank: Erro ao criar Plank: %v", err)
+			return err
+		}
+
+		plankID, err = result.LastInsertId()
+		if err != nil {
+			log.Printf("[StockService] ConvertLogToPlank: Erro ao obter ID do Plank: %v", err)
+			return err
+		}
+
+		s.recordHistoryWithTimeInTx(tx, plankID, plankType, logQuality, plankQuantity, plankQuantity, now)
+	} else if err != nil {
+		log.Printf("[StockService] ConvertLogToPlank: Erro ao verificar Plank: %v", err)
+		return err
+	} else {
+		newPlankQuantity := existingPlankQuantity + plankQuantity
+		_, err = tx.Exec(
+			"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+			newPlankQuantity, now, plankID,
+		)
+		if err != nil {
+			log.Printf("[StockService] ConvertLogToPlank: Erro ao atualizar Plank: %v", err)
+			return err
+		}
+
+		s.recordHistoryWithTimeInTx(tx, plankID, plankType, logQuality, newPlankQuantity, plankQuantity, now)
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Printf("[StockService] ConvertLogToPlank: Erro ao commitar transação: %v", err)
+		return err
+	}
+
+	log.Printf("[StockService] ConvertLogToPlank: Conversão concluída - %d %s -> %d %s", 
+		quantity, logType, plankQuantity, plankType)
+	return nil
+}
+
+// ConvertLogToShaft converte Log em Shaft (proporção 1:12)
+func (s *StockService) ConvertLogToShaft(logID int64, quantity int) error {
+	log.Printf("[StockService] ConvertLogToShaft: Iniciando conversão - logID=%d, quantity=%d", logID, quantity)
+
+	var logType ItemType
+	var logQuality float64
+	var logQuantity int
+	err := s.db.QueryRow(
+		"SELECT type, quality, quantity FROM stock_items WHERE id = ?",
+		logID,
+	).Scan(&logType, &logQuality, &logQuantity)
+
+	if err == sql.ErrNoRows {
+		return ErrItemNotFound
+	} else if err != nil {
+		return err
+	}
+
+	shaftType, ok := GetShaftFromLog(logType)
+	if !ok {
+		return ErrInsufficientQuantity
+	}
+
+	if logQuantity < quantity {
+		return ErrInsufficientQuantity
+	}
+
+	now := time.Now()
+	shaftQuantity := quantity * 12 // 1 Log = 12 Shafts
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	newLogQuantity := logQuantity - quantity
+	_, err = tx.Exec(
+		"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+		newLogQuantity, now, logID,
+	)
+	if err != nil {
+		return err
+	}
+
+	s.recordHistoryWithTimeInTx(tx, logID, logType, logQuality, newLogQuantity, -quantity, now)
+
+	var shaftID int64
+	var existingShaftQuantity int
+	err = tx.QueryRow(
+		"SELECT id, quantity FROM stock_items WHERE type = ? AND quality = ?",
+		shaftType, logQuality,
+	).Scan(&shaftID, &existingShaftQuantity)
+
+	if err == sql.ErrNoRows {
+		result, err := tx.Exec(
+			"INSERT INTO stock_items (type, quality, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+			shaftType, logQuality, shaftQuantity, now, now,
+		)
+		if err != nil {
+			return err
+		}
+
+		shaftID, err = result.LastInsertId()
+		if err != nil {
+			return err
+		}
+
+		s.recordHistoryWithTimeInTx(tx, shaftID, shaftType, logQuality, shaftQuantity, shaftQuantity, now)
+	} else if err != nil {
+		return err
+	} else {
+		newShaftQuantity := existingShaftQuantity + shaftQuantity
+		_, err = tx.Exec(
+			"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+			newShaftQuantity, now, shaftID,
+		)
+		if err != nil {
+			return err
+		}
+
+		s.recordHistoryWithTimeInTx(tx, shaftID, shaftType, logQuality, newShaftQuantity, shaftQuantity, now)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	log.Printf("[StockService] ConvertLogToShaft: Conversão concluída - %d %s -> %d %s", 
+		quantity, logType, shaftQuantity, shaftType)
+	return nil
+}
+
+// ConvertShaftToPeg converte Shaft em Peg (proporção 1:10)
+func (s *StockService) ConvertShaftToPeg(shaftID int64, quantity int) error {
+	log.Printf("[StockService] ConvertShaftToPeg: Iniciando conversão - shaftID=%d, quantity=%d", shaftID, quantity)
+
+	var shaftType ItemType
+	var shaftQuality float64
+	var shaftQuantity int
+	err := s.db.QueryRow(
+		"SELECT type, quality, quantity FROM stock_items WHERE id = ?",
+		shaftID,
+	).Scan(&shaftType, &shaftQuality, &shaftQuantity)
+
+	if err == sql.ErrNoRows {
+		return ErrItemNotFound
+	} else if err != nil {
+		return err
+	}
+
+	pegType, ok := GetPegFromShaft(shaftType)
+	if !ok {
+		return ErrInsufficientQuantity
+	}
+
+	if shaftQuantity < quantity {
+		return ErrInsufficientQuantity
+	}
+
+	now := time.Now()
+	pegQuantity := quantity * 10 // 1 Shaft = 10 Pegs
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	newShaftQuantity := shaftQuantity - quantity
+	_, err = tx.Exec(
+		"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+		newShaftQuantity, now, shaftID,
+	)
+	if err != nil {
+		return err
+	}
+
+	s.recordHistoryWithTimeInTx(tx, shaftID, shaftType, shaftQuality, newShaftQuantity, -quantity, now)
+
+	var pegID int64
+	var existingPegQuantity int
+	err = tx.QueryRow(
+		"SELECT id, quantity FROM stock_items WHERE type = ? AND quality = ?",
+		pegType, shaftQuality,
+	).Scan(&pegID, &existingPegQuantity)
+
+	if err == sql.ErrNoRows {
+		result, err := tx.Exec(
+			"INSERT INTO stock_items (type, quality, quantity, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
+			pegType, shaftQuality, pegQuantity, now, now,
+		)
+		if err != nil {
+			return err
+		}
+
+		pegID, err = result.LastInsertId()
+		if err != nil {
+			return err
+		}
+
+		s.recordHistoryWithTimeInTx(tx, pegID, pegType, shaftQuality, pegQuantity, pegQuantity, now)
+	} else if err != nil {
+		return err
+	} else {
+		newPegQuantity := existingPegQuantity + pegQuantity
+		_, err = tx.Exec(
+			"UPDATE stock_items SET quantity = ?, updated_at = ? WHERE id = ?",
+			newPegQuantity, now, pegID,
+		)
+		if err != nil {
+			return err
+		}
+
+		s.recordHistoryWithTimeInTx(tx, pegID, pegType, shaftQuality, newPegQuantity, pegQuantity, now)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	log.Printf("[StockService] ConvertShaftToPeg: Conversão concluída - %d %s -> %d %s", 
+		quantity, shaftType, pegQuantity, pegType)
+	return nil
+}
+
 // DeleteItem remove completamente um item do estoque
 func (s *StockService) DeleteItem(id int64) error {
 	log.Printf("[StockService] DeleteItem: Iniciando deleção do item ID=%d", id)

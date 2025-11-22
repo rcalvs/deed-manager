@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { AiOutlineStock } from "react-icons/ai"
+import { FaStickyNote } from "react-icons/fa"
 import './App.css'
+import NotesTab from './components/NotesTab'
 import Settings from './components/Settings'
 import StockTab from './components/StockTab'
 import Tabs from './components/Tabs'
@@ -24,12 +26,11 @@ function App() {
       label: 'Estoque',
       icon: <AiOutlineStock />,
     },
-    // Futuras abas podem ser adicionadas aqui
-    // {
-    //   id: 'crafting',
-    //   label: 'Criação',
-    //   icon: '🔨',
-    // },
+    {
+      id: 'notes',
+      label: 'Notas',
+      icon: <FaStickyNote />,
+    },
   ]
 
   // Tratamento de erro para evitar crash da aplicação
@@ -39,7 +40,7 @@ function App() {
         <header className="app-header">
           <h1>Wurm Manager</h1>
           <div className="header-actions">
-            <span className="version">v0.2.0</span>
+            <span className="version">v0.2.1</span>
             <Settings 
               developerMode={developerMode}
               onDeveloperModeChange={setDeveloperMode}
@@ -52,7 +53,7 @@ function App() {
           onTabChange={setActiveTab}
         >
           {activeTab === 'stock' && <StockTab developerMode={developerMode} />}
-          {/* Futuras abas podem ser adicionadas aqui */}
+          {activeTab === 'notes' && <NotesTab />}
         </Tabs>
       </div>
     )

@@ -66,6 +66,95 @@ export const api = {
     }
     throw new Error('Backend não disponível')
   },
+
+  // Converter Log em Plank (1:6)
+  convertLogToPlank: async (logID, quantity) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ConvertLogToPlank(logID, quantity)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Converter Log em Shaft (1:12)
+  convertLogToShaft: async (logID, quantity) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ConvertLogToShaft(logID, quantity)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Converter Shaft em Peg (1:10)
+  convertShaftToPeg: async (shaftID, quantity) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ConvertShaftToPeg(shaftID, quantity)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // ========== NOTAS ==========
+  createNote: async (title, description, startDate, endDate) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.CreateNote(title, description, startDate || '', endDate || '')
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  getNotes: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetNotes()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  updateNote: async (id, title, description, startDate, endDate, completed) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.UpdateNote(id, title, description, startDate || '', endDate || '', completed)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  deleteNote: async (id) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.DeleteNote(id)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  toggleNoteCompleted: async (id) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ToggleNoteCompleted(id)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // ========== LOCALIZAÇÕES ==========
+  createLocation: async (name, description, mapType, server, x, y) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.CreateLocation(name, description, mapType || 'yaga', server || 'Harmony', x, y)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  getLocations: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetLocations()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  updateLocation: async (id, name, description, mapType, server, x, y) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.UpdateLocation(id, name, description, mapType || 'yaga', server || 'Harmony', x, y)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  deleteLocation: async (id) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.DeleteLocation(id)
+    }
+    throw new Error('Backend não disponível')
+  },
 }
 
 

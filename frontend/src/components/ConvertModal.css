@@ -12,7 +12,7 @@
 }
 
 .modal-content {
-  background-color: #2a3a52;
+  background-color: #2d2d2d;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   width: 90%;
@@ -26,7 +26,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #3a4a62;
+  border-bottom: 1px solid #4a4a4a;
 }
 
 .modal-header h3 {
@@ -57,7 +57,7 @@
 }
 
 .modal-info {
-  background-color: #1b2636;
+  background-color: #1e1e1e;
   border-radius: 4px;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -76,7 +76,7 @@
 .convert-info {
   margin-top: 0.75rem !important;
   padding-top: 0.75rem;
-  border-top: 1px solid #3a4a62;
+  border-top: 1px solid #4a4a4a;
   color: #5a9fd4 !important;
   font-weight: 500;
 }
@@ -96,9 +96,9 @@
 
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid #3a4a62;
+  border: 1px solid #4a4a4a;
   border-radius: 4px;
-  background-color: #1b2636;
+  background-color: #1e1e1e;
   color: #e0e0e0;
   font-size: 1rem;
   transition: border-color 0.2s;
@@ -127,12 +127,12 @@
 }
 
 .btn-cancel {
-  background-color: #3a4a62;
+  background-color: #4a4a4a;
   color: #e0e0e0;
 }
 
 .btn-cancel:hover {
-  background-color: #4a5a72;
+  background-color: #5a5a5a;
 }
 
 .btn-confirm {

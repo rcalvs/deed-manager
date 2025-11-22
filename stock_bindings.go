@@ -110,3 +110,45 @@ func (a *App) ConvertOreToLump(oreID int64, quantity int) error {
 	log.Printf("[App] ConvertOreToLump: Conversão concluída com sucesso")
 	return nil
 }
+
+// ConvertLogToPlank converte Log em Plank (proporção 1:6)
+func (a *App) ConvertLogToPlank(logID int64, quantity int) error {
+	log.Printf("[App] ConvertLogToPlank: Recebida requisição - logID=%d, quantity=%d", logID, quantity)
+	
+	err := a.stockService.ConvertLogToPlank(logID, quantity)
+	if err != nil {
+		log.Printf("[App] ConvertLogToPlank: Erro ao converter: %v", err)
+		return err
+	}
+	
+	log.Printf("[App] ConvertLogToPlank: Conversão concluída com sucesso")
+	return nil
+}
+
+// ConvertLogToShaft converte Log em Shaft (proporção 1:12)
+func (a *App) ConvertLogToShaft(logID int64, quantity int) error {
+	log.Printf("[App] ConvertLogToShaft: Recebida requisição - logID=%d, quantity=%d", logID, quantity)
+	
+	err := a.stockService.ConvertLogToShaft(logID, quantity)
+	if err != nil {
+		log.Printf("[App] ConvertLogToShaft: Erro ao converter: %v", err)
+		return err
+	}
+	
+	log.Printf("[App] ConvertLogToShaft: Conversão concluída com sucesso")
+	return nil
+}
+
+// ConvertShaftToPeg converte Shaft em Peg (proporção 1:10)
+func (a *App) ConvertShaftToPeg(shaftID int64, quantity int) error {
+	log.Printf("[App] ConvertShaftToPeg: Recebida requisição - shaftID=%d, quantity=%d", shaftID, quantity)
+	
+	err := a.stockService.ConvertShaftToPeg(shaftID, quantity)
+	if err != nil {
+		log.Printf("[App] ConvertShaftToPeg: Erro ao converter: %v", err)
+		return err
+	}
+	
+	log.Printf("[App] ConvertShaftToPeg: Conversão concluída com sucesso")
+	return nil
+}

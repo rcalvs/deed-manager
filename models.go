@@ -306,6 +306,68 @@ func IsWood(itemType ItemType) bool {
 	return false
 }
 
+// GetWoodType extrai o tipo de madeira de um item (ex: "cherry" de "cherry_log")
+func GetWoodType(itemType ItemType) (string, bool) {
+	woodTypes := []string{
+		"apple", "birch", "cedar", "cherry", "chestnut", "fir", "lemon", "linden",
+		"maple", "oak", "oleander", "olive", "orange", "pine", "walnut", "willow",
+		"blueberry", "raspberry", "grape", "hazelnut", "thorn", "lavender", "camelia", "rose", "lingoberry",
+	}
+	
+	itemStr := string(itemType)
+	for _, wood := range woodTypes {
+		if len(itemStr) > len(wood) && itemStr[:len(wood)] == wood {
+			return wood, true
+		}
+	}
+	return "", false
+}
+
+// IsLog verifica se um item é um Log de madeira
+func IsLog(itemType ItemType) bool {
+	if !IsWood(itemType) {
+		return false
+	}
+	itemStr := string(itemType)
+	return len(itemStr) > 4 && itemStr[len(itemStr)-4:] == "_log"
+}
+
+// IsShaft verifica se um item é um Shaft de madeira
+func IsShaft(itemType ItemType) bool {
+	if !IsWood(itemType) {
+		return false
+	}
+	itemStr := string(itemType)
+	return len(itemStr) > 6 && itemStr[len(itemStr)-6:] == "_shaft"
+}
+
+// GetPlankFromLog retorna o tipo de Plank correspondente a um Log
+func GetPlankFromLog(logType ItemType) (ItemType, bool) {
+	woodType, ok := GetWoodType(logType)
+	if !ok || !IsLog(logType) {
+		return "", false
+	}
+	return ItemType(woodType + "_plank"), true
+}
+
+// GetShaftFromLog retorna o tipo de Shaft correspondente a um Log
+func GetShaftFromLog(logType ItemType) (ItemType, bool) {
+	woodType, ok := GetWoodType(logType)
+	if !ok || !IsLog(logType) {
+		return "", false
+	}
+	return ItemType(woodType + "_shaft"), true
+}
+
+// GetPegFromShaft retorna o tipo de Peg correspondente a um Shaft
+func GetPegFromShaft(shaftType ItemType) (ItemType, bool) {
+	woodType, ok := GetWoodType(shaftType)
+	if !ok || !IsShaft(shaftType) {
+		return "", false
+	}
+	return ItemType(woodType + "_peg"), true
+}
+
 // StockItem representa um item no estoque
 type StockItem struct {
 	ID        int64     `json:"id"`
@@ -341,4 +403,29 @@ type StockHistoryPoint struct {
 	Type     ItemType `json:"type"`
 	Quality  float64  `json:"quality"`
 	Quantity int      `json:"quantity"`
+}
+
+// Note representa uma nota/tarefa
+type Note struct {
+	ID          int64      `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	StartDate   *time.Time `json:"startDate,omitempty"`
+	EndDate     *time.Time `json:"endDate,omitempty"`
+	Completed   bool       `json:"completed"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
+}
+
+// Location representa uma localização do mapa
+type Location struct {
+	ID          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	MapType     string    `json:"mapType"`     // "yaga" ou "wurmmaps"
+	Server      string    `json:"server"`       // "Harmony", "Cadence", "Melody"
+	X           int       `json:"x"`
+	Y           int       `json:"y"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }

@@ -2,13 +2,13 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #1b2636;
+  background-color: #1e1e1e;
 }
 
 .tabs-header {
   display: flex;
-  background-color: #2a3a52;
-  border-bottom: 1px solid #3a4a62;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #4a4a4a;
   padding: 0;
   gap: 0;
   overflow-x: auto;
@@ -32,13 +32,13 @@
 }
 
 .tab-button:hover {
-  background-color: #3a4a62;
+  background-color: #4a4a4a;
   color: #e0e0e0;
 }
 
 .tab-button.active {
   color: #ffffff;
-  background-color: #1b2636;
+  background-color: #1e1e1e;
   border-bottom-color: #5a9fd4;
 }
 

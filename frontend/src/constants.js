@@ -672,6 +672,22 @@ export const isOre = (itemType) => {
   return ITEM_CATEGORIES[itemType] === 'Ores'
 }
 
+// Verifica se um tipo de item é um Log de madeira
+export const isLog = (itemType) => {
+  if (ITEM_CATEGORIES[itemType] !== 'Wood') {
+    return false
+  }
+  return typeof itemType === 'string' && itemType.endsWith('_log')
+}
+
+// Verifica se um tipo de item é um Shaft de madeira
+export const isShaft = (itemType) => {
+  if (ITEM_CATEGORIES[itemType] !== 'Wood') {
+    return false
+  }
+  return typeof itemType === 'string' && itemType.endsWith('_shaft')
+}
+
 // Cores para os gráficos (cores específicas para cada tipo)
 const colorMap = {
   stone_brick: 'rgba(139, 69, 19, 1)',        // Marrom - Stone Brick

@@ -16,8 +16,11 @@ func main() {
 	// Criar instância do serviço de estoque
 	stockService := NewStockService()
 
+	// Criar instância do serviço de notas
+	notesService := NewNotesService()
+
 	// Criar instância da aplicação
-	app := NewApp(stockService)
+	app := NewApp(stockService, notesService)
 
 	// Configurar opções da aplicação
 	appOptions := &options.App{

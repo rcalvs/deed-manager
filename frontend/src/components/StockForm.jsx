@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react'
-import { FaSearch } from 'react-icons/fa'
+import React, { useEffect, useMemo, useState } from 'react'
+import { FaChevronDown, FaChevronUp, FaEdit, FaPlus, FaSearch } from 'react-icons/fa'
 import { api } from '../api'
 import { ITEM_TYPES } from '../constants'
+import QualityModal, { getDefaultQuality, isDefaultQualityEnabled } from './QualityModal'
 import './StockForm.css'
 
 function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isQualityModalOpen, setIsQualityModalOpen] = useState(false)
   const [itemType, setItemType] = useState('stone_brick')
   const [quality, setQuality] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -27,6 +30,23 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       return labelLower.includes(searchLower) || valueLower.includes(searchLower)
     })
   }, [searchText])
+
+  // Aplicar QL padrão quando o formulário abrir
+  useEffect(() => {
+    if (isOpen && isDefaultQualityEnabled() && !quality) {
+      const defaultQl = getDefaultQuality()
+      if (defaultQl !== null) {
+        setQuality(defaultQl.toString())
+      }
+    }
+  }, [isOpen, quality])
+
+  const handleQualityModalSave = (useDefault, defaultValue) => {
+    // Se o QL padrão foi ativado e não há valor no campo, aplicar
+    if (useDefault && defaultValue && !quality) {
+      setQuality(defaultValue)
+    }
+  }
 
   const showMessage = (msg, isError = false) => {
     setMessage(msg)
@@ -62,12 +82,24 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       const dateString = useCustomDate && customDate ? customDate : ''
       
       await api.addStockItem(itemType, qualityNum, quantityNum, dateString)
-      setQuality('')
       setQuantity('')
       setCustomDate('')
       setUseCustomDate(false)
+      setSearchText('')
+      // Manter o campo de qualidade se houver QL padrão configurado
+      if (isDefaultQualityEnabled()) {
+        const defaultQl = getDefaultQuality()
+        if (defaultQl !== null) {
+          setQuality(defaultQl.toString())
+        } else {
+          setQuality('')
+        }
+      } else {
+        setQuality('')
+      }
       showMessage('Item adicionado com sucesso!')
       onItemAdded()
+      // Manter o formulário aberto para facilitar adição de mais itens
     } catch (error) {
       console.error('Erro ao adicionar item:', error)
       showMessage('Erro ao adicionar item', true)
@@ -100,10 +132,22 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
     setLoading(true)
     try {
       await api.removeStockItem(itemType, qualityNum, quantityNum)
-      setQuality('')
       setQuantity('')
+      setSearchText('')
+      // Manter o campo de qualidade se houver QL padrão configurado
+      if (isDefaultQualityEnabled()) {
+        const defaultQl = getDefaultQuality()
+        if (defaultQl !== null) {
+          setQuality(defaultQl.toString())
+        } else {
+          setQuality('')
+        }
+      } else {
+        setQuality('')
+      }
       showMessage('Item removido com sucesso!')
       onItemRemoved()
+      // Manter o formulário aberto para facilitar novas operações
     } catch (error) {
       console.error('Erro ao remover item:', error)
       showMessage(error.message || 'Erro ao remover item', true)
@@ -114,8 +158,22 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
 
   return (
     <div className="stock-form-container">
-      <h2>Gerenciar Estoque</h2>
-      <form className="stock-form">
+      <button
+        type="button"
+        className="stock-form-toggle"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+      >
+        <div className="toggle-content">
+          <FaPlus className="toggle-icon" />
+          <span>Adicionar Estoque</span>
+        </div>
+        {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+      </button>
+      
+      {isOpen && (
+        <div className="stock-form-dropdown">
+          <form className="stock-form">
         <div className="form-group">
           <label htmlFor="itemType">Tipo de Item</label>
           <div className="search-select-container">
@@ -179,7 +237,18 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="quality">Qualidade (0-100)</label>
+            <div className="quality-label-wrapper">
+              <label htmlFor="quality">Qualidade (0-100)</label>
+              <button
+                type="button"
+                className="quality-edit-btn"
+                onClick={() => setIsQualityModalOpen(true)}
+                title="Configurar QL padrão"
+                disabled={loading}
+              >
+                <FaEdit />
+              </button>
+            </div>
             <input
               type="number"
               id="quality"
@@ -196,7 +265,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
 
         {developerMode && (
           <div className="form-group">
-            <label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <input
                 type="checkbox"
                 checked={useCustomDate}
@@ -241,7 +310,15 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
             {message}
           </div>
         )}
-      </form>
+          </form>
+        </div>
+      )}
+      
+      <QualityModal
+        isOpen={isQualityModalOpen}
+        onClose={() => setIsQualityModalOpen(false)}
+        onSave={handleQualityModalSave}
+      />
     </div>
   )
 }

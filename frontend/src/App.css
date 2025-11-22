@@ -2,13 +2,13 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #1b2636;
+  background-color: #1e1e1e;
 }
 
 .app-header {
-  background-color: #2a3a52;
+  background-color: #2d2d2d;
   padding: 1rem 2rem;
-  border-bottom: 1px solid #3a4a62;
+  border-bottom: 1px solid #4a4a4a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: space-between;
@@ -90,16 +90,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #1b2636;
+  background: #1e1e1e;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3a4a62;
+  background: #4a4a4a;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a5a72;
+  background: #5a5a5a;
 }
 
 
