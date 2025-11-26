@@ -1,0 +1,208 @@
+{
+  "common": {
+    "yes": "Sim",
+    "no": "Não",
+    "ok": "OK",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "add": "Adicionar",
+    "remove": "Remover",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "skip": "Pular",
+    "continue": "Continuar",
+    "start": "Iniciar",
+    "search": "Buscar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "processing": "Processando...",
+    "noResults": "Nenhum item encontrado",
+    "itemFound": "item encontrado",
+    "itemsFound": "itens encontrados",
+    "actions": "Ações",
+    "compress": "Reduzir",
+    "expand": "Expandir para tela cheia"
+  },
+  "welcome": {
+    "title": "Bem-vindo ao Wurm Manager!",
+    "subtitle": "Seu assistente completo para gerenciar seu Deed no Wurm Online",
+    "start": "Começar",
+    "features": {
+      "title": "Funcionalidades",
+      "subtitle": "Descubra o que você pode fazer com o Wurm Manager",
+      "stock": {
+        "title": "Gerenciamento de Estoque",
+        "description": "Controle completo do seu estoque com mais de 220 tipos de itens organizados por categorias"
+      },
+      "charts": {
+        "title": "Gráficos e Análises",
+        "description": "Visualize a evolução do seu estoque ao longo do tempo com gráficos interativos"
+      },
+      "notes": {
+        "title": "Sistema de Notas",
+        "description": "Organize suas tarefas e anotações importantes do jogo"
+      },
+      "locations": {
+        "title": "Localizações do Mapa",
+        "description": "Salve e organize localizações importantes do mapa do jogo"
+      }
+    },
+    "setup": {
+      "title": "Configuração Inicial",
+      "subtitle": "Para começar, informe o nome do seu Deed",
+      "deedName": "Nome do Deed",
+      "deedNamePlaceholder": "Ex: Meu Deed",
+      "deedNameHint": "Este nome será usado para personalizar sua experiência"
+    }
+  },
+  "app": {
+    "title": "Wurm Manager",
+    "deed": "Deed",
+    "tabs": {
+      "stock": "Estoque",
+      "notes": "Notas"
+    }
+  },
+  "stock": {
+    "title": "Estoque",
+    "addItem": "Adicionar Item",
+    "removeItem": "Remover Item",
+    "itemType": "Tipo de Item",
+    "quality": "Qualidade",
+    "quantity": "Quantidade",
+    "searchPlaceholder": "Buscar itens...",
+    "category": "Categoria",
+    "allCategories": "Todas as Categorias",
+    "noItems": "Nenhum item no estoque",
+    "noItemsFiltered": "Nenhum item encontrado com os filtros aplicados",
+    "totalItems": "Total de itens",
+    "deleteConfirm": "Tem certeza que deseja excluir este item?",
+    "deleteSuccess": "Item excluído com sucesso",
+    "addSuccess": "Item adicionado com sucesso",
+    "removeSuccess": "Item removido com sucesso",
+    "error": "Erro",
+    "fillAllFields": "Por favor, preencha todos os campos",
+    "qualityRange": "Qualidade deve ser um número entre 0 e 100",
+    "quantityPositive": "Quantidade deve ser um número positivo",
+    "addError": "Erro ao adicionar item",
+    "removeError": "Erro ao remover item",
+    "customDate": "Data Customizada",
+    "useCustomDate": "Usar data customizada",
+    "categories": {
+      "shards": "Fragmentos",
+      "bricks": "Tijolos",
+      "construction": "Construção",
+      "metals": "Metais",
+      "ores": "Minérios",
+      "smithing": "Ferraria",
+      "wood": "Madeira"
+    }
+  },
+  "notes": {
+    "title": "Notas",
+    "newNote": "Nova Nota",
+    "newLocation": "Novo Local",
+    "sections": {
+      "notes": "Notas",
+      "locations": "Locais"
+    },
+    "note": {
+      "title": "Título",
+      "description": "Descrição",
+      "startDate": "Data de Início",
+      "endDate": "Data de Término",
+      "completed": "Concluído",
+      "noNotes": "Nenhuma nota ainda",
+      "addNote": "Adicione sua primeira nota",
+      "editNote": "Editar Nota",
+      "deleteConfirm": "Tem certeza que deseja excluir esta nota?",
+      "titleRequired": "Por favor, preencha o título",
+      "saveError": "Erro ao salvar nota",
+      "loadError": "Erro ao carregar notas",
+      "markComplete": "Marcar como concluída",
+      "markIncomplete": "Marcar como não concluída",
+      "start": "Início",
+      "end": "Fim"
+    },
+    "location": {
+      "name": "Nome",
+      "description": "Descrição",
+      "mapType": "Tipo de Mapa",
+      "server": "Servidor",
+      "coordinates": "Coordenadas",
+      "x": "X",
+      "y": "Y",
+      "url": "URL do Mapa",
+      "urlPlaceholder": "Ex: https://harmony.yaga.host/#2296,1726",
+      "urlHint": "Cole uma URL do mapa para preencher os campos automaticamente",
+      "noLocations": "Nenhum local ainda",
+      "addLocation": "Adicione seu primeiro local",
+      "editLocation": "Editar Local",
+      "deleteConfirm": "Tem certeza que deseja excluir este local?",
+      "openMap": "Ver no Mapa",
+      "nameRequired": "Por favor, preencha o nome",
+      "invalidCoordinates": "Por favor, preencha coordenadas válidas (X e Y devem ser números)",
+      "saveError": "Erro ao salvar local",
+      "loadError": "Erro ao carregar locais",
+      "mapTypes": {
+        "yaga": "Yaga.host",
+        "wurmmaps": "WurmMaps.xyz"
+      },
+      "servers": {
+        "harmony": "Harmony",
+        "cadence": "Cadence",
+        "melody": "Melody"
+      }
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "developerMode": "Modo Desenvolvedor",
+    "developerModeDescription": "Ativa recursos avançados",
+    "clearDatabase": "Limpar Banco",
+    "clearDatabaseConfirm": "⚠️ ATENÇÃO: Esta ação irá apagar TODOS os dados do banco de dados!\n\nIsso inclui:\n- Todos os itens do estoque\n- Todo o histórico\n\nEsta ação NÃO pode ser desfeita!\n\nTem certeza que deseja continuar?",
+    "clearDatabaseConfirm2": "⚠️ ÚLTIMA CONFIRMAÇÃO ⚠️\n\nVocê está prestes a apagar TODOS os dados permanentemente.\n\nDigite OK para confirmar ou Cancelar para abortar.",
+    "clearDatabaseSuccess": "✅ Banco de dados limpo com sucesso!",
+    "clearDatabaseError": "❌ Erro ao limpar banco de dados",
+    "language": "Idioma",
+    "selectLanguage": "Selecionar Idioma"
+  },
+  "updates": {
+    "title": "Atualizações",
+    "checkUpdates": "Verificar Atualizações",
+    "checking": "Verificando...",
+    "noUpdate": "Você está usando a versão mais recente",
+    "updateAvailable": "Nova versão disponível!",
+    "currentVersion": "Versão atual",
+    "latestVersion": "Nova versão",
+    "releaseNotes": "Notas da versão",
+    "installUpdate": "Instalar Atualização",
+    "installing": "Atualizando...",
+    "updateError": "Erro ao verificar atualizações. Verifique sua conexão com a internet.",
+    "updateApplyError": "Erro ao aplicar atualização. Tente novamente mais tarde.",
+    "updateConfirm": "Uma nova versão está disponível!\n\nVersão atual: {{current}}\nNova versão: {{latest}}\n\nA aplicação será reiniciada após a atualização.\n\nDeseja continuar?",
+    "updateSuccess": "✅ Atualização aplicada com sucesso! A aplicação será reiniciada."
+  },
+  "convert": {
+    "title": "Converter",
+    "quantity": "Quantidade a Converter",
+    "convert": "Converter",
+    "converting": "Convertendo...",
+    "success": "Conversão concluída com sucesso",
+    "error": "Erro durante a conversão",
+    "toLump": "Converter em Lump",
+    "toPlank": "Converter em Plank (1:6)",
+    "toShaft": "Converter em Shaft (1:12)",
+    "toPeg": "Converter em Peg (1:10)"
+  },
+  "quality": {
+    "title": "Qualidade",
+    "defaultQuality": "Qualidade Padrão",
+    "enableDefault": "Ativar qualidade padrão",
+    "defaultQualityValue": "Valor da Qualidade Padrão"
+  }
+}

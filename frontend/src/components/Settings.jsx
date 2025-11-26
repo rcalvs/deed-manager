@@ -1,31 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { IoSettingsOutline } from 'react-icons/io5'
+import { api } from '../api'
+import LanguageSelector from './LanguageSelector'
 import './Settings.css'
+import UpdateChecker from './UpdateChecker'
 
 function Settings({ developerMode, onDeveloperModeChange }) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   const handleClearDatabase = async () => {
-    const confirmed = confirm(
-      '⚠️ ATENÇÃO: Esta ação irá apagar TODOS os dados do banco de dados!\n\n' +
-      'Isso inclui:\n' +
-      '- Todos os itens do estoque\n' +
-      '- Todo o histórico\n\n' +
-      'Esta ação NÃO pode ser desfeita!\n\n' +
-      'Tem certeza que deseja continuar?'
-    )
+    const confirmed = confirm(t('settings.clearDatabaseConfirm'))
 
     if (!confirmed) {
       return
     }
 
     // Confirmação dupla para segurança
-    const doubleConfirmed = confirm(
-      '⚠️ ÚLTIMA CONFIRMAÇÃO ⚠️\n\n' +
-      'Você está prestes a apagar TODOS os dados permanentemente.\n\n' +
-      'Digite OK para confirmar ou Cancelar para abortar.'
-    )
+    const doubleConfirmed = confirm(t('settings.clearDatabaseConfirm2'))
 
     if (!doubleConfirmed) {
       return
@@ -33,12 +27,12 @@ function Settings({ developerMode, onDeveloperModeChange }) {
 
     try {
       await api.clearDatabase()
-      alert('✅ Banco de dados limpo com sucesso!')
+      alert(t('settings.clearDatabaseSuccess'))
       // Recarregar a página para atualizar os dados
       window.location.reload()
     } catch (error) {
       console.error('Erro ao limpar banco:', error)
-      alert('❌ Erro ao limpar banco de dados')
+      alert(t('settings.clearDatabaseError'))
     }
   }
 
@@ -69,7 +63,7 @@ function Settings({ developerMode, onDeveloperModeChange }) {
       <button
         className="settings-button"
         onClick={() => setIsOpen(!isOpen)}
-        title="Configurações"
+        title={t('settings.title')}
       >
         <IoSettingsOutline />
       </button>
@@ -77,7 +71,7 @@ function Settings({ developerMode, onDeveloperModeChange }) {
         <div className="settings-dropdown">
           <div className="settings-item">
             <div className="settings-toggle-container">
-              <span className="settings-label">Modo Desenvolvedor</span>
+              <span className="settings-label">{t('settings.developerMode')}</span>
               <label className="settings-toggle">
                 <input
                   type="checkbox"
@@ -87,21 +81,20 @@ function Settings({ developerMode, onDeveloperModeChange }) {
                 <span className="toggle-slider"></span>
               </label>
             </div>
-            <p className="settings-description">
-              Ativa recursos avançados como limpeza de banco e data customizada
-            </p>
           </div>
           <div className="settings-item">
             {developerMode && (
               <button 
                 className="btn-clear-db"
                 onClick={handleClearDatabase}
-                title="Limpar todo o banco de dados"
+                title={t('settings.clearDatabase')}
               >
-                Limpar Banco
+                {t('settings.clearDatabase')}
               </button>
             )}
           </div>
+          <LanguageSelector />
+          <UpdateChecker />
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaCompress, FaExchangeAlt, FaExpand, FaSearch, FaTrashAlt } from "react-icons/fa";
 import { api } from '../api';
 import { CATEGORIES, ITEM_CATEGORIES, ITEM_TYPE_LABELS, isLog, isOre, isShaft } from '../constants';
@@ -6,6 +7,7 @@ import ConvertModal from './ConvertModal';
 import './StockTable.css';
 
 function StockTable({ items, loading, onItemDeleted, selectedCategory, searchText, onCategoryChange, onSearchChange }) {
+  const { t } = useTranslation()
   const [convertModalOpen, setConvertModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
   const [convertType, setConvertType] = useState(null) // 'ore', 'log-plank', 'log-shaft', 'shaft-peg'
@@ -55,7 +57,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
       console.warn('[StockTable] handleDelete: Item ID=', id, 'não encontrado na lista')
     }
 
-    if (!confirm('Tem certeza que deseja remover este item do estoque?')) {
+    if (!confirm(t('stock.deleteConfirm'))) {
       console.log('[StockTable] handleDelete: Usuário cancelou a deleção do item ID=', id)
       return
     }
@@ -73,7 +75,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
         stack: error.stack,
         error: error
       })
-      alert(`Erro ao deletar item: ${error.message || 'Erro desconhecido'}`)
+      alert(`${t('stock.error')}: ${error.message || t('common.error')}`)
     }
   }
 
@@ -111,7 +113,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
   if (loading) {
     return (
       <div className="stock-table-container">
-        <h2>Estoque Atual</h2>
+        <h2>{t('stock.title')}</h2>
         <div className="loading">Carregando...</div>
       </div>
     )
@@ -120,15 +122,15 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
   if (!items || items.length === 0) {
     return (
       <div className="stock-table-container">
-        <h2>Estoque Atual</h2>
-        <div className="empty-state">Nenhum item no estoque</div>
+        <h2>{t('stock.title')}</h2>
+        <div className="empty-state">{t('stock.noItems')}</div>
       </div>
     )
   }
 
   const renderTableContent = () => (
     <>
-      <h2 className="table-title">Estoque Atual</h2>
+      <h2 className="table-title">{t('stock.title')}</h2>
       <div className="table-header">
         <div className="table-header-actions">
           <div className="table-filters">
@@ -136,7 +138,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Buscar por tipo..."
+                placeholder={t('stock.searchPlaceholder')}
                 value={searchText || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className="search-input"
@@ -145,31 +147,35 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                 <button
                   className="search-clear"
                   onClick={() => onSearchChange('')}
-                  title="Limpar busca"
+                  title={t('common.close')}
                 >
                   ×
                 </button>
               )}
             </div>
             <div className="category-filter">
-              <label htmlFor="category-filter">Categorias:</label>
+              <label htmlFor="category-filter">{t('stock.category')}:</label>
               <select
                 id="category-filter"
                 value={selectedCategory || 'all'}
                 onChange={(e) => onCategoryChange(e.target.value)}
                 className="category-select"
               >
-                <option value="all">Todas</option>
-                {CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
+                <option value="all">{t('stock.allCategories')}</option>
+                {CATEGORIES.map(cat => {
+                  const categoryKey = cat.toLowerCase()
+                  const categoryLabel = t(`stock.categories.${categoryKey}`, { defaultValue: cat })
+                  return (
+                    <option key={cat} value={cat}>{categoryLabel}</option>
+                  )
+                })}
               </select>
             </div>
           </div>
           <button
             className="btn-expand"
             onClick={() => setIsExpanded(!isExpanded)}
-            title={isExpanded ? "Reduzir" : "Expandir para tela cheia"}
+            title={isExpanded ? t('common.compress', { defaultValue: 'Compress' }) : t('common.expand', { defaultValue: 'Expand to fullscreen' })}
           >
             {isExpanded ? <FaCompress /> : <FaExpand />}
           </button>
@@ -179,11 +185,11 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
         <table className="stock-table">
           <thead>
             <tr>
-              <th>Categoria</th>
-              <th>Tipo</th>
-              <th>Qualidade</th>
-              <th>Quantidade</th>
-              <th>Ações</th>
+              <th>{t('stock.category')}</th>
+              <th>{t('stock.itemType')}</th>
+              <th>{t('stock.quality')}</th>
+              <th>{t('stock.quantity')}</th>
+              <th>{t('common.actions', { defaultValue: 'Actions' })}</th>
             </tr>
           </thead>
           <tbody>
@@ -191,8 +197,8 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
               <tr>
                 <td colSpan="5" className="empty-state-row">
                   {searchText || selectedCategory !== 'all' 
-                    ? 'Nenhum item encontrado com os filtros aplicados'
-                    : 'Nenhum item no estoque'}
+                    ? t('stock.noItemsFiltered', { defaultValue: 'No items found with applied filters' })
+                    : t('stock.noItems')}
                 </td>
               </tr>
             ) : (
@@ -214,7 +220,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                         <button
                           className="btn-delete"
                           onClick={() => handleDelete(item.id)}
-                          title="Remover item"
+                          title={t('stock.removeItem')}
                         >
                           <FaTrashAlt color='#b0b0b0'/>
                         </button>
@@ -222,7 +228,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                           <button
                             className="btn-convert"
                             onClick={() => handleConvertClick(item, 'ore')}
-                            title="Converter em Lump"
+                            title={t('convert.toLump', { defaultValue: 'Convert to Lump' })}
                           >
                             <FaExchangeAlt color='#5a9fd4'/>
                           </button>
@@ -232,14 +238,14 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                             <button
                               className="btn-convert"
                               onClick={() => handleConvertClick(item, 'log-plank')}
-                              title="Converter em Plank (1:6)"
+                              title={t('convert.toPlank', { defaultValue: 'Convert to Plank (1:6)' })}
                             >
                               <FaExchangeAlt color='#8b4513'/>
                             </button>
                             <button
                               className="btn-convert"
                               onClick={() => handleConvertClick(item, 'log-shaft')}
-                              title="Converter em Shaft (1:12)"
+                              title={t('convert.toShaft', { defaultValue: 'Convert to Shaft (1:12)' })}
                             >
                               <FaExchangeAlt color='#cd853f'/>
                             </button>
@@ -249,7 +255,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                           <button
                             className="btn-convert"
                             onClick={() => handleConvertClick(item, 'shaft-peg')}
-                            title="Converter em Peg (1:10)"
+                            title={t('convert.toPeg', { defaultValue: 'Convert to Peg (1:10)' })}
                           >
                             <FaExchangeAlt color='#d2b48c'/>
                           </button>

@@ -29,6 +29,13 @@ Aplicação desktop para gerenciamento de estoque no jogo Wurm Online. Construí
 - ✅ Sistema de abas para organização de funcionalidades
 - ✅ Histórico de mudanças no estoque com quantidades acumuladas
 
+### Atualizações Automáticas
+- ✅ Sistema de auto-update integrado
+  - Verificação automática de novas versões via GitHub Releases
+  - Suporte para Windows e macOS usando Squirrel
+  - Interface de usuário para verificar e instalar atualizações
+  - Download e instalação automática de novas versões
+
 ### Ferramentas de Desenvolvimento
 - ✅ Modo desenvolvedor com:
   - Campo de data customizada para testes de gráficos
@@ -82,19 +89,53 @@ Isso irá:
 
 ## Build
 
-### Build para desenvolvimento
+### Usando Makefile (Recomendado)
+
+O projeto inclui um Makefile que simplifica o processo de build e release:
+
+```bash
+# Ver ajuda completa
+make help
+
+# Build completo (atualiza versão + build + prepara release)
+make build VERSION=0.2.2
+# ou usando argumento posicional
+make build 0.2.2
+
+# Build para plataforma específica
+make build-windows    # Windows
+make build-darwin     # macOS
+make build-linux      # Linux
+make build-all        # Todas as plataformas
+
+# Criar release completo (build + tag + GitHub)
+make release VERSION=0.2.2
+# ou
+make release 0.2.2
+
+# Outros comandos úteis
+make dev              # Modo desenvolvimento
+make clean            # Limpa arquivos de build
+make check-version     # Verifica versão atual
+```
+
+Para mais detalhes, consulte [.makefile-help.md](./.makefile-help.md).
+
+### Build Manual
+
+#### Build para desenvolvimento
 
 ```bash
 wails build
 ```
 
-### Build para produção (com otimizações)
+#### Build para produção (com otimizações)
 
 ```bash
 wails build -clean
 ```
 
-### Build para plataformas específicas
+#### Build para plataformas específicas
 
 ```bash
 # Windows
@@ -169,6 +210,16 @@ wurm-manager/
 3. Com o modo ativo, você terá acesso a:
    - Campo de data customizada no formulário (para testar gráficos)
    - Botão "Limpar Banco" para resetar todos os dados
+
+### Atualizações Automáticas
+
+1. Acesse as configurações no canto superior direito
+2. Role até a seção "Atualizações"
+3. Clique em "Verificar Atualizações"
+4. Se houver uma nova versão disponível, clique em "Instalar Atualização"
+5. A aplicação será reiniciada automaticamente após a atualização
+
+**Nota:** O sistema de auto-update funciona apenas no Windows e macOS. Para mais detalhes, consulte [AUTO_UPDATE_SETUP.md](./AUTO_UPDATE_SETUP.md).
 
 ## Banco de Dados
 

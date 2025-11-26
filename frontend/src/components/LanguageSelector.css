@@ -1,0 +1,91 @@
+.language-selector {
+  border-top: 1px solid #4a4a4a;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.language-selector-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ffffff;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: #1e1e1e;
+  border: 1px solid #4a4a4a;
+  border-radius: 6px;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+  width: 100%;
+  text-align: left;
+}
+
+.language-option:hover {
+  background-color: #2d2d2d;
+  border-color: #5a5a5a;
+}
+
+.language-option.active {
+  background-color: rgba(90, 159, 212, 0.1);
+  border-color: #5a9fd4;
+  color: #ffffff;
+}
+
+.language-flag {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.language-name {
+  flex: 1;
+}
+
+.language-check {
+  color: #5a9fd4;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Compact variant */
+.language-selector-compact {
+  display: flex;
+  align-items: center;
+}
+
+.language-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: #5a9fd4;
+}
+

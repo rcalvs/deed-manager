@@ -1,0 +1,208 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "remove": "Remove",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "continue": "Continue",
+    "start": "Start",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "processing": "Processing...",
+    "noResults": "No items found",
+    "itemFound": "item found",
+    "itemsFound": "items found",
+    "actions": "Actions",
+    "compress": "Compress",
+    "expand": "Expand to fullscreen"
+  },
+  "welcome": {
+    "title": "Welcome to Wurm Manager!",
+    "subtitle": "Your complete assistant to manage your Deed in Wurm Online",
+    "start": "Start",
+    "features": {
+      "title": "Features",
+      "subtitle": "Discover what you can do with Wurm Manager",
+      "stock": {
+        "title": "Stock Management",
+        "description": "Complete control of your stock with over 220 item types organized by categories"
+      },
+      "charts": {
+        "title": "Charts and Analysis",
+        "description": "Visualize your stock evolution over time with interactive charts"
+      },
+      "notes": {
+        "title": "Notes System",
+        "description": "Organize your tasks and important game notes"
+      },
+      "locations": {
+        "title": "Map Locations",
+        "description": "Save and organize important locations from the game map"
+      }
+    },
+    "setup": {
+      "title": "Initial Setup",
+      "subtitle": "To get started, enter your Deed name",
+      "deedName": "Deed Name",
+      "deedNamePlaceholder": "Ex: My Deed",
+      "deedNameHint": "This name will be used to personalize your experience"
+    }
+  },
+  "app": {
+    "title": "Wurm Manager",
+    "deed": "Deed",
+    "tabs": {
+      "stock": "Stock",
+      "notes": "Notes"
+    }
+  },
+  "stock": {
+    "title": "Stock",
+    "addItem": "Add Item",
+    "removeItem": "Remove Item",
+    "itemType": "Item Type",
+    "quality": "Quality",
+    "quantity": "Quantity",
+    "searchPlaceholder": "Search items...",
+    "category": "Category",
+    "allCategories": "All Categories",
+    "noItems": "No items in stock",
+    "noItemsFiltered": "No items found with applied filters",
+    "totalItems": "Total items",
+    "deleteConfirm": "Are you sure you want to delete this item?",
+    "deleteSuccess": "Item deleted successfully",
+    "addSuccess": "Item added successfully",
+    "removeSuccess": "Item removed successfully",
+    "error": "Error",
+    "fillAllFields": "Please fill all fields",
+    "qualityRange": "Quality must be a number between 0 and 100",
+    "quantityPositive": "Quantity must be a positive number",
+    "addError": "Error adding item",
+    "removeError": "Error removing item",
+    "customDate": "Custom Date",
+    "useCustomDate": "Use custom date",
+    "categories": {
+      "shards": "Shards",
+      "bricks": "Bricks",
+      "construction": "Construction",
+      "metals": "Metals",
+      "ores": "Ores",
+      "smithing": "Smithing",
+      "wood": "Wood"
+    }
+  },
+  "notes": {
+    "title": "Notes",
+    "newNote": "New Note",
+    "newLocation": "New Location",
+    "sections": {
+      "notes": "Notes",
+      "locations": "Locations"
+    },
+    "note": {
+      "title": "Title",
+      "description": "Description",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "completed": "Completed",
+      "noNotes": "No notes yet",
+      "addNote": "Add your first note",
+      "editNote": "Edit Note",
+      "deleteConfirm": "Are you sure you want to delete this note?",
+      "titleRequired": "Please enter a title",
+      "saveError": "Error saving note",
+      "loadError": "Error loading notes",
+      "markComplete": "Mark as complete",
+      "markIncomplete": "Mark as incomplete",
+      "start": "Start",
+      "end": "End"
+    },
+    "location": {
+      "name": "Name",
+      "description": "Description",
+      "mapType": "Map Type",
+      "server": "Server",
+      "coordinates": "Coordinates",
+      "x": "X",
+      "y": "Y",
+      "url": "Map URL",
+      "urlPlaceholder": "Ex: https://harmony.yaga.host/#2296,1726",
+      "urlHint": "Paste a map URL to auto-fill fields",
+      "noLocations": "No locations yet",
+      "addLocation": "Add your first location",
+      "editLocation": "Edit Location",
+      "deleteConfirm": "Are you sure you want to delete this location?",
+      "openMap": "Open on Map",
+      "nameRequired": "Please enter a name",
+      "invalidCoordinates": "Please enter valid coordinates (X and Y must be numbers)",
+      "saveError": "Error saving location",
+      "loadError": "Error loading locations",
+      "mapTypes": {
+        "yaga": "Yaga.host",
+        "wurmmaps": "WurmMaps.xyz"
+      },
+      "servers": {
+        "harmony": "Harmony",
+        "cadence": "Cadence",
+        "melody": "Melody"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "developerMode": "Developer Mode",
+    "developerModeDescription": "Enables advanced features",
+    "clearDatabase": "Clear Database",
+    "clearDatabaseConfirm": "⚠️ WARNING: This action will delete ALL data from the database!\n\nThis includes:\n- All stock items\n- All history\n\nThis action CANNOT be undone!\n\nAre you sure you want to continue?",
+    "clearDatabaseConfirm2": "⚠️ FINAL CONFIRMATION ⚠️\n\nYou are about to permanently delete ALL data.\n\nClick OK to confirm or Cancel to abort.",
+    "clearDatabaseSuccess": "✅ Database cleared successfully!",
+    "clearDatabaseError": "❌ Error clearing database",
+    "language": "Language",
+    "selectLanguage": "Select Language"
+  },
+  "updates": {
+    "title": "Updates",
+    "checkUpdates": "Check for Updates",
+    "checking": "Checking...",
+    "noUpdate": "You are using the latest version",
+    "updateAvailable": "New version available!",
+    "currentVersion": "Current version",
+    "latestVersion": "Latest version",
+    "releaseNotes": "Release notes",
+    "installUpdate": "Install Update",
+    "installing": "Installing...",
+    "updateError": "Error checking for updates. Check your internet connection.",
+    "updateApplyError": "Error applying update. Please try again later.",
+    "updateConfirm": "A new version is available!\n\nCurrent version: {{current}}\nNew version: {{latest}}\n\nThe application will restart after the update.\n\nDo you want to continue?",
+    "updateSuccess": "✅ Update applied successfully! The application will restart."
+  },
+  "convert": {
+    "title": "Convert",
+    "quantity": "Quantity to Convert",
+    "convert": "Convert",
+    "converting": "Converting...",
+    "success": "Conversion completed successfully",
+    "error": "Error during conversion",
+    "toLump": "Convert to Lump",
+    "toPlank": "Convert to Plank (1:6)",
+    "toShaft": "Convert to Shaft (1:12)",
+    "toPeg": "Convert to Peg (1:10)"
+  },
+  "quality": {
+    "title": "Quality",
+    "defaultQuality": "Default Quality",
+    "enableDefault": "Enable default quality",
+    "defaultQualityValue": "Default Quality Value"
+  }
+}

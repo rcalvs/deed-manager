@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import NotesSection from './NotesSection'
+import { useTranslation } from 'react-i18next'
 import LocationsSection from './LocationsSection'
+import NotesSection from './NotesSection'
 import './NotesTab.css'
 
 function NotesTab() {
+  const { t } = useTranslation()
   const [activeSection, setActiveSection] = useState('notes')
 
   return (
@@ -13,13 +15,13 @@ function NotesTab() {
           className={`section-tab ${activeSection === 'notes' ? 'active' : ''}`}
           onClick={() => setActiveSection('notes')}
         >
-          Notas
+          {t('notes.sections.notes')}
         </button>
         <button
           className={`section-tab ${activeSection === 'locations' ? 'active' : ''}`}
           onClick={() => setActiveSection('locations')}
         >
-          Locais
+          {t('notes.sections.locations')}
         </button>
       </div>
       <div className="notes-tab-content">

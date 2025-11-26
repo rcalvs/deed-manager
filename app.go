@@ -9,13 +9,15 @@ type App struct {
 	ctx           context.Context
 	stockService  *StockService
 	notesService  *NotesService
+	updateService *UpdateService
 }
 
 // NewApp cria uma nova instância da aplicação
-func NewApp(stockService *StockService, notesService *NotesService) *App {
+func NewApp(stockService *StockService, notesService *NotesService, updateService *UpdateService) *App {
 	return &App{
-		stockService: stockService,
-		notesService: notesService,
+		stockService:  stockService,
+		notesService:  notesService,
+		updateService: updateService,
 	}
 }
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FaChevronDown, FaChevronUp, FaEdit, FaPlus, FaSearch } from 'react-icons/fa'
 import { api } from '../api'
 import { ITEM_TYPES } from '../constants'
@@ -6,6 +7,7 @@ import QualityModal, { getDefaultQuality, isDefaultQualityEnabled } from './Qual
 import './StockForm.css'
 
 function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [isQualityModalOpen, setIsQualityModalOpen] = useState(false)
   const [itemType, setItemType] = useState('stone_brick')
@@ -97,12 +99,12 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       } else {
         setQuality('')
       }
-      showMessage('Item adicionado com sucesso!')
+      showMessage(t('stock.addSuccess'))
       onItemAdded()
       // Manter o formulário aberto para facilitar adição de mais itens
     } catch (error) {
       console.error('Erro ao adicionar item:', error)
-      showMessage('Erro ao adicionar item', true)
+      showMessage(t('stock.addError'), true)
     } finally {
       setLoading(false)
     }
@@ -112,7 +114,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
     e.preventDefault()
     
     if (!quality || !quantity) {
-      showMessage('Por favor, preencha todos os campos', true)
+      showMessage(t('stock.fillAllFields'), true)
       return
     }
 
@@ -120,12 +122,12 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
     const quantityNum = parseInt(quantity)
 
     if (isNaN(qualityNum) || qualityNum < 0 || qualityNum > 100) {
-      showMessage('Qualidade deve ser um número entre 0 e 100', true)
+      showMessage(t('stock.qualityRange'), true)
       return
     }
 
     if (isNaN(quantityNum) || quantityNum <= 0) {
-      showMessage('Quantidade deve ser um número positivo', true)
+      showMessage(t('stock.quantityPositive'), true)
       return
     }
 
@@ -145,12 +147,12 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       } else {
         setQuality('')
       }
-      showMessage('Item removido com sucesso!')
+      showMessage(t('stock.removeSuccess'))
       onItemRemoved()
       // Manter o formulário aberto para facilitar novas operações
     } catch (error) {
       console.error('Erro ao remover item:', error)
-      showMessage(error.message || 'Erro ao remover item', true)
+      showMessage(error.message || t('stock.removeError'), true)
     } finally {
       setLoading(false)
     }
@@ -166,7 +168,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       >
         <div className="toggle-content">
           <FaPlus className="toggle-icon" />
-          <span>Adicionar Estoque</span>
+          <span>{t('stock.addItem')}</span>
         </div>
         {isOpen ? <FaChevronUp /> : <FaChevronDown />}
       </button>
@@ -175,13 +177,13 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
         <div className="stock-form-dropdown">
           <form className="stock-form">
         <div className="form-group">
-          <label htmlFor="itemType">Tipo de Item</label>
+          <label htmlFor="itemType">{t('stock.itemType')}</label>
           <div className="search-select-container">
             <div className="search-input-wrapper">
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Buscar item..."
+                placeholder={t('stock.searchPlaceholder')}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 className="search-input"
@@ -192,7 +194,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
                   type="button"
                   className="search-clear"
                   onClick={() => setSearchText('')}
-                  title="Limpar busca"
+                  title={t('common.close')}
                 >
                   ×
                 </button>
@@ -211,12 +213,12 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
                   </option>
                 ))
               ) : (
-                <option value="">Nenhum item encontrado</option>
+                <option value="">{t('common.noResults', { defaultValue: 'No items found' })}</option>
               )}
             </select>
             {searchText && filteredItems.length > 0 && (
               <div className="search-results-count">
-                {filteredItems.length} {filteredItems.length === 1 ? 'item encontrado' : 'itens encontrados'}
+                {filteredItems.length} {filteredItems.length === 1 ? t('common.itemFound', { defaultValue: 'item found' }) : t('common.itemsFound', { defaultValue: 'items found' })}
               </div>
             )}
           </div>
@@ -224,7 +226,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="quantity">Quantidade</label>
+            <label htmlFor="quantity">{t('stock.quantity')}</label>
             <input
               type="number"
               id="quantity"
@@ -238,12 +240,12 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
 
           <div className="form-group">
             <div className="quality-label-wrapper">
-              <label htmlFor="quality">Qualidade (0-100)</label>
+              <label htmlFor="quality">{t('stock.quality')} (0-100)</label>
               <button
                 type="button"
                 className="quality-edit-btn"
                 onClick={() => setIsQualityModalOpen(true)}
-                title="Configurar QL padrão"
+                title={t('quality.title')}
                 disabled={loading}
               >
                 <FaEdit />
@@ -272,7 +274,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
                 onChange={(e) => setUseCustomDate(e.target.checked)}
                 disabled={loading}
               />
-              {' '}Usar data customizada (para testar gráfico)
+              {' '}{t('stock.useCustomDate')}
             </label>
             {useCustomDate && (
               <input
@@ -293,7 +295,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
             disabled={loading}
             className="btn btn-primary"
           >
-            {loading ? 'Processando...' : 'Adicionar'}
+            {loading ? t('common.processing') : t('stock.addItem')}
           </button>
           <button
             type="button"
@@ -301,7 +303,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
             disabled={loading}
             className="btn btn-danger"
           >
-            Remover
+            {t('stock.removeItem')}
           </button>
         </div>
 

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FaEdit, FaExternalLinkAlt, FaPlus, FaTimes, FaTrashAlt } from 'react-icons/fa'
 import { api } from '../api'
 import './LocationsSection.css'
 
 function LocationsSection() {
+  const { t } = useTranslation()
   const [locations, setLocations] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -119,7 +121,7 @@ function LocationsSection() {
     e.preventDefault()
     
     if (!formData.name.trim()) {
-      alert('Por favor, preencha o nome')
+      alert(t('notes.location.nameRequired'))
       return
     }
 
@@ -127,7 +129,7 @@ function LocationsSection() {
     const y = parseInt(formData.y)
 
     if (isNaN(x) || isNaN(y)) {
-      alert('Por favor, preencha coordenadas válidas (X e Y devem ser números)')
+      alert(t('notes.location.invalidCoordinates', { defaultValue: 'Please enter valid coordinates (X and Y must be numbers)' }))
       return
     }
 
@@ -157,7 +159,7 @@ function LocationsSection() {
       loadLocations()
     } catch (error) {
       console.error('Erro ao salvar localização:', error)
-      alert(`Erro ao salvar localização: ${error.message || 'Erro desconhecido'}`)
+      alert(`${t('notes.location.saveError')}: ${error.message || t('common.error')}`)
     }
   }
 
@@ -188,16 +190,12 @@ function LocationsSection() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Tem certeza que deseja deletar esta localização?')) {
-      return
-    }
-
     try {
       await api.deleteLocation(id)
       loadLocations()
     } catch (error) {
       console.error('Erro ao deletar localização:', error)
-      alert(`Erro ao deletar localização: ${error.message || 'Erro desconhecido'}`)
+      alert(`${t('notes.location.saveError')}: ${error.message || t('common.error')}`)
     }
   }
 
@@ -230,13 +228,13 @@ function LocationsSection() {
   }
 
   if (loading) {
-    return <div className="loading">Carregando localizações...</div>
+    return <div className="loading">{t('common.loading')}</div>
   }
 
   return (
     <div className="locations-section">
       <div className="locations-header">
-        <h2>Locais</h2>
+        <h2>{t('notes.sections.locations')}</h2>
         <button
           className="btn-add"
           onClick={() => {
@@ -244,7 +242,7 @@ function LocationsSection() {
             setShowForm(true)
           }}
         >
-          <FaPlus /> Novo Local
+          <FaPlus /> {t('notes.newLocation')}
         </button>
       </div>
 
@@ -252,102 +250,102 @@ function LocationsSection() {
         <div className="location-form-container">
           <form className="location-form" onSubmit={handleSubmit}>
             <div className="form-header">
-              <h3>{editingLocation ? 'Editar Localização' : 'Nova Localização'}</h3>
+              <h3>{editingLocation ? t('notes.location.editLocation') : t('notes.newLocation')}</h3>
               <button type="button" className="btn-close" onClick={resetForm}>
                 <FaTimes />
               </button>
             </div>
             <div className="form-group">
-              <label htmlFor="name">Nome *</label>
+              <label htmlFor="name">{t('notes.location.name')} *</label>
               <input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
-                placeholder="Ex: Vila Principal"
+                placeholder={t('notes.location.name')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="description">Descrição</label>
+              <label htmlFor="description">{t('notes.location.description')}</label>
               <textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Detalhes sobre o local..."
+                placeholder={t('notes.location.description')}
                 rows="3"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="url">URL do Mapa</label>
+              <label htmlFor="url">{t('notes.location.url')}</label>
               <input
                 id="url"
                 type="url"
                 value={formData.url}
                 onChange={(e) => handleUrlChange(e.target.value)}
-                placeholder="Ex: https://harmony.yaga.host/#2296,1726"
+                placeholder={t('notes.location.urlPlaceholder')}
               />
               <small className="form-hint">
-                Cole a URL do mapa para preencher automaticamente os campos abaixo
+                {t('notes.location.urlHint')}
               </small>
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="mapType">Mapa *</label>
+                <label htmlFor="mapType">{t('notes.location.mapType')} *</label>
                 <select
                   id="mapType"
                   value={formData.mapType}
                   onChange={(e) => setFormData({ ...formData, mapType: e.target.value })}
                   required
                 >
-                  <option value="yaga">Yaga.host</option>
-                  <option value="wurmmaps">WurmMaps.xyz</option>
+                  <option value="yaga">{t('notes.location.mapTypes.yaga')}</option>
+                  <option value="wurmmaps">{t('notes.location.mapTypes.wurmmaps')}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="server">Servidor *</label>
+                <label htmlFor="server">{t('notes.location.server')} *</label>
                 <select
                   id="server"
                   value={formData.server}
                   onChange={(e) => setFormData({ ...formData, server: e.target.value })}
                   required
                 >
-                  <option value="Harmony">Harmony</option>
-                  <option value="Cadence">Cadence</option>
-                  <option value="Melody">Melody</option>
+                  <option value="Harmony">{t('notes.location.servers.harmony')}</option>
+                  <option value="Cadence">{t('notes.location.servers.cadence')}</option>
+                  <option value="Melody">{t('notes.location.servers.melody')}</option>
                 </select>
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="x">Coordenada X *</label>
+                <label htmlFor="x">{t('notes.location.coordinates')} {t('notes.location.x')} *</label>
                 <input
                   id="x"
                   type="number"
                   value={formData.x}
                   onChange={(e) => setFormData({ ...formData, x: e.target.value })}
                   required
-                  placeholder="Ex: 2296"
+                  placeholder={t('notes.location.x')}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="y">Coordenada Y *</label>
+                <label htmlFor="y">{t('notes.location.coordinates')} {t('notes.location.y')} *</label>
                 <input
                   id="y"
                   type="number"
                   value={formData.y}
                   onChange={(e) => setFormData({ ...formData, y: e.target.value })}
                   required
-                  placeholder="Ex: 1726"
+                  placeholder={t('notes.location.y')}
                 />
               </div>
             </div>
             <div className="form-actions">
               <button type="button" className="btn-cancel" onClick={resetForm}>
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button type="submit" className="btn-save">
-                {editingLocation ? 'Atualizar' : 'Criar'}
+                {editingLocation ? t('common.save') : t('common.add')}
               </button>
             </div>
           </form>
@@ -356,7 +354,7 @@ function LocationsSection() {
 
       <div className="locations-list">
         {locations.length === 0 ? (
-          <div className="empty-state">Nenhuma localização salva ainda</div>
+          <div className="empty-state">{t('notes.location.noLocations')}</div>
         ) : (
           locations.map((location) => (
             <div key={location.id} className="location-item">
@@ -367,21 +365,25 @@ function LocationsSection() {
                     <button
                       className="btn-icon"
                       onClick={() => handleOpenMap(location)}
-                      title="Abrir no mapa"
+                      title={t('notes.location.openMap')}
                     >
                       <FaExternalLinkAlt />
                     </button>
                     <button
                       className="btn-icon"
                       onClick={() => handleEdit(location)}
-                      title="Editar"
+                      title={t('common.edit')}
                     >
                       <FaEdit />
                     </button>
                     <button
                       className="btn-icon"
-                      onClick={() => handleDelete(location.id)}
-                      title="Deletar"
+                      onClick={() => {
+                        if (confirm(t('notes.location.deleteConfirm'))) {
+                          handleDelete(location.id)
+                        }
+                      }}
+                      title={t('common.delete')}
                     >
                       <FaTrashAlt />
                     </button>
@@ -392,10 +394,10 @@ function LocationsSection() {
                 )}
                 <div className="location-coords">
                   <span className="coord-badge">
-                    X: {location.x}, Y: {location.y}
+                    {t('notes.location.x')}: {location.x}, {t('notes.location.y')}: {location.y}
                   </span>
                   <span className="map-badge">
-                    {location.mapType === 'yaga' ? 'Yaga.host' : 'WurmMaps.xyz'} - {location.server || 'Harmony'}
+                    {location.mapType === 'yaga' ? t('notes.location.mapTypes.yaga') : t('notes.location.mapTypes.wurmmaps')} - {location.server || t('notes.location.servers.harmony')}
                   </span>
                   <a
                     href={(() => {
@@ -411,7 +413,7 @@ function LocationsSection() {
                     rel="noopener noreferrer"
                     className="map-link"
                   >
-                    Ver no mapa
+                    {t('notes.location.openMap')}
                   </a>
                 </div>
               </div>

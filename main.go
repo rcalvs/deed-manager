@@ -12,6 +12,18 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+// Versão da aplicação
+// IMPORTANTE: Atualize esta constante quando criar um novo release
+// A versão deve seguir o formato semver (ex: "0.2.2", "1.0.0")
+// Não inclua o prefixo "v" aqui - ele será adicionado automaticamente na UI
+const AppVersion = "0.2.2"
+
+// Configuração do repositório GitHub para auto-update
+const (
+	GitHubOwner = "rcalvs"
+	GitHubRepo  = "deed-manager"
+)
+
 func main() {
 	// Criar instância do serviço de estoque
 	stockService := NewStockService()
@@ -19,8 +31,11 @@ func main() {
 	// Criar instância do serviço de notas
 	notesService := NewNotesService()
 
+	// Criar instância do serviço de atualização
+	updateService := NewUpdateService(GitHubOwner, GitHubRepo, AppVersion)
+
 	// Criar instância da aplicação
-	app := NewApp(stockService, notesService)
+	app := NewApp(stockService, notesService, updateService)
 
 	// Configurar opções da aplicação
 	appOptions := &options.App{

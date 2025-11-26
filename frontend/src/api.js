@@ -155,6 +155,42 @@ export const api = {
     }
     throw new Error('Backend não disponível')
   },
+
+  // ========== ATUALIZAÇÕES ==========
+  checkForUpdate: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.CheckForUpdate()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  applyUpdate: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ApplyUpdate()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  getCurrentVersion: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetCurrentVersion()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  canAutoUpdate: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.CanAutoUpdate()
+    }
+    return false
+  },
+
+  getAppVersion: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetAppVersion()
+    }
+    return 'unknown'
+  },
 }
 
 

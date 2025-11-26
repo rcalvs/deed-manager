@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FaCheck, FaEdit, FaPlus, FaTimes, FaTrashAlt } from 'react-icons/fa'
 import { api } from '../api'
 import './NotesSection.css'
 
 function NotesSection() {
+  const { t } = useTranslation()
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -35,7 +37,7 @@ function NotesSection() {
     e.preventDefault()
     
     if (!formData.title.trim()) {
-      alert('Por favor, preencha o título')
+      alert(t('notes.note.titleRequired'))
       return
     }
 
@@ -62,7 +64,7 @@ function NotesSection() {
       loadNotes()
     } catch (error) {
       console.error('Erro ao salvar nota:', error)
-      alert(`Erro ao salvar nota: ${error.message || 'Erro desconhecido'}`)
+      alert(`${t('notes.note.saveError')}: ${error.message || t('common.error')}`)
     }
   }
 
@@ -94,16 +96,12 @@ function NotesSection() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Tem certeza que deseja deletar esta nota?')) {
-      return
-    }
-
     try {
       await api.deleteNote(id)
       loadNotes()
     } catch (error) {
       console.error('Erro ao deletar nota:', error)
-      alert(`Erro ao deletar nota: ${error.message || 'Erro desconhecido'}`)
+      alert(`${t('notes.note.saveError')}: ${error.message || t('common.error')}`)
     }
   }
 
@@ -131,17 +129,17 @@ function NotesSection() {
   const formatDate = (dateString) => {
     if (!dateString) return ''
     const date = new Date(dateString)
-    return date.toLocaleDateString('pt-BR')
+    return date.toLocaleDateString()
   }
 
   if (loading) {
-    return <div className="loading">Carregando notas...</div>
+    return <div className="loading">{t('common.loading')}</div>
   }
 
   return (
     <div className="notes-section">
       <div className="notes-header">
-        <h2>Notas</h2>
+        <h2>{t('notes.title')}</h2>
         <button
           className="btn-add"
           onClick={() => {
@@ -149,7 +147,7 @@ function NotesSection() {
             setShowForm(true)
           }}
         >
-          <FaPlus /> Nova Nota
+          <FaPlus /> {t('notes.newNote')}
         </button>
       </div>
 
@@ -157,24 +155,24 @@ function NotesSection() {
         <div className="note-form-container">
           <form className="note-form" onSubmit={handleSubmit}>
             <div className="form-header">
-              <h3>{editingNote ? 'Editar Nota' : 'Nova Nota'}</h3>
+              <h3>{editingNote ? t('notes.note.editNote') : t('notes.newNote')}</h3>
               <button type="button" className="btn-close" onClick={resetForm}>
                 <FaTimes />
               </button>
             </div>
             <div className="form-group">
-              <label htmlFor="title">Título *</label>
+              <label htmlFor="title">{t('notes.note.title')} *</label>
               <input
                 id="title"
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
-                placeholder="Ex: Coletar recursos"
+                placeholder={t('notes.note.title')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="description">Descrição</label>
+              <label htmlFor="description">{t('notes.note.description')}</label>
               <textarea
                 id="description"
                 value={formData.description}
@@ -185,7 +183,7 @@ function NotesSection() {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="startDate">Data de Início</label>
+                <label htmlFor="startDate">{t('notes.note.startDate')}</label>
                 <input
                   id="startDate"
                   type="date"
@@ -194,7 +192,7 @@ function NotesSection() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="endDate">Data de Fim (opcional)</label>
+                <label htmlFor="endDate">{t('notes.note.endDate')}</label>
                 <input
                   id="endDate"
                   type="date"
@@ -205,10 +203,10 @@ function NotesSection() {
             </div>
             <div className="form-actions">
               <button type="button" className="btn-cancel" onClick={resetForm}>
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button type="submit" className="btn-save">
-                {editingNote ? 'Atualizar' : 'Criar'}
+                {editingNote ? t('common.save') : t('common.add')}
               </button>
             </div>
           </form>
@@ -217,7 +215,7 @@ function NotesSection() {
 
       <div className="notes-list">
         {notes.length === 0 ? (
-          <div className="empty-state">Nenhuma nota criada ainda</div>
+          <div className="empty-state">{t('notes.note.noNotes')}</div>
         ) : (
           notes.map((note) => (
             <div key={note.id} className={`note-item ${note.completed ? 'completed' : ''}`}>
@@ -228,21 +226,25 @@ function NotesSection() {
                     <button
                       className="btn-icon"
                       onClick={() => handleToggleCompleted(note.id)}
-                      title={note.completed ? 'Marcar como não concluída' : 'Marcar como concluída'}
+                      title={note.completed ? t('notes.note.markIncomplete', { defaultValue: 'Mark as incomplete' }) : t('notes.note.markComplete', { defaultValue: 'Mark as complete' })}
                     >
                       <FaCheck className={note.completed ? 'checked' : ''} />
                     </button>
                     <button
                       className="btn-icon"
                       onClick={() => handleEdit(note)}
-                      title="Editar"
+                      title={t('common.edit')}
                     >
                       <FaEdit />
                     </button>
                     <button
                       className="btn-icon"
-                      onClick={() => handleDelete(note.id)}
-                      title="Deletar"
+                      onClick={() => {
+                        if (confirm(t('notes.note.deleteConfirm'))) {
+                          handleDelete(note.id)
+                        }
+                      }}
+                      title={t('common.delete')}
                     >
                       <FaTrashAlt />
                     </button>
@@ -254,12 +256,12 @@ function NotesSection() {
                 <div className="note-dates">
                   {note.startDate && (
                     <span className="date-badge">
-                      Início: {formatDate(note.startDate)}
+                      {t('notes.note.startDate')}: {formatDate(note.startDate)}
                     </span>
                   )}
                   {note.endDate && (
                     <span className="date-badge">
-                      Fim: {formatDate(note.endDate)}
+                      {t('notes.note.endDate')}: {formatDate(note.endDate)}
                     </span>
                   )}
                 </div>

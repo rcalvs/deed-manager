@@ -1,0 +1,282 @@
+.welcome-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+  padding: 2rem;
+}
+
+.welcome-content {
+  background-color: #2d2d2d;
+  border-radius: 16px;
+  padding: 3rem;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease-in;
+  position: relative;
+}
+
+.welcome-language-selector {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-title {
+  color: #ffffff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #5a9fd4 0%, #7abff4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-subtitle {
+  color: #b0b0b0;
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.welcome-illustration {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.welcome-icon {
+  font-size: 6rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.btn-welcome-primary {
+  background: linear-gradient(135deg, #5a9fd4 0%, #7abff4 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem auto 0;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.3);
+}
+
+.btn-welcome-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(90, 159, 212, 0.4);
+}
+
+.btn-welcome-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-welcome-secondary {
+  background-color: #4a4a4a;
+  color: #e0e0e0;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem auto 0;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.3);
+  width: 150px;
+}
+
+.btn-welcome-secondary:hover {
+  background-color: #5a5a5a;
+}
+
+.btn-welcome-link {
+  background: none;
+  color: #96bddb;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem auto 0;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.3);
+  width: 100px;
+}
+
+.btn-welcome-link:hover {
+  color: #7abff4;
+}
+
+/* Features Screen */
+.features-content {
+  max-width: 900px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.feature-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s;
+  border: 1px solid #4a4a4a;
+}
+
+.feature-card:hover {
+  border-color: #5a9fd4;
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.2);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: #5a9fd4;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.feature-title {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.feature-description {
+  color: #b0b0b0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Deed Name Screen */
+.deed-content {
+  max-width: 500px;
+}
+
+.deed-form {
+  margin-top: 2rem;
+}
+
+.deed-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.deed-form label {
+  color: #b0b0b0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.deed-form input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.deed-form input:focus {
+  outline: none;
+  border-color: #5a9fd4;
+  box-shadow: 0 0 0 3px rgba(90, 159, 212, 0.1);
+}
+
+.deed-form .form-hint {
+  color: #7a8a9a;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.deed-form .welcome-actions {
+  justify-content: space-between;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .welcome-content {
+    padding: 2rem;
+  }
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-actions {
+    flex-direction: column;
+  }
+
+  .btn-welcome-primary,
+  .btn-welcome-secondary,
+  .btn-welcome-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
