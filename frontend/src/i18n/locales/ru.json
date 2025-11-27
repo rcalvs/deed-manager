@@ -128,6 +128,10 @@
       "start": "Начало",
       "end": "Конец"
     },
+    "searchPlaceholder": "Поиск заметок...",
+    "searchLocationPlaceholder": "Поиск локаций...",
+    "noNotesFiltered": "Нет заметок, соответствующих фильтрам",
+    "noLocationsFiltered": "Нет локаций, соответствующих фильтрам",
     "location": {
       "name": "Название",
       "description": "Описание",

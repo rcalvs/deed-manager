@@ -22,7 +22,7 @@ function App() {
     return localStorage.getItem('deedName') || ''
   })
   const [activeTab, setActiveTab] = useState('stock')
-  const [version, setVersion] = useState('v0.2.2') // Fallback
+  const [version, setVersion] = useState('v0.2.3') // Fallback
   const [developerMode, setDeveloperMode] = useState(() => {
     // Carregar do localStorage
     const saved = localStorage.getItem('developerMode')

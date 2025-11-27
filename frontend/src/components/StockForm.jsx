@@ -187,6 +187,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 className="search-input"
+                style={{ paddingLeft: '2rem' }}
                 disabled={loading}
               />
               {searchText && (

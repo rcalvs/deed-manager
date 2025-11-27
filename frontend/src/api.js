@@ -92,9 +92,9 @@ export const api = {
   },
 
   // ========== NOTAS ==========
-  createNote: async (title, description, startDate, endDate) => {
+  createNote: async (title, description, category, startDate, endDate) => {
     if (window.go && window.go.main && window.go.main.App) {
-      return await window.go.main.App.CreateNote(title, description, startDate || '', endDate || '')
+      return await window.go.main.App.CreateNote(title, description, category || '', startDate || '', endDate || '')
     }
     throw new Error('Backend não disponível')
   },
@@ -106,9 +106,9 @@ export const api = {
     throw new Error('Backend não disponível')
   },
 
-  updateNote: async (id, title, description, startDate, endDate, completed) => {
+  updateNote: async (id, title, description, category, startDate, endDate, completed) => {
     if (window.go && window.go.main && window.go.main.App) {
-      return await window.go.main.App.UpdateNote(id, title, description, startDate || '', endDate || '', completed)
+      return await window.go.main.App.UpdateNote(id, title, description, category || '', startDate || '', endDate || '', completed)
     }
     throw new Error('Backend não disponível')
   },
@@ -128,9 +128,9 @@ export const api = {
   },
 
   // ========== LOCALIZAÇÕES ==========
-  createLocation: async (name, description, mapType, server, x, y) => {
+  createLocation: async (name, description, category, mapType, server, x, y) => {
     if (window.go && window.go.main && window.go.main.App) {
-      return await window.go.main.App.CreateLocation(name, description, mapType || 'yaga', server || 'Harmony', x, y)
+      return await window.go.main.App.CreateLocation(name, description, category || '', mapType || 'yaga', server || 'Harmony', x, y)
     }
     throw new Error('Backend não disponível')
   },
@@ -142,9 +142,9 @@ export const api = {
     throw new Error('Backend não disponível')
   },
 
-  updateLocation: async (id, name, description, mapType, server, x, y) => {
+  updateLocation: async (id, name, description, category, mapType, server, x, y) => {
     if (window.go && window.go.main && window.go.main.App) {
-      return await window.go.main.App.UpdateLocation(id, name, description, mapType || 'yaga', server || 'Harmony', x, y)
+      return await window.go.main.App.UpdateLocation(id, name, description, category || '', mapType || 'yaga', server || 'Harmony', x, y)
     }
     throw new Error('Backend não disponível')
   },

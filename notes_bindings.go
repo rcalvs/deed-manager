@@ -8,8 +8,8 @@ import (
 // ========== NOTAS ==========
 
 // CreateNote cria uma nova nota
-func (a *App) CreateNote(title, description string, startDateStr, endDateStr string) (*Note, error) {
-	log.Printf("[App] CreateNote: title=%s", title)
+func (a *App) CreateNote(title, description, category string, startDateStr, endDateStr string) (*Note, error) {
+	log.Printf("[App] CreateNote: title=%s, category=%s", title, category)
 
 	var startDate, endDate *time.Time
 
@@ -41,7 +41,7 @@ func (a *App) CreateNote(title, description string, startDateStr, endDateStr str
 		}
 	}
 
-	return a.notesService.CreateNote(title, description, startDate, endDate)
+	return a.notesService.CreateNote(title, description, category, startDate, endDate)
 }
 
 // GetNotes retorna todas as notas
@@ -50,8 +50,8 @@ func (a *App) GetNotes() ([]*Note, error) {
 }
 
 // UpdateNote atualiza uma nota
-func (a *App) UpdateNote(id int64, title, description string, startDateStr, endDateStr string, completed bool) (*Note, error) {
-	log.Printf("[App] UpdateNote: id=%d, title=%s", id, title)
+func (a *App) UpdateNote(id int64, title, description, category string, startDateStr, endDateStr string, completed bool) (*Note, error) {
+	log.Printf("[App] UpdateNote: id=%d, title=%s, category=%s", id, title, category)
 
 	var startDate, endDate *time.Time
 
@@ -83,7 +83,7 @@ func (a *App) UpdateNote(id int64, title, description string, startDateStr, endD
 		}
 	}
 
-	return a.notesService.UpdateNote(id, title, description, startDate, endDate, completed)
+	return a.notesService.UpdateNote(id, title, description, category, startDate, endDate, completed)
 }
 
 // DeleteNote remove uma nota
@@ -101,9 +101,9 @@ func (a *App) ToggleNoteCompleted(id int64) (*Note, error) {
 // ========== LOCALIZAÇÕES ==========
 
 // CreateLocation cria uma nova localização
-func (a *App) CreateLocation(name, description, mapType, server string, x, y int) (*Location, error) {
-	log.Printf("[App] CreateLocation: name=%s, mapType=%s, server=%s, x=%d, y=%d", name, mapType, server, x, y)
-	return a.notesService.CreateLocation(name, description, mapType, server, x, y)
+func (a *App) CreateLocation(name, description, category, mapType, server string, x, y int) (*Location, error) {
+	log.Printf("[App] CreateLocation: name=%s, category=%s, mapType=%s, server=%s, x=%d, y=%d", name, category, mapType, server, x, y)
+	return a.notesService.CreateLocation(name, description, category, mapType, server, x, y)
 }
 
 // GetLocations retorna todas as localizações
@@ -112,9 +112,9 @@ func (a *App) GetLocations() ([]*Location, error) {
 }
 
 // UpdateLocation atualiza uma localização
-func (a *App) UpdateLocation(id int64, name, description, mapType, server string, x, y int) (*Location, error) {
-	log.Printf("[App] UpdateLocation: id=%d, name=%s, mapType=%s, server=%s, x=%d, y=%d", id, name, mapType, server, x, y)
-	return a.notesService.UpdateLocation(id, name, description, mapType, server, x, y)
+func (a *App) UpdateLocation(id int64, name, description, category, mapType, server string, x, y int) (*Location, error) {
+	log.Printf("[App] UpdateLocation: id=%d, name=%s, category=%s, mapType=%s, server=%s, x=%d, y=%d", id, name, category, mapType, server, x, y)
+	return a.notesService.UpdateLocation(id, name, description, category, mapType, server, x, y)
 }
 
 // DeleteLocation remove uma localização

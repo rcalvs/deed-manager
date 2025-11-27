@@ -128,6 +128,10 @@
       "start": "Start",
       "end": "End"
     },
+    "searchPlaceholder": "Search notes...",
+    "searchLocationPlaceholder": "Search locations...",
+    "noNotesFiltered": "No notes match the filters",
+    "noLocationsFiltered": "No locations match the filters",
     "location": {
       "name": "Name",
       "description": "Description",

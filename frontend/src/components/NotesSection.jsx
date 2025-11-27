@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaCheck, FaEdit, FaPlus, FaTimes, FaTrashAlt } from 'react-icons/fa'
+import { FaCheck, FaEdit, FaPlus, FaSearch, FaTimes, FaTrashAlt } from 'react-icons/fa'
 import { api } from '../api'
+import { CATEGORIES } from '../constants'
 import './NotesSection.css'
 
 function NotesSection() {
@@ -10,9 +11,12 @@ function NotesSection() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingNote, setEditingNote] = useState(null)
+  const [searchText, setSearchText] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    category: '',
     startDate: '',
     endDate: '',
   })
@@ -20,6 +24,34 @@ function NotesSection() {
   useEffect(() => {
     loadNotes()
   }, [])
+
+  // Filtrar notas por categoria e texto de busca
+  const filteredNotes = useMemo(() => {
+    if (!notes || notes.length === 0) {
+      return []
+    }
+    
+    let filtered = notes
+    
+    // Filtrar por categoria
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(note => {
+        return note.category === selectedCategory
+      })
+    }
+    
+    // Filtrar por texto de busca (título e descrição)
+    if (searchText && searchText.trim() !== '') {
+      const searchLower = searchText.toLowerCase().trim()
+      filtered = filtered.filter(note => {
+        const title = (note.title || '').toLowerCase()
+        const description = (note.description || '').toLowerCase()
+        return title.includes(searchLower) || description.includes(searchLower)
+      })
+    }
+    
+    return filtered
+  }, [notes, selectedCategory, searchText])
 
   const loadNotes = async () => {
     try {
@@ -47,6 +79,7 @@ function NotesSection() {
           editingNote.id,
           formData.title,
           formData.description,
+          formData.category,
           formData.startDate,
           formData.endDate,
           editingNote.completed
@@ -55,6 +88,7 @@ function NotesSection() {
         await api.createNote(
           formData.title,
           formData.description,
+          formData.category,
           formData.startDate,
           formData.endDate
         )
@@ -89,6 +123,7 @@ function NotesSection() {
     setFormData({
       title: note.title || '',
       description: note.description || '',
+      category: note.category || '',
       startDate: formatDateForInput(note.startDate),
       endDate: formatDateForInput(note.endDate),
     })
@@ -118,6 +153,7 @@ function NotesSection() {
   const resetForm = () => {
     setFormData({
       title: '',
+      category: '',
       description: '',
       startDate: '',
       endDate: '',
@@ -181,6 +217,21 @@ function NotesSection() {
                 rows="3"
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="category">{t('stock.category')}</label>
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="">{t('stock.allCategories')}</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="startDate">{t('notes.note.startDate')}</label>
@@ -213,11 +264,53 @@ function NotesSection() {
         </div>
       )}
 
+      <div className="notes-filters">
+        <div className="search-filter">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder={t('notes.searchPlaceholder', { defaultValue: 'Search notes...' })}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="search-input"
+            style={{ minWidth: '50%', paddingLeft: '2rem' }}
+          />
+          {searchText && (
+            <button
+              className="search-clear"
+              onClick={() => setSearchText('')}
+              title={t('common.close')}
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <div className="category-filter">
+          <label htmlFor="category-filter">{t('stock.category')}:</label>
+          <select
+            id="category-filter"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="category-select"
+          >
+            <option value="all">{t('stock.allCategories')}</option>
+            {CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="notes-list">
-        {notes.length === 0 ? (
-          <div className="empty-state">{t('notes.note.noNotes')}</div>
+        {filteredNotes.length === 0 ? (
+          <div className="empty-state">
+            {notes.length === 0 
+              ? t('notes.note.noNotes')
+              : t('notes.noNotesFiltered', { defaultValue: 'No notes match the filters' })
+            }
+          </div>
         ) : (
-          notes.map((note) => (
+          filteredNotes.map((note) => (
             <div key={note.id} className={`note-item ${note.completed ? 'completed' : ''}`}>
               <div className="note-content">
                 <div className="note-header">

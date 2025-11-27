@@ -14,9 +14,9 @@ var assets embed.FS
 
 // Versão da aplicação
 // IMPORTANTE: Atualize esta constante quando criar um novo release
-// A versão deve seguir o formato semver (ex: "0.2.2", "1.0.0")
+// A versão deve seguir o formato semver (ex: "0.2.3", "1.0.0")
 // Não inclua o prefixo "v" aqui - ele será adicionado automaticamente na UI
-const AppVersion = "v0.2.2"
+const AppVersion = "0.2.3"
 
 // Configuração do repositório GitHub para auto-update
 const (

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaEdit, FaExternalLinkAlt, FaPlus, FaTimes, FaTrashAlt } from 'react-icons/fa'
+import { FaEdit, FaExternalLinkAlt, FaPlus, FaSearch, FaTimes, FaTrashAlt } from 'react-icons/fa'
 import { api } from '../api'
+import { CATEGORIES } from '../constants'
 import './LocationsSection.css'
 
 function LocationsSection() {
@@ -10,9 +11,12 @@ function LocationsSection() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingLocation, setEditingLocation] = useState(null)
+  const [searchText, setSearchText] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    category: '',
     url: '',
     mapType: 'yaga',
     server: 'Harmony',
@@ -23,6 +27,34 @@ function LocationsSection() {
   useEffect(() => {
     loadLocations()
   }, [])
+
+  // Filtrar localizações por categoria e texto de busca
+  const filteredLocations = useMemo(() => {
+    if (!locations || locations.length === 0) {
+      return []
+    }
+    
+    let filtered = locations
+    
+    // Filtrar por categoria
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(location => {
+        return location.category === selectedCategory
+      })
+    }
+    
+    // Filtrar por texto de busca (nome e descrição)
+    if (searchText && searchText.trim() !== '') {
+      const searchLower = searchText.toLowerCase().trim()
+      filtered = filtered.filter(location => {
+        const name = (location.name || '').toLowerCase()
+        const description = (location.description || '').toLowerCase()
+        return name.includes(searchLower) || description.includes(searchLower)
+      })
+    }
+    
+    return filtered
+  }, [locations, selectedCategory, searchText])
 
   const loadLocations = async () => {
     try {
@@ -139,6 +171,7 @@ function LocationsSection() {
           editingLocation.id,
           formData.name,
           formData.description,
+          formData.category,
           formData.mapType,
           formData.server,
           x,
@@ -148,6 +181,7 @@ function LocationsSection() {
         await api.createLocation(
           formData.name,
           formData.description,
+          formData.category,
           formData.mapType,
           formData.server,
           x,
@@ -180,6 +214,7 @@ function LocationsSection() {
     setFormData({
       name: location.name || '',
       description: location.description || '',
+      category: location.category || '',
       url: url,
       mapType: mapType,
       server: server,
@@ -217,6 +252,7 @@ function LocationsSection() {
     setFormData({
       name: '',
       description: '',
+      category: '',
       url: '',
       mapType: 'yaga',
       server: 'Harmony',
@@ -275,6 +311,21 @@ function LocationsSection() {
                 placeholder={t('notes.location.description')}
                 rows="3"
               />
+            </div>
+            <div className="form-group">
+              <label htmlFor="category">{t('stock.category')}</label>
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="">{t('stock.allCategories')}</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
               <label htmlFor="url">{t('notes.location.url')}</label>
@@ -352,11 +403,53 @@ function LocationsSection() {
         </div>
       )}
 
+      <div className="locations-filters">
+        <div className="search-filter">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder={t('notes.searchLocationPlaceholder', { defaultValue: 'Search locations...' })}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="search-input"
+            style={{ minWidth: '50%', paddingLeft: '2rem' }}
+          />
+          {searchText && (
+            <button
+              className="search-clear"
+              onClick={() => setSearchText('')}
+              title={t('common.close')}
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <div className="category-filter">
+          <label htmlFor="category-filter">{t('stock.category')}:</label>
+          <select
+            id="category-filter"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="category-select"
+          >
+            <option value="all">{t('stock.allCategories')}</option>
+            {CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="locations-list">
-        {locations.length === 0 ? (
-          <div className="empty-state">{t('notes.location.noLocations')}</div>
+        {filteredLocations.length === 0 ? (
+          <div className="empty-state">
+            {locations.length === 0 
+              ? t('notes.location.noLocations')
+              : t('notes.noLocationsFiltered', { defaultValue: 'No locations match the filters' })
+            }
+          </div>
         ) : (
-          locations.map((location) => (
+          filteredLocations.map((location) => (
             <div key={location.id} className="location-item">
               <div className="location-content">
                 <div className="location-header">

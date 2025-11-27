@@ -224,6 +224,114 @@ const (
 	ItemTypeLingoberryBranch ItemType = "lingoberry_branch"  // Lingoberry Branch
 	ItemTypeLingoberryPeg    ItemType = "lingoberry_peg"     // Lingoberry Peg
 	ItemTypeLingoberryTenon  ItemType = "lingoberry_tenon"   // Lingoberry Tenon
+	// Farm
+	ItemTypePotato         ItemType = "potato"          // Potato
+	ItemTypeCotton         ItemType = "cotton"           // Cotton
+	ItemTypeRye            ItemType = "rye"              // Rye
+	ItemTypeWemp           ItemType = "wemp"             // Wemp
+	ItemTypeCucumber       ItemType = "cucumber"         // Cucumber
+	ItemTypeOat            ItemType = "oat"              // Oat
+	ItemTypePumpkin        ItemType = "pumpkin"          // Pumpkin
+	ItemTypeBarley         ItemType = "barley"           // Barley
+	ItemTypeReed           ItemType = "reed"             // Reed
+	ItemTypeCarrot         ItemType = "carrot"           // Carrot
+	ItemTypeHay            ItemType = "hay"             // Hay
+	ItemTypeWheat          ItemType = "wheat"            // Wheat
+	ItemTypeCabbage        ItemType = "cabbage"         // Cabbage
+	ItemTypeCorn           ItemType = "corn"             // Corn
+	ItemTypeTomato         ItemType = "tomato"          // Tomato
+	ItemTypeLettuce        ItemType = "lettuce"         // Lettuce
+	ItemTypeOnion          ItemType = "onion"           // Onion
+	ItemTypeStrawberries   ItemType = "strawberries"    // Strawberries
+	ItemTypePeaPod         ItemType = "pea_pod"         // Pea Pod
+	ItemTypeGarlic         ItemType = "garlic"          // Garlic
+	ItemTypeRice           ItemType = "rice"            // Rice
+	ItemTypeSugarBeet      ItemType = "sugar_beet"      // Sugar Beet
+	ItemTypeBlackMushroom   ItemType = "black_mushroom"  // Black Mushroom
+	ItemTypeGreenMushroom  ItemType = "green_mushroom"  // Green Mushroom
+	ItemTypeYellowMushroom ItemType = "yellow_mushroom" // Yellow Mushroom
+	ItemTypeBlueMushroom   ItemType = "blue_mushroom"   // Blue Mushroom
+	ItemTypeBrownMushroom  ItemType = "brown_mushroom"  // Brown Mushroom
+	ItemTypeRedMushroom    ItemType = "red_mushroom"    // Red Mushroom
+	// Garden
+	ItemTypeBasil            ItemType = "basil"              // Basil
+	ItemTypeBelladonna       ItemType = "belladonna"         // Belladonna
+	ItemTypeFennel           ItemType = "fennel"             // Fennel
+	ItemTypeLovage           ItemType = "lovage"            // Lovage
+	ItemTypeMint             ItemType = "mint"               // Mint
+	ItemTypeOregano          ItemType = "oregano"           // Oregano
+	ItemTypeParsley          ItemType = "parsley"            // Parsley
+	ItemTypeRosemary         ItemType = "rosemary"           // Rosemary
+	ItemTypeSage             ItemType = "sage"              // Sage
+	ItemTypeThyme            ItemType = "thyme"              // Thyme
+	ItemTypeCumin            ItemType = "cumin"              // Cumin
+	ItemTypeGinger           ItemType = "ginger"             // Ginger
+	ItemTypePaprika          ItemType = "paprika"            // Paprika
+	ItemTypeTurmeric         ItemType = "turmeric"          // Turmeric
+	ItemTypeWoad             ItemType = "woad"              // Woad
+	ItemTypeGreenCoffeeBeans ItemType = "green_coffee_beans" // Green Coffee Beans
+	ItemTypeTeaSeeds         ItemType = "tea_seeds"         // Tea Seeds
+	ItemTypeCacaoBeans       ItemType = "cacao_beans"       // Cacao Beans
+	// Animal
+	ItemTypeFat                ItemType = "fat"                  // Fat
+	ItemTypeHide               ItemType = "hide"                 // Hide
+	ItemTypeBladder            ItemType = "bladder"              // Bladder
+	ItemTypeCochineal           ItemType = "cochineal"           // Cochineal
+	ItemTypeCrabMeat            ItemType = "crab_meat"           // Crab Meat
+	ItemTypeDragonScale         ItemType = "dragon_scale"         // Dragon Scale
+	ItemTypeDrakeHide           ItemType = "drake_hide"          // Drake Hide
+	ItemTypeEye                 ItemType = "eye"                 // Eye
+	ItemTypeFeather             ItemType = "feather"              // Feather
+	ItemTypeFishFillet          ItemType = "fish_fillet"         // Fish Fillet
+	ItemTypeFlint               ItemType = "flint"               // Flint
+	ItemTypeFur                 ItemType = "fur"                 // Fur
+	ItemTypeGland               ItemType = "gland"               // Gland
+	ItemTypeGoblinSkull         ItemType = "goblin_skull"        // Goblin Skull
+	ItemTypeHeart               ItemType = "heart"               // Heart
+	ItemTypeHoof                ItemType = "hoof"                 // Hoof
+	ItemTypeHorn                ItemType = "horn"               // Horn
+	ItemTypeLongHorn            ItemType = "long_horn"           // Long Horn
+	ItemTypeBearMeat            ItemType = "bear_meat"           // Bear Meat
+	ItemTypeBeefMeat            ItemType = "beef_meat"           // Beef Meat
+	ItemTypeCanineMeat          ItemType = "canine_meat"         // Canine Meat
+	ItemTypeDragonMeat          ItemType = "dragon_meat"         // Dragon Meat
+	ItemTypeFelineMeat          ItemType = "feline_meat"         // Feline Meat
+	ItemTypeFowlMeat            ItemType = "fowl_meat"          // Fowl Meat
+	ItemTypeGameMeat            ItemType = "game_meat"          // Game Meat
+	ItemTypeHorseMeat           ItemType = "horse_meat"         // Horse Meat
+	ItemTypeHumanMeat           ItemType = "human_meat"          // Human Meat
+	ItemTypeHumanoidMeat        ItemType = "humanoid_meat"       // Humanoid Meat
+	ItemTypeInsectMeat          ItemType = "insect_meat"         // Insect Meat
+	ItemTypeLambMeat            ItemType = "lamb_meat"          // Lamb Meat
+	ItemTypePorkMeat            ItemType = "pork_meat"          // Pork Meat
+	ItemTypeSeafoodMeat          ItemType = "seafood_meat"        // Seafood Meat
+	ItemTypeSnakeMeat           ItemType = "snake_meat"          // Snake Meat
+	ItemTypeToughatMeat         ItemType = "toughat_meat"       // Toughat Meat
+	ItemTypeOctopusInkSac        ItemType = "octopus_ink_sac"    // Octopus Ink Sac
+	ItemTypePaw                 ItemType = "paw"                 // Paw
+	ItemTypePelt                ItemType = "pelt"               // Pelt
+	ItemTypeSkull               ItemType = "skull"               // Skull
+	ItemTypeSmallTortoiseShell  ItemType = "small_tortoise_shell" // Small Tortoise Shell
+	ItemTypeTail                ItemType = "tail"                // Tail
+	ItemTypeTooth               ItemType = "tooth"               // Tooth
+	ItemTypeUnicornTwistedHorn  ItemType = "unicorn_twisted_horn" // Unicorn Twisted Horn
+	ItemTypeWool                ItemType = "wool"               // Wool
+	// Fruits
+	ItemTypeApples        ItemType = "apples"         // Apples
+	ItemTypeCherries      ItemType = "cherries"       // Cherries
+	ItemTypeBlueGrapes    ItemType = "blue_grapes"    // Blue Grapes
+	ItemTypeGreenGrapes   ItemType = "green_grapes"   // Green Grapes
+	ItemTypeLemons        ItemType = "lemons"         // Lemons
+	ItemTypeOlives        ItemType = "olives"         // Olives
+	ItemTypeOranges       ItemType = "oranges"        // Oranges
+	ItemTypeBlueberries   ItemType = "blueberries"    // Blueberries
+	ItemTypeLingonberries ItemType = "lingonberries"   // Lingonberries
+	ItemTypeRaspberries   ItemType = "raspberries"    // Raspberries
+	ItemTypeAcorns        ItemType = "acorns"         // Acorns
+	ItemTypeChestnuts     ItemType = "chestnuts"      // Chestnuts
+	ItemTypeHazelnuts     ItemType = "hazelnuts"     // Hazelnuts
+	ItemTypePinenuts      ItemType = "pinenuts"      // Pinenuts
+	ItemTypeWalnuts       ItemType = "walnuts"       // Walnuts
 )
 
 // Category representa a categoria de um item
@@ -237,6 +345,10 @@ const (
 	CategoryOres         Category = "Ores"
 	CategorySmithing     Category = "Smithing"
 	CategoryWood         Category = "Wood"
+	CategoryFarm         Category = "Farm"
+	CategoryGarden       Category = "Garden"
+	CategoryAnimal      Category = "Animal"
+	CategoryFruits       Category = "Fruits"
 )
 
 // GetCategory retorna a categoria de um tipo de item
@@ -254,6 +366,14 @@ func GetCategory(itemType ItemType) Category {
 		return CategoryOres
 	case ItemTypeSmallNail, ItemTypeLargeNail, ItemTypeRibbon:
 		return CategorySmithing
+	case ItemTypePotato, ItemTypeCotton, ItemTypeRye, ItemTypeWemp, ItemTypeCucumber, ItemTypeOat, ItemTypePumpkin, ItemTypeBarley, ItemTypeReed, ItemTypeCarrot, ItemTypeHay, ItemTypeWheat, ItemTypeCabbage, ItemTypeCorn, ItemTypeTomato, ItemTypeLettuce, ItemTypeOnion, ItemTypeStrawberries, ItemTypePeaPod, ItemTypeGarlic, ItemTypeRice, ItemTypeSugarBeet, ItemTypeBlackMushroom, ItemTypeGreenMushroom, ItemTypeYellowMushroom, ItemTypeBlueMushroom, ItemTypeBrownMushroom, ItemTypeRedMushroom:
+		return CategoryFarm
+	case ItemTypeBasil, ItemTypeBelladonna, ItemTypeFennel, ItemTypeLovage, ItemTypeMint, ItemTypeOregano, ItemTypeParsley, ItemTypeRosemary, ItemTypeSage, ItemTypeThyme, ItemTypeCumin, ItemTypeGinger, ItemTypePaprika, ItemTypeTurmeric, ItemTypeWoad, ItemTypeGreenCoffeeBeans, ItemTypeTeaSeeds, ItemTypeCacaoBeans:
+		return CategoryGarden
+	case ItemTypeFat, ItemTypeHide, ItemTypeBladder, ItemTypeCochineal, ItemTypeCrabMeat, ItemTypeDragonScale, ItemTypeDrakeHide, ItemTypeEye, ItemTypeFeather, ItemTypeFishFillet, ItemTypeFlint, ItemTypeFur, ItemTypeGland, ItemTypeGoblinSkull, ItemTypeHeart, ItemTypeHoof, ItemTypeHorn, ItemTypeLongHorn, ItemTypeBearMeat, ItemTypeBeefMeat, ItemTypeCanineMeat, ItemTypeDragonMeat, ItemTypeFelineMeat, ItemTypeFowlMeat, ItemTypeGameMeat, ItemTypeHorseMeat, ItemTypeHumanMeat, ItemTypeHumanoidMeat, ItemTypeInsectMeat, ItemTypeLambMeat, ItemTypePorkMeat, ItemTypeSeafoodMeat, ItemTypeSnakeMeat, ItemTypeToughatMeat, ItemTypeOctopusInkSac, ItemTypePaw, ItemTypePelt, ItemTypeSkull, ItemTypeSmallTortoiseShell, ItemTypeTail, ItemTypeTooth, ItemTypeUnicornTwistedHorn, ItemTypeWool:
+		return CategoryAnimal
+	case ItemTypeApples, ItemTypeCherries, ItemTypeBlueGrapes, ItemTypeGreenGrapes, ItemTypeLemons, ItemTypeOlives, ItemTypeOranges, ItemTypeBlueberries, ItemTypeLingonberries, ItemTypeRaspberries, ItemTypeAcorns, ItemTypeChestnuts, ItemTypeHazelnuts, ItemTypePinenuts, ItemTypeWalnuts:
+		return CategoryFruits
 	default:
 		// Verificar se é Wood usando função auxiliar (para evitar lista gigante no switch)
 		if IsWood(itemType) {
@@ -410,6 +530,7 @@ type Note struct {
 	ID          int64      `json:"id"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
+	Category    string     `json:"category,omitempty"` // Categoria opcional (mesmas do estoque)
 	StartDate   *time.Time `json:"startDate,omitempty"`
 	EndDate     *time.Time `json:"endDate,omitempty"`
 	Completed   bool       `json:"completed"`
@@ -422,6 +543,7 @@ type Location struct {
 	ID          int64     `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
+	Category    string    `json:"category,omitempty"` // Categoria opcional (mesmas do estoque)
 	MapType     string    `json:"mapType"`     // "yaga" ou "wurmmaps"
 	Server      string    `json:"server"`       // "Harmony", "Cadence", "Melody"
 	X           int       `json:"x"`

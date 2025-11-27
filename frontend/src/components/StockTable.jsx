@@ -142,6 +142,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                 value={searchText || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className="search-input"
+                style={{ paddingLeft: '2rem' }}
               />
               {searchText && (
                 <button

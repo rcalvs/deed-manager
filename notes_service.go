@@ -74,6 +74,10 @@ func (s *NotesService) initDatabase() error {
 	// SQLite não suporta IF NOT EXISTS em ALTER TABLE, então vamos tentar e ignorar o erro
 	s.db.Exec("ALTER TABLE locations ADD COLUMN map_type TEXT DEFAULT 'yaga'")
 	s.db.Exec("ALTER TABLE locations ADD COLUMN server TEXT DEFAULT 'Harmony'")
+	
+	// Migração: adicionar coluna category para notes e locations (ignorar erro se já existirem)
+	s.db.Exec("ALTER TABLE notes ADD COLUMN category TEXT")
+	s.db.Exec("ALTER TABLE locations ADD COLUMN category TEXT")
 
 	return nil
 }
@@ -86,7 +90,7 @@ func (s *NotesService) Close() error {
 // ========== NOTAS ==========
 
 // CreateNote cria uma nova nota
-func (s *NotesService) CreateNote(title, description string, startDate, endDate *time.Time) (*Note, error) {
+func (s *NotesService) CreateNote(title, description, category string, startDate, endDate *time.Time) (*Note, error) {
 	now := time.Now()
 	nowStr := now.Format("2006-01-02 15:04:05")
 
@@ -100,9 +104,15 @@ func (s *NotesService) CreateNote(title, description string, startDate, endDate 
 		endDateStr.Valid = true
 	}
 
+	var categoryStr sql.NullString
+	if category != "" {
+		categoryStr.String = category
+		categoryStr.Valid = true
+	}
+
 	result, err := s.db.Exec(
-		"INSERT INTO notes (title, description, start_date, end_date, completed, created_at, updated_at) VALUES (?, ?, ?, ?, 0, ?, ?)",
-		title, description, startDateStr, endDateStr, nowStr, nowStr,
+		"INSERT INTO notes (title, description, category, start_date, end_date, completed, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 0, ?, ?)",
+		title, description, categoryStr, startDateStr, endDateStr, nowStr, nowStr,
 	)
 	if err != nil {
 		return nil, err
@@ -122,13 +132,18 @@ func (s *NotesService) GetNote(id int64) (*Note, error) {
 	var startDateStr, endDateStr sql.NullString
 	var createdAtStr, updatedAtStr string
 
+	var categoryStr sql.NullString
 	err := s.db.QueryRow(
-		"SELECT id, title, description, start_date, end_date, completed, created_at, updated_at FROM notes WHERE id = ?",
+		"SELECT id, title, description, category, start_date, end_date, completed, created_at, updated_at FROM notes WHERE id = ?",
 		id,
-	).Scan(&note.ID, &note.Title, &note.Description, &startDateStr, &endDateStr, &note.Completed, &createdAtStr, &updatedAtStr)
+	).Scan(&note.ID, &note.Title, &note.Description, &categoryStr, &startDateStr, &endDateStr, &note.Completed, &createdAtStr, &updatedAtStr)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if categoryStr.Valid {
+		note.Category = categoryStr.String
 	}
 
 	if startDateStr.Valid {
@@ -154,7 +169,7 @@ func (s *NotesService) GetNote(id int64) (*Note, error) {
 // GetAllNotes retorna todas as notas
 func (s *NotesService) GetAllNotes() ([]*Note, error) {
 	rows, err := s.db.Query(
-		"SELECT id, title, description, start_date, end_date, completed, created_at, updated_at FROM notes ORDER BY created_at DESC",
+		"SELECT id, title, description, category, start_date, end_date, completed, created_at, updated_at FROM notes ORDER BY created_at DESC",
 	)
 	if err != nil {
 		return nil, err
@@ -165,11 +180,16 @@ func (s *NotesService) GetAllNotes() ([]*Note, error) {
 	for rows.Next() {
 		var note Note
 		var startDateStr, endDateStr sql.NullString
+		var categoryStr sql.NullString
 		var createdAtStr, updatedAtStr string
 
-		err := rows.Scan(&note.ID, &note.Title, &note.Description, &startDateStr, &endDateStr, &note.Completed, &createdAtStr, &updatedAtStr)
+		err := rows.Scan(&note.ID, &note.Title, &note.Description, &categoryStr, &startDateStr, &endDateStr, &note.Completed, &createdAtStr, &updatedAtStr)
 		if err != nil {
 			continue
+		}
+
+		if categoryStr.Valid {
+			note.Category = categoryStr.String
 		}
 
 		if startDateStr.Valid {
@@ -196,7 +216,7 @@ func (s *NotesService) GetAllNotes() ([]*Note, error) {
 }
 
 // UpdateNote atualiza uma nota
-func (s *NotesService) UpdateNote(id int64, title, description string, startDate, endDate *time.Time, completed bool) (*Note, error) {
+func (s *NotesService) UpdateNote(id int64, title, description, category string, startDate, endDate *time.Time, completed bool) (*Note, error) {
 	now := time.Now()
 	nowStr := now.Format("2006-01-02 15:04:05")
 
@@ -210,9 +230,15 @@ func (s *NotesService) UpdateNote(id int64, title, description string, startDate
 		endDateStr.Valid = true
 	}
 
+	var categoryStr sql.NullString
+	if category != "" {
+		categoryStr.String = category
+		categoryStr.Valid = true
+	}
+
 	_, err := s.db.Exec(
-		"UPDATE notes SET title = ?, description = ?, start_date = ?, end_date = ?, completed = ?, updated_at = ? WHERE id = ?",
-		title, description, startDateStr, endDateStr, completed, nowStr, id,
+		"UPDATE notes SET title = ?, description = ?, category = ?, start_date = ?, end_date = ?, completed = ?, updated_at = ? WHERE id = ?",
+		title, description, categoryStr, startDateStr, endDateStr, completed, nowStr, id,
 	)
 	if err != nil {
 		return nil, err
@@ -234,13 +260,13 @@ func (s *NotesService) ToggleNoteCompleted(id int64) (*Note, error) {
 		return nil, err
 	}
 
-	return s.UpdateNote(id, note.Title, note.Description, note.StartDate, note.EndDate, !note.Completed)
+	return s.UpdateNote(id, note.Title, note.Description, note.Category, note.StartDate, note.EndDate, !note.Completed)
 }
 
 // ========== LOCALIZAÇÕES ==========
 
 // CreateLocation cria uma nova localização
-func (s *NotesService) CreateLocation(name, description, mapType, server string, x, y int) (*Location, error) {
+func (s *NotesService) CreateLocation(name, description, category, mapType, server string, x, y int) (*Location, error) {
 	now := time.Now()
 	nowStr := now.Format("2006-01-02 15:04:05")
 
@@ -252,9 +278,15 @@ func (s *NotesService) CreateLocation(name, description, mapType, server string,
 		server = "Harmony"
 	}
 
+	var categoryStr sql.NullString
+	if category != "" {
+		categoryStr.String = category
+		categoryStr.Valid = true
+	}
+
 	result, err := s.db.Exec(
-		"INSERT INTO locations (name, description, map_type, server, x, y, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		name, description, mapType, server, x, y, nowStr, nowStr,
+		"INSERT INTO locations (name, description, category, map_type, server, x, y, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		name, description, categoryStr, mapType, server, x, y, nowStr, nowStr,
 	)
 	if err != nil {
 		return nil, err
@@ -272,15 +304,19 @@ func (s *NotesService) CreateLocation(name, description, mapType, server string,
 func (s *NotesService) GetLocation(id int64) (*Location, error) {
 	var location Location
 	var createdAtStr, updatedAtStr string
-	var mapType, server sql.NullString
+	var mapType, server, categoryStr sql.NullString
 
 	err := s.db.QueryRow(
-		"SELECT id, name, description, map_type, server, x, y, created_at, updated_at FROM locations WHERE id = ?",
+		"SELECT id, name, description, category, map_type, server, x, y, created_at, updated_at FROM locations WHERE id = ?",
 		id,
-	).Scan(&location.ID, &location.Name, &location.Description, &mapType, &server, &location.X, &location.Y, &createdAtStr, &updatedAtStr)
+	).Scan(&location.ID, &location.Name, &location.Description, &categoryStr, &mapType, &server, &location.X, &location.Y, &createdAtStr, &updatedAtStr)
 
 	if err != nil {
 		return nil, err
+	}
+
+	if categoryStr.Valid {
+		location.Category = categoryStr.String
 	}
 
 	location.MapType = "yaga"
@@ -301,7 +337,7 @@ func (s *NotesService) GetLocation(id int64) (*Location, error) {
 // GetAllLocations retorna todas as localizações
 func (s *NotesService) GetAllLocations() ([]*Location, error) {
 	rows, err := s.db.Query(
-		"SELECT id, name, description, map_type, server, x, y, created_at, updated_at FROM locations ORDER BY created_at DESC",
+		"SELECT id, name, description, category, map_type, server, x, y, created_at, updated_at FROM locations ORDER BY created_at DESC",
 	)
 	if err != nil {
 		return nil, err
@@ -312,11 +348,15 @@ func (s *NotesService) GetAllLocations() ([]*Location, error) {
 	for rows.Next() {
 		var location Location
 		var createdAtStr, updatedAtStr string
-		var mapType, server sql.NullString
+		var mapType, server, categoryStr sql.NullString
 
-		err := rows.Scan(&location.ID, &location.Name, &location.Description, &mapType, &server, &location.X, &location.Y, &createdAtStr, &updatedAtStr)
+		err := rows.Scan(&location.ID, &location.Name, &location.Description, &categoryStr, &mapType, &server, &location.X, &location.Y, &createdAtStr, &updatedAtStr)
 		if err != nil {
 			continue
+		}
+
+		if categoryStr.Valid {
+			location.Category = categoryStr.String
 		}
 
 		location.MapType = "yaga"
@@ -338,7 +378,7 @@ func (s *NotesService) GetAllLocations() ([]*Location, error) {
 }
 
 // UpdateLocation atualiza uma localização
-func (s *NotesService) UpdateLocation(id int64, name, description, mapType, server string, x, y int) (*Location, error) {
+func (s *NotesService) UpdateLocation(id int64, name, description, category, mapType, server string, x, y int) (*Location, error) {
 	now := time.Now()
 	nowStr := now.Format("2006-01-02 15:04:05")
 
@@ -350,9 +390,15 @@ func (s *NotesService) UpdateLocation(id int64, name, description, mapType, serv
 		server = "Harmony"
 	}
 
+	var categoryStr sql.NullString
+	if category != "" {
+		categoryStr.String = category
+		categoryStr.Valid = true
+	}
+
 	_, err := s.db.Exec(
-		"UPDATE locations SET name = ?, description = ?, map_type = ?, server = ?, x = ?, y = ?, updated_at = ? WHERE id = ?",
-		name, description, mapType, server, x, y, nowStr, id,
+		"UPDATE locations SET name = ?, description = ?, category = ?, map_type = ?, server = ?, x = ?, y = ?, updated_at = ? WHERE id = ?",
+		name, description, categoryStr, mapType, server, x, y, nowStr, id,
 	)
 	if err != nil {
 		return nil, err

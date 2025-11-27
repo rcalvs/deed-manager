@@ -128,6 +128,10 @@
       "start": "Início",
       "end": "Fim"
     },
+    "searchPlaceholder": "Buscar notas...",
+    "searchLocationPlaceholder": "Buscar localizações...",
+    "noNotesFiltered": "Nenhuma nota corresponde aos filtros",
+    "noLocationsFiltered": "Nenhuma localização corresponde aos filtros",
     "location": {
       "name": "Nome",
       "description": "Descrição",
