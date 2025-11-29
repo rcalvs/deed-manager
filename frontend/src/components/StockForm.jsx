@@ -235,7 +235,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               disabled={loading}
-              placeholder="Ex: 1000"
+              placeholder="1000"
             />
           </div>
 
@@ -261,7 +261,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
               value={quality}
               onChange={(e) => setQuality(e.target.value)}
               disabled={loading}
-              placeholder="Ex: 53"
+              placeholder="53"
             />
           </div>
         </div>

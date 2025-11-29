@@ -313,6 +313,30 @@
   border: 1px solid rgba(139, 90, 43, 0.4);
 }
 
+.category-badge[data-category="Farm"] {
+  background-color: rgba(34, 139, 34, 0.2);
+  color: #90ee90;
+  border: 1px solid rgba(34, 139, 34, 0.4);
+}
+
+.category-badge[data-category="Garden"] {
+  background-color: rgba(50, 205, 50, 0.2);
+  color: #98fb98;
+  border: 1px solid rgba(50, 205, 50, 0.4);
+}
+
+.category-badge[data-category="Animal"] {
+  background-color: rgba(139, 69, 19, 0.2);
+  color: #daa520;
+  border: 1px solid rgba(139, 69, 19, 0.4);
+}
+
+.category-badge[data-category="Fruits"] {
+  background-color: rgba(255, 20, 147, 0.2);
+  color: #ff69b4;
+  border: 1px solid rgba(255, 20, 147, 0.4);
+}
+
 /* Estilos para modo expandido */
 .stock-table-expanded-overlay {
   position: fixed;

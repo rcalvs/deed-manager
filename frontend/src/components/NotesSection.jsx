@@ -314,7 +314,14 @@ function NotesSection() {
             <div key={note.id} className={`note-item ${note.completed ? 'completed' : ''}`}>
               <div className="note-content">
                 <div className="note-header">
-                  <h3 className="note-title">{note.title}</h3>
+                  <div className="note-title-section">
+                    <h3 className="note-title">{note.title}</h3>
+                    {note.category && (
+                      <span className="category-badge" data-category={note.category}>
+                        {note.category}
+                      </span>
+                    )}
+                  </div>
                   <div className="note-actions">
                     <button
                       className="btn-icon"

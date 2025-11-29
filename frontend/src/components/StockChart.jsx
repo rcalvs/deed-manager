@@ -12,8 +12,23 @@ import {
 } from 'chart.js'
 import React, { useMemo } from 'react'
 import { Bar, Line } from 'react-chartjs-2'
-import { ITEM_CATEGORIES, ITEM_TYPE_COLORS, ITEM_TYPE_LABELS } from '../constants'
+import { ITEM_CATEGORIES, ITEM_TYPE_COLORS, ITEM_TYPE_LABELS, CATEGORIES } from '../constants'
 import './StockChart.css'
+
+// Mapeamento de cores para categorias (baseado nos badges)
+const CATEGORY_COLORS = {
+  'Shards': 'rgba(169, 169, 169, 1)',
+  'Bricks': 'rgba(205, 133, 63, 1)',
+  'Construction': 'rgba(210, 180, 140, 1)',
+  'Metals': 'rgba(192, 192, 192, 1)',
+  'Ores': 'rgba(139, 69, 19, 1)',
+  'Smithing': 'rgba(160, 160, 160, 1)',
+  'Wood': 'rgba(212, 163, 115, 1)',
+  'Farm': 'rgba(144, 238, 144, 1)',
+  'Garden': 'rgba(152, 251, 152, 1)',
+  'Animal': 'rgba(218, 165, 32, 1)',
+  'Fruits': 'rgba(255, 105, 180, 1)',
+}
 
 ChartJS.register(
   CategoryScale,
@@ -182,7 +197,7 @@ function StockChart({ history, items, selectedCategory = 'all', searchText = '' 
     return result
   }, [history, selectedCategory, searchText])
 
-  // Preparar dados para o gráfico de barras (estoque atual)
+  // Preparar dados para o gráfico de barras (estoque atual por tipo)
   const barChartData = useMemo(() => {
     if (!items || items.length === 0) {
       return null
@@ -225,6 +240,60 @@ function StockChart({ history, items, selectedCategory = 'all', searchText = '' 
       ],
     }
   }, [items, filterItems])
+
+  // Preparar dados para o gráfico de barras (estoque atual por categoria)
+  const categoryChartData = useMemo(() => {
+    if (!items || items.length === 0) {
+      return null
+    }
+
+    // Aplicar filtros aos itens (mas não filtrar por categoria aqui, queremos todas)
+    let filteredItems = items
+    
+    // Filtrar apenas por texto de busca se houver
+    if (searchText && searchText.trim() !== '') {
+      const searchLower = searchText.toLowerCase().trim()
+      filteredItems = filteredItems.filter(item => {
+        const itemLabel = ITEM_TYPE_LABELS[item.type] || item.type || ''
+        return itemLabel.toLowerCase().includes(searchLower)
+      })
+    }
+    
+    if (filteredItems.length === 0) {
+      return null
+    }
+
+    // Agrupar por categoria
+    const dataByCategory = {}
+    filteredItems.forEach((item) => {
+      const category = item.category || ITEM_CATEGORIES[item.type] || 'Unknown'
+      if (!dataByCategory[category]) {
+        dataByCategory[category] = 0
+      }
+      dataByCategory[category] += item.quantity
+    })
+
+    // Ordenar categorias na ordem definida em CATEGORIES
+    const sortedCategories = CATEGORIES.filter(cat => dataByCategory[cat] !== undefined)
+    const labels = sortedCategories
+    const data = sortedCategories.map(cat => dataByCategory[cat])
+    const colors = sortedCategories.map(
+      (cat) => CATEGORY_COLORS[cat] || 'rgba(100, 149, 237, 1)'
+    )
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Quantidade Total',
+          data,
+          backgroundColor: colors.map((c) => c.replace('1)', '0.8)')),
+          borderColor: colors,
+          borderWidth: 2,
+        },
+      ],
+    }
+  }, [items, searchText])
 
   const chartOptions = {
     responsive: true,
@@ -293,6 +362,17 @@ function StockChart({ history, items, selectedCategory = 'all', searchText = '' 
     },
   }
 
+  const categoryChartOptions = {
+    ...chartOptions,
+    plugins: {
+      ...chartOptions.plugins,
+      title: {
+        ...chartOptions.plugins.title,
+        text: 'Estoque Atual por Categoria',
+      },
+    },
+  }
+
   return (
     <div className="stock-chart-container">
       <div className="chart-section">
@@ -306,10 +386,20 @@ function StockChart({ history, items, selectedCategory = 'all', searchText = '' 
         </div>
       </div>
       <div className="chart-section">
-        <h3>Estoque Atual</h3>
+        <h3>Estoque Atual por Tipo</h3>
         <div className="chart-wrapper">
           {barChartData ? (
             <Bar data={barChartData} options={barChartOptions} />
+          ) : (
+            <div className="no-data">Nenhum item no estoque</div>
+          )}
+        </div>
+      </div>
+      <div className="chart-section">
+        <h3>Estoque Atual por Categoria</h3>
+        <div className="chart-wrapper">
+          {categoryChartData ? (
+            <Bar data={categoryChartData} options={categoryChartOptions} />
           ) : (
             <div className="no-data">Nenhum item no estoque</div>
           )}

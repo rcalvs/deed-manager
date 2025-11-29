@@ -453,7 +453,14 @@ function LocationsSection() {
             <div key={location.id} className="location-item">
               <div className="location-content">
                 <div className="location-header">
-                  <h3 className="location-name">{location.name}</h3>
+                  <div className="location-name-section">
+                    <h3 className="location-name">{location.name}</h3>
+                    {location.category && (
+                      <span className="category-badge" data-category={location.category}>
+                        {location.category}
+                      </span>
+                    )}
+                  </div>
                   <div className="location-actions">
                     <button
                       className="btn-icon"

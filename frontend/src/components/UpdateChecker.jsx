@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaCheckCircle, FaDownload, FaSpinner, FaTimesCircle } from 'react-icons/fa'
+import { FaCheckCircle, FaDownload, FaSpinner, FaTimes, FaTimesCircle } from 'react-icons/fa'
 import { api } from '../api'
 import './UpdateChecker.css'
 
@@ -11,6 +11,7 @@ function UpdateChecker() {
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState(null)
   const [canUpdate, setCanUpdate] = useState(false)
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
 
   useEffect(() => {
     // Verificar se auto-update é suportado
@@ -31,10 +32,15 @@ function UpdateChecker() {
     setChecking(true)
     setError(null)
     setUpdateInfo(null)
+    setShowUpdateModal(false)
 
     try {
       const info = await api.checkForUpdate()
       setUpdateInfo(info)
+      // Se houver update disponível, mostrar o modal
+      if (info && info.available) {
+        setShowUpdateModal(true)
+      }
     } catch (err) {
       console.error('Erro ao verificar atualizações:', err)
       setError(t('updates.updateError'))
@@ -45,17 +51,6 @@ function UpdateChecker() {
 
   const handleApplyUpdate = async () => {
     if (!updateInfo || !updateInfo.available) {
-      return
-    }
-
-    const confirmed = confirm(
-      t('updates.updateConfirm', {
-        current: updateInfo.currentVersion,
-        latest: updateInfo.latestVersion
-      })
-    )
-
-    if (!confirmed) {
       return
     }
 
@@ -72,6 +67,10 @@ function UpdateChecker() {
       setError(t('updates.updateApplyError'))
       setUpdating(false)
     }
+  }
+
+  const handleCloseModal = () => {
+    setShowUpdateModal(false)
   }
 
   if (!canUpdate) {
@@ -105,27 +104,47 @@ function UpdateChecker() {
         </div>
       )}
 
-      {updateInfo && (
+      {updateInfo && !updateInfo.available && (
         <div className="update-info">
-          {updateInfo.available ? (
-            <>
-              <div className="update-available">
+          <div className="update-not-available">
+            <FaCheckCircle className="icon-info" />
+            <p>{t('updates.noUpdate')} ({updateInfo.currentVersion})</p>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de atualização disponível */}
+      {showUpdateModal && updateInfo && updateInfo.available && (
+        <div className="update-modal-overlay" onClick={handleCloseModal}>
+          <div className="update-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="update-modal-header">
+              <div className="update-modal-title-section">
                 <FaCheckCircle className="icon-success" />
-                <div className="update-details">
-                  <p className="update-title">{t('updates.updateAvailable')}</p>
-                  <p className="update-versions">
-                    {t('updates.currentVersion')}: <strong>{updateInfo.currentVersion}</strong>
-                    <br />
-                    {t('updates.latestVersion')}: <strong>{updateInfo.latestVersion}</strong>
-                  </p>
-                  {updateInfo.releaseNotes && (
-                    <div className="release-notes">
-                      <strong>{t('updates.releaseNotes')}:</strong>
-                      <pre>{updateInfo.releaseNotes}</pre>
-                    </div>
-                  )}
-                </div>
+                <h3>{t('updates.updateAvailable')}</h3>
               </div>
+              <button className="update-modal-close" onClick={handleCloseModal}>
+                <FaTimes />
+              </button>
+            </div>
+            <div className="update-modal-body">
+              <div className="update-versions-info">
+                <p>
+                  {t('updates.currentVersion')}: <strong>{updateInfo.currentVersion}</strong>
+                </p>
+                <p>
+                  {t('updates.latestVersion')}: <strong>{updateInfo.latestVersion}</strong>
+                </p>
+              </div>
+              {updateInfo.releaseNotes && (
+                <div className="update-release-notes">
+                  <strong>{t('updates.releaseNotes')}:</strong>
+                  <div className="release-notes-content">
+                    <pre>{updateInfo.releaseNotes}</pre>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="update-modal-footer">
               <button
                 className="btn-apply-update"
                 onClick={handleApplyUpdate}
@@ -143,13 +162,8 @@ function UpdateChecker() {
                   </>
                 )}
               </button>
-            </>
-          ) : (
-            <div className="update-not-available">
-              <FaCheckCircle className="icon-info" />
-              <p>{t('updates.noUpdate')} ({updateInfo.currentVersion})</p>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>

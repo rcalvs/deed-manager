@@ -254,7 +254,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
 }
 
 .quality-edit-btn {
@@ -262,7 +261,7 @@
   border: none;
   color: #5a9fd4;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;

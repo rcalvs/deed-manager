@@ -31,6 +31,7 @@ func NewUpdateService(owner, repo, currentVersion string) *UpdateService {
 // CheckForUpdate verifica se há atualizações disponíveis
 func (u *UpdateService) CheckForUpdate() (bool, string, string, error) {
 	slug := fmt.Sprintf("%s/%s", u.owner, u.repo)
+	fmt.Println("Checking for update in", slug)
 	latest, found, err := selfupdate.DetectLatest(slug)
 	if err != nil {
 		return false, "", "", fmt.Errorf("erro ao verificar atualizações: %w", err)
@@ -108,4 +109,3 @@ func (u *UpdateService) CanUpdate() bool {
 	// Squirrel suporta Windows e macOS
 	return runtime.GOOS == "windows" || runtime.GOOS == "darwin"
 }
-

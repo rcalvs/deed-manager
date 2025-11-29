@@ -308,12 +308,19 @@
   gap: 1rem;
 }
 
+.note-title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
 .note-title {
   color: #ffffff;
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  flex: 1;
 }
 
 .note-actions {
@@ -377,5 +384,83 @@
   text-align: center;
   color: #b0b0b0;
   padding: 2rem;
+}
+
+/* Badge de categoria - reutilizando estilos do StockTable */
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.5rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-badge[data-category="Shards"] {
+  background-color: rgba(169, 169, 169, 0.2);
+  color: #a9a9a9;
+  border: 1px solid rgba(169, 169, 169, 0.4);
+}
+
+.category-badge[data-category="Bricks"] {
+  background-color: rgba(139, 69, 19, 0.2);
+  color: #cd853f;
+  border: 1px solid rgba(139, 69, 19, 0.4);
+}
+
+.category-badge[data-category="Construction"] {
+  background-color: rgba(205, 133, 63, 0.2);
+  color: #d2b48c;
+  border: 1px solid rgba(205, 133, 63, 0.4);
+}
+
+.category-badge[data-category="Metals"] {
+  background-color: rgba(192, 192, 192, 0.2);
+  color: #c0c0c0;
+  border: 1px solid rgba(192, 192, 192, 0.4);
+}
+
+.category-badge[data-category="Ores"] {
+  background-color: rgba(139, 69, 19, 0.3);
+  color: #cd853f;
+  border: 1px solid rgba(139, 69, 19, 0.5);
+}
+
+.category-badge[data-category="Smithing"] {
+  background-color: rgba(128, 128, 128, 0.2);
+  color: #a0a0a0;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+}
+
+.category-badge[data-category="Wood"] {
+  background-color: rgba(139, 90, 43, 0.2);
+  border-color: rgba(139, 90, 43, 0.5);
+  color: #d4a373;
+  border: 1px solid rgba(139, 90, 43, 0.4);
+}
+
+.category-badge[data-category="Farm"] {
+  background-color: rgba(34, 139, 34, 0.2);
+  color: #90ee90;
+  border: 1px solid rgba(34, 139, 34, 0.4);
+}
+
+.category-badge[data-category="Garden"] {
+  background-color: rgba(50, 205, 50, 0.2);
+  color: #98fb98;
+  border: 1px solid rgba(50, 205, 50, 0.4);
+}
+
+.category-badge[data-category="Animal"] {
+  background-color: rgba(139, 69, 19, 0.2);
+  color: #daa520;
+  border: 1px solid rgba(139, 69, 19, 0.4);
+}
+
+.category-badge[data-category="Fruits"] {
+  background-color: rgba(255, 20, 147, 0.2);
+  color: #ff69b4;
+  border: 1px solid rgba(255, 20, 147, 0.4);
 }
 
