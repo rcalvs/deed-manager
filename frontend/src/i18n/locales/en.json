@@ -64,7 +64,8 @@
     "deed": "Deed",
     "tabs": {
       "stock": "Stock",
-      "notes": "Notes"
+      "notes": "Notes",
+      "calendar": "Calendar"
     }
   },
   "stock": {
@@ -208,5 +209,70 @@
     "defaultQuality": "Default Quality",
     "enableDefault": "Enable default quality",
     "defaultQualityValue": "Default Quality Value"
+  },
+  "calendar": {
+    "today": "Today",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "legend": {
+      "start": "Start date",
+      "end": "End date"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "weekdays": {
+      "sunday": "Sun",
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat"
+    },
+    "wurmTime": {
+      "title": "Wurm Time",
+      "season": "Season",
+      "starfall": "Starfall",
+      "week": "Week",
+      "year": "Year",
+      "harvestSeason": "Harvest Season"
+    },
+    "seasons": {
+      "spring": "Spring",
+      "summer": "Summer",
+      "autumn": "Autumn",
+      "winter": "Winter"
+    },
+    "calibration": {
+      "title": "Calibrate Wurm Time",
+      "button": "Calibrate",
+      "instructions": "To calibrate Wurm time, execute the /time command in-game and paste the result below.",
+      "example": "[23:00:02] It is 01:49:11 on day of the Wurm in week 1 of the starfall of the Leaf in the year of 1140.",
+      "pcDateTime": "PC Date/Time",
+      "updateTime": "Update",
+      "timeCommand": "/time Command Result",
+      "timeCommandPlaceholder": "Paste the /time command result from the game here...",
+      "noTimeCommand": "Please paste the /time command result",
+      "invalidFormat": "Invalid format. Use the format: [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.",
+      "error": "Error calibrating. Please check the entered data.",
+      "result": "Calibration Result",
+      "newEpoch": "New Epoch",
+      "wurmTime": "Wurm Time",
+      "calibrate": "Calibrate",
+      "reset": "Reset",
+      "resetConfirm": "Do you want to reset the calibration to the default value?"
+    }
   }
 }

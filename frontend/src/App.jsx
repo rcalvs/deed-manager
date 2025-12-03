@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AiOutlineStock } from "react-icons/ai"
-import { FaStickyNote } from "react-icons/fa"
+import { FaCalendarAlt, FaStickyNote } from "react-icons/fa"
 import './App.css'
 import { api } from './api'
+import CalendarTab from './components/CalendarTab'
 import NotesTab from './components/NotesTab'
 import Settings from './components/Settings'
 import StockTab from './components/StockTab'
@@ -22,7 +23,7 @@ function App() {
     return localStorage.getItem('deedName') || ''
   })
   const [activeTab, setActiveTab] = useState('stock')
-  const [version, setVersion] = useState('v0.2.4') // Fallback
+  const [version, setVersion] = useState('v0.2.5') // Fallback
   const [developerMode, setDeveloperMode] = useState(() => {
     // Carregar do localStorage
     const saved = localStorage.getItem('developerMode')
@@ -67,6 +68,11 @@ function App() {
       label: t('app.tabs.notes'),
       icon: <FaStickyNote />,
     },
+    {
+      id: 'calendar',
+      label: t('app.tabs.calendar', { defaultValue: 'Calendar' }),
+      icon: <FaCalendarAlt />,
+    },
   ]
 
   // Tratamento de erro para evitar crash da aplicação
@@ -100,6 +106,7 @@ function App() {
         >
           {activeTab === 'stock' && <StockTab developerMode={developerMode} />}
           {activeTab === 'notes' && <NotesTab />}
+          {activeTab === 'calendar' && <CalendarTab developerMode={developerMode} />}
         </Tabs>
       </div>
     )

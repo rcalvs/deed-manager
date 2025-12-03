@@ -64,7 +64,8 @@
     "deed": "Deed",
     "tabs": {
       "stock": "Estoque",
-      "notes": "Notas"
+      "notes": "Notas",
+      "calendar": "Calendário"
     }
   },
   "stock": {
@@ -208,5 +209,70 @@
     "defaultQuality": "Qualidade Padrão",
     "enableDefault": "Ativar qualidade padrão",
     "defaultQualityValue": "Valor da Qualidade Padrão"
+  },
+  "calendar": {
+    "today": "Hoje",
+    "startDate": "Data de início",
+    "endDate": "Data de término",
+    "legend": {
+      "start": "Data de início",
+      "end": "Data de término"
+    },
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro"
+    },
+    "weekdays": {
+      "sunday": "Dom",
+      "monday": "Seg",
+      "tuesday": "Ter",
+      "wednesday": "Qua",
+      "thursday": "Qui",
+      "friday": "Sex",
+      "saturday": "Sáb"
+    },
+    "wurmTime": {
+      "title": "Tempo do Wurm",
+      "season": "Estação",
+      "starfall": "Starfall",
+      "week": "Semana",
+      "year": "Ano",
+      "harvestSeason": "Temporada de Colheita"
+    },
+    "seasons": {
+      "spring": "Primavera",
+      "summer": "Verão",
+      "autumn": "Outono",
+      "winter": "Inverno"
+    },
+    "calibration": {
+      "title": "Calibrar Tempo do Wurm",
+      "button": "Calibrar",
+      "instructions": "Para calibrar o tempo do Wurm, execute o comando /time no jogo e cole o resultado abaixo.",
+      "example": "[23:00:02] It is 01:49:11 on day of the Wurm in week 1 of the starfall of the Leaf in the year of 1140.",
+      "pcDateTime": "Data/Hora do PC",
+      "updateTime": "Atualizar",
+      "timeCommand": "Resultado do /time",
+      "timeCommandPlaceholder": "Cole aqui o resultado do comando /time do jogo...",
+      "noTimeCommand": "Por favor, cole o resultado do comando /time",
+      "invalidFormat": "Formato inválido. Use o formato: [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.",
+      "error": "Erro ao calibrar. Verifique os dados inseridos.",
+      "result": "Resultado da Calibração",
+      "newEpoch": "Nova Época",
+      "wurmTime": "Tempo Wurm",
+      "calibrate": "Calibrar",
+      "reset": "Resetar",
+      "resetConfirm": "Deseja resetar a calibração para o valor padrão?"
+    }
   }
 }

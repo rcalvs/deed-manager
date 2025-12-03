@@ -64,7 +64,8 @@
     "deed": "Deed",
     "tabs": {
       "stock": "Склад",
-      "notes": "Заметки"
+      "notes": "Заметки",
+      "calendar": "Календарь"
     }
   },
   "stock": {
@@ -208,5 +209,70 @@
     "defaultQuality": "Качество по умолчанию",
     "enableDefault": "Включить качество по умолчанию",
     "defaultQualityValue": "Значение качества по умолчанию"
+  },
+  "calendar": {
+    "today": "Сегодня",
+    "startDate": "Дата начала",
+    "endDate": "Дата окончания",
+    "legend": {
+      "start": "Дата начала",
+      "end": "Дата окончания"
+    },
+    "months": {
+      "january": "Январь",
+      "february": "Февраль",
+      "march": "Март",
+      "april": "Апрель",
+      "may": "Май",
+      "june": "Июнь",
+      "july": "Июль",
+      "august": "Август",
+      "september": "Сентябрь",
+      "october": "Октябрь",
+      "november": "Ноябрь",
+      "december": "Декабрь"
+    },
+    "weekdays": {
+      "sunday": "Вс",
+      "monday": "Пн",
+      "tuesday": "Вт",
+      "wednesday": "Ср",
+      "thursday": "Чт",
+      "friday": "Пт",
+      "saturday": "Сб"
+    },
+    "wurmTime": {
+      "title": "Время Wurm",
+      "season": "Сезон",
+      "starfall": "Starfall",
+      "week": "Неделя",
+      "year": "Год",
+      "harvestSeason": "Сезон сбора урожая"
+    },
+    "seasons": {
+      "spring": "Весна",
+      "summer": "Лето",
+      "autumn": "Осень",
+      "winter": "Зима"
+    },
+    "calibration": {
+      "title": "Калибровка времени Wurm",
+      "button": "Калибровать",
+      "instructions": "Для калибровки времени Wurm выполните команду /time в игре и вставьте результат ниже.",
+      "example": "[23:00:02] It is 01:49:11 on day of the Wurm in week 1 of the starfall of the Leaf in the year of 1140.",
+      "pcDateTime": "Дата/Время ПК",
+      "updateTime": "Обновить",
+      "timeCommand": "Результат команды /time",
+      "timeCommandPlaceholder": "Вставьте результат команды /time из игры здесь...",
+      "noTimeCommand": "Пожалуйста, вставьте результат команды /time",
+      "invalidFormat": "Неверный формат. Используйте формат: [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.",
+      "error": "Ошибка калибровки. Пожалуйста, проверьте введенные данные.",
+      "result": "Результат калибровки",
+      "newEpoch": "Новая эпоха",
+      "wurmTime": "Время Wurm",
+      "calibrate": "Калибровать",
+      "reset": "Сбросить",
+      "resetConfirm": "Вы хотите сбросить калибровку до значения по умолчанию?"
+    }
   }
 }
