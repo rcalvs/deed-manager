@@ -3,13 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { IoSettingsOutline } from 'react-icons/io5'
 import { api } from '../api'
 import LanguageSelector from './LanguageSelector'
+import LogsConfigModal from './LogsConfigModal'
 import './Settings.css'
 import UpdateChecker from './UpdateChecker'
+
+const LOGS_ENABLED_KEY = 'wurm_logs_enabled'
 
 function Settings({ developerMode, onDeveloperModeChange }) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const [logsEnabled, setLogsEnabled] = useState(() => {
+    return localStorage.getItem(LOGS_ENABLED_KEY) === 'true'
+  })
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false)
 
   const handleClearDatabase = async () => {
     const confirmed = confirm(t('settings.clearDatabaseConfirm'))
@@ -58,6 +65,27 @@ function Settings({ developerMode, onDeveloperModeChange }) {
     onDeveloperModeChange(!developerMode)
   }
 
+  const handleLogsToggle = async (e) => {
+    e.stopPropagation()
+    const newValue = !logsEnabled
+    
+    if (newValue) {
+      // Se está ativando, abrir modal
+      setIsLogsModalOpen(true)
+    } else {
+      // Se está desativando, apenas atualizar estado
+      setLogsEnabled(false)
+      localStorage.setItem(LOGS_ENABLED_KEY, 'false')
+    }
+  }
+
+  const handleLogsPathSet = () => {
+    // Quando o caminho é definido com sucesso, ativar o toggle
+    setLogsEnabled(true)
+    localStorage.setItem(LOGS_ENABLED_KEY, 'true')
+    setIsLogsModalOpen(false)
+  }
+
   return (
     <div className="settings-container" ref={dropdownRef}>
       <button
@@ -83,6 +111,19 @@ function Settings({ developerMode, onDeveloperModeChange }) {
             </div>
           </div>
           <div className="settings-item">
+            <div className="settings-toggle-container">
+              <span className="settings-label">{t('settings.allowLogsCommunications')}</span>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={logsEnabled}
+                  onChange={handleLogsToggle}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div className="settings-item">
             {developerMode && (
               <button 
                 className="btn-clear-db"
@@ -97,6 +138,12 @@ function Settings({ developerMode, onDeveloperModeChange }) {
           <UpdateChecker />
         </div>
       )}
+
+      <LogsConfigModal
+        isOpen={isLogsModalOpen}
+        onClose={() => setIsLogsModalOpen(false)}
+        onPathSet={handleLogsPathSet}
+      />
     </div>
   )
 }

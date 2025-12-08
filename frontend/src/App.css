@@ -21,6 +21,12 @@
   gap: 0.25rem;
 }
 
+.header-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .app-header h1 {
   color: #ffffff;
   font-size: 1.5rem;
@@ -30,6 +36,12 @@
 
 .deed-name {
   color: #5a9fd4;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.balance-name {
+  color: #9fd45a;
   font-size: 0.85rem;
   font-weight: 500;
 }

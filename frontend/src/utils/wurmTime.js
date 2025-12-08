@@ -326,15 +326,30 @@ export function parseTimeCommand(timeCommand) {
   const cleaned = timeCommand.trim().replace(/\s+/g, ' ')
 
   // Regex para extrair informações
-  // Formato: [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.
-  const regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on day of the Wurm in week (\d+) of the starfall of the (\w+) in the year of (\d+)\./i
-
-  const match = cleaned.match(regex)
-  if (!match) {
-    throw new Error('Formato inválido. Use o formato: [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.')
+  // Aceita dois formatos:
+  // 1. [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.
+  // 2. [HH:mm:ss] It is HH:mm:ss on day of Awakening in week X of the Y's starfall in the year of Z.
+  // Tenta primeiro o formato novo (Y's starfall), depois o formato antigo (starfall of the Y)
+  let regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on day of (?:the Wurm|Awakening) in week (\d+) of (?:the )?(\w+)'s starfall in the year of (\d+)\./i
+  let match = cleaned.match(regex)
+  
+  let starfall, year
+  if (match) {
+    // Formato novo: Y's starfall
+    starfall = match[8]
+    year = parseInt(match[9], 10)
+  } else {
+    // Tentar formato antigo: starfall of the Y
+    regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on day of (?:the Wurm|Awakening) in week (\d+) of the starfall of the (\w+) in the year of (\d+)\./i
+    match = cleaned.match(regex)
+    if (!match) {
+      throw new Error('Formato inválido. Use o formato: [HH:mm:ss] It is HH:mm:ss on day of the Wurm/Awakening in week X of the starfall of the Y / Y\'s starfall in the year of Z.')
+    }
+    starfall = match[8]
+    year = parseInt(match[9], 10)
   }
 
-  // Extrair valores
+  // Extrair valores comuns
   const pcHour = parseInt(match[1], 10)
   const pcMinute = parseInt(match[2], 10)
   const pcSecond = parseInt(match[3], 10)
@@ -342,8 +357,6 @@ export function parseTimeCommand(timeCommand) {
   const wurmMinute = parseInt(match[5], 10)
   const wurmSecond = parseInt(match[6], 10)
   const week = parseInt(match[7], 10)
-  const starfall = match[8]
-  const year = parseInt(match[9], 10)
 
   // Validar valores
   if (isNaN(wurmHour) || wurmHour < 0 || wurmHour > 23) {

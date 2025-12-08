@@ -191,6 +191,45 @@ export const api = {
     }
     return 'unknown'
   },
+
+  // Configurar caminho dos logs
+  setLogsPath: async (path) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.SetLogsPath(path)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Obter caminho dos logs
+  getLogsPath: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetLogsPath()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Ler última linha do arquivo Trade.2025-08
+  readTradeLogLastLine: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ReadTradeLogLastLine()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Ler últimas N linhas do arquivo Trade atual
+  readCurrentTradeLogLastNLines: async (n) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ReadCurrentTradeLogLastNLines(n)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  readCurrentEventsLogLastNLines: async (n) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.ReadCurrentEventsLogLastNLines(n)
+    }
+    throw new Error('Backend não disponível')
+  },
 }
 
 

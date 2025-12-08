@@ -62,10 +62,12 @@
   "app": {
     "title": "Wurm Manager",
     "deed": "Deed",
+    "balance": "Balance",
     "tabs": {
       "stock": "Estoque",
       "notes": "Notas",
-      "calendar": "Calendário"
+      "calendar": "Calendário",
+      "events": "Eventos"
     }
   },
   "stock": {
@@ -174,7 +176,20 @@
     "clearDatabaseSuccess": "✅ Banco de dados limpo com sucesso!",
     "clearDatabaseError": "❌ Erro ao limpar banco de dados",
     "language": "Idioma",
-    "selectLanguage": "Selecionar Idioma"
+    "selectLanguage": "Selecionar Idioma",
+    "allowLogsCommunications": "Permitir leitura de Logs"
+  },
+  "logs": {
+    "configTitle": "Configurar Leitura de Logs",
+    "instructions": "Informe o caminho completo da pasta de logs do Wurm Online. Exemplo: /Users/Wurm/players/YourName/logs",
+    "pathLabel": "Caminho dos Logs",
+    "pathPlaceholder": "/caminho/para/logs",
+    "pathRequired": "Por favor, informe o caminho dos logs",
+    "testRead": "Ler Última Linha",
+    "readSuccess": "Última linha lida com sucesso!",
+    "readError": "Erro ao ler o arquivo de log. Verifique se o caminho está correto e se o arquivo Trade.2025-08.txt existe.",
+    "lastLineTitle": "Última linha do arquivo Trade.2025-08.txt",
+    "saveError": "Erro ao salvar o caminho dos logs. Verifique se o caminho está correto."
   },
   "updates": {
     "title": "Atualizações",
@@ -274,5 +289,48 @@
       "reset": "Resetar",
       "resetConfirm": "Deseja resetar a calibração para o valor padrão?"
     }
+  },
+  "events": {
+    "title": "Eventos",
+    "disabled": {
+      "title": "Aba Events Desabilitada",
+      "message": "Para habilitar esta aba, você precisa:",
+      "step1": "Ir em Configurações (ícone de engrenagem no canto superior direito)",
+      "step2": "Ativar o toggle \"Allow Logs Communications\"",
+      "step3": "Configurar o caminho dos logs do Wurm Online",
+      "tooltip": "Habilite \"Allow Logs Communications\" nas configurações para usar esta aba"
+    },
+    "logsNotEnabled": "Por favor, habilite \"Allow Logs Communications\" nas configurações primeiro.",
+    "trade": {
+      "title": "Chat de Trade",
+      "disabled": "Ative o toggle acima para começar a ler mensagens de Trade em tempo real.",
+      "noMessages": "Nenhuma mensagem ainda. Aguardando novas mensagens...",
+      "readError": "Erro ao ler mensagens de Trade"
+    },
+    "events": {
+      "title": "Chat de Events",
+      "disabled": "Ative o toggle acima para começar a ler mensagens de Events em tempo real.",
+      "noMessages": "Nenhuma mensagem ainda. Aguardando novas mensagens..."
+    },
+    "alarm": {
+      "title": "Configurar Alarme",
+      "instructions": "Configure palavras-chave para receber um alerta sonoro quando aparecerem nas mensagens de Trade.",
+      "enable": "Ativar alarme",
+      "keywordsLabel": "Quando a Mensagem abaixo for enviada",
+      "keywordsPlaceholder": "Exemplo: shovel, pickaxe, iron",
+      "keywordsHint": "Separe múltiplas palavras por vírgula. O alarme será ativado se qualquer uma das palavras aparecer na mensagem.",
+      "volumeLabel": "Volume do Alarme",
+      "test": "Testar",
+      "testTooltip": "Testar som do alarme",
+      "configure": "Configurar Alarme"
+    }
+  },
+  "notifications": {
+    "title": "Notificações",
+    "empty": "Nenhuma notificação",
+    "details": "Detalhes da Notificação",
+    "delete": "Deletar",
+    "deleteAll": "Deletar todas",
+    "deleteAllConfirm": "Tem certeza que deseja deletar todas as notificações?"
   }
 }

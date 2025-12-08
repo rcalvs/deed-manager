@@ -42,6 +42,17 @@
   border-bottom-color: #5a9fd4;
 }
 
+.tab-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: #666;
+}
+
+.tab-button.disabled:hover {
+  background-color: transparent;
+  color: #666;
+}
+
 .tab-icon {
   font-size: 1.1rem;
 }

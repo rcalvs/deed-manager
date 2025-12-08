@@ -23,7 +23,16 @@ function CalendarTab({ developerMode = false }) {
     updateWurmTime()
     const interval = setInterval(updateWurmTime, 60000) // Atualizar a cada minuto
     
-    return () => clearInterval(interval)
+    // Ouvir evento de atualização de época (calibração automática)
+    const handleEpochUpdate = () => {
+      updateWurmTime()
+    }
+    window.addEventListener('wurm-epoch-updated', handleEpochUpdate)
+    
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('wurm-epoch-updated', handleEpochUpdate)
+    }
   }, [isCalibrationModalOpen]) // Recarregar quando calibrar
 
   useEffect(() => {

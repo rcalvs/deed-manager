@@ -62,10 +62,12 @@
   "app": {
     "title": "Wurm Manager",
     "deed": "Deed",
+    "balance": "Balance",
     "tabs": {
       "stock": "Stock",
       "notes": "Notes",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "events": "Events"
     }
   },
   "stock": {
@@ -174,7 +176,20 @@
     "clearDatabaseSuccess": "✅ Database cleared successfully!",
     "clearDatabaseError": "❌ Error clearing database",
     "language": "Language",
-    "selectLanguage": "Select Language"
+    "selectLanguage": "Select Language",
+    "allowLogsCommunications": "Allow Logs Communications"
+  },
+  "logs": {
+    "configTitle": "Configure Log Reading",
+    "instructions": "Enter the full path to the Wurm Online logs folder. Example: /Users/Wurm/players/YourName/logs",
+    "pathLabel": "Logs Path",
+    "pathPlaceholder": "/path/to/logs",
+    "pathRequired": "Please enter the logs path",
+    "testRead": "Read Last Line",
+    "readSuccess": "Last line read successfully!",
+    "readError": "Error reading log file. Please check if the path is correct and if the Trade.2025-08.txt file exists.",
+    "lastLineTitle": "Last line of Trade.2025-08.txt file",
+    "saveError": "Error saving logs path. Please check if the path is correct."
   },
   "updates": {
     "title": "Updates",
@@ -274,5 +289,48 @@
       "reset": "Reset",
       "resetConfirm": "Do you want to reset the calibration to the default value?"
     }
+  },
+  "events": {
+    "title": "Events",
+    "disabled": {
+      "title": "Events Tab Disabled",
+      "message": "To enable this tab, you need to:",
+      "step1": "Go to Settings (gear icon in the top right corner)",
+      "step2": "Enable the \"Allow Logs Communications\" toggle",
+      "step3": "Configure the Wurm Online logs path",
+      "tooltip": "Enable \"Allow Logs Communications\" in settings to use this tab"
+    },
+    "logsNotEnabled": "Please enable \"Allow Logs Communications\" in settings first.",
+    "trade": {
+      "title": "Trade Chat",
+      "disabled": "Enable the toggle above to start reading Trade messages in real-time.",
+      "noMessages": "No messages yet. Waiting for new messages...",
+      "readError": "Error reading Trade messages"
+    },
+    "events": {
+      "title": "Events Chat",
+      "disabled": "Enable the toggle above to start reading Events messages in real-time.",
+      "noMessages": "No messages yet. Waiting for new messages..."
+    },
+    "alarm": {
+      "title": "Configure Alarm",
+      "instructions": "Configure keywords to receive a sound alert when they appear in Trade messages.",
+      "enable": "Enable alarm",
+      "keywordsLabel": "When the message below is sent",
+      "keywordsPlaceholder": "Example: shovel, pickaxe, iron",
+      "keywordsHint": "Separate multiple words with commas. The alarm will be triggered if any of the words appear in the message.",
+      "volumeLabel": "Alarm Volume",
+      "test": "Test",
+      "testTooltip": "Test alarm sound",
+      "configure": "Configure Alarm"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "details": "Notification Details",
+    "delete": "Delete",
+    "deleteAll": "Delete all",
+    "deleteAllConfirm": "Are you sure you want to delete all notifications?"
   }
 }

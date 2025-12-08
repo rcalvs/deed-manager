@@ -10,14 +10,16 @@ type App struct {
 	stockService  *StockService
 	notesService  *NotesService
 	updateService *UpdateService
+	logsService   *LogsService
 }
 
 // NewApp cria uma nova instância da aplicação
-func NewApp(stockService *StockService, notesService *NotesService, updateService *UpdateService) *App {
+func NewApp(stockService *StockService, notesService *NotesService, updateService *UpdateService, logsService *LogsService) *App {
 	return &App{
 		stockService:  stockService,
 		notesService:  notesService,
 		updateService: updateService,
+		logsService:   logsService,
 	}
 }
 

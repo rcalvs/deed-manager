@@ -13,6 +13,24 @@
   "author": {
     "name": "",
     "email": ""
+  },
+  "info": {
+    "productName": "Wurm Manager",
+    "productVersion": "0.2.5",
+    "copyright": "Copyright © 2025",
+    "comments": "Wurm Online inventory management application"
+  },
+  "macos": {
+    "info": {
+      "NSDocumentsFolderUsageDescription": "Wurm Manager needs access to read Wurm Online log files.",
+      "NSDownloadsFolderUsageDescription": "Wurm Manager needs access to read Wurm Online log files.",
+      "NSDesktopFolderUsageDescription": "Wurm Manager needs access to read Wurm Online log files.",
+      "LSMinimumSystemVersion": "10.13.0"
+    },
+    "entitlements": {
+      "com.apple.security.files.user-selected.read-only": true,
+      "com.apple.security.files.downloads.read-only": true
+    }
   }
 }
 
