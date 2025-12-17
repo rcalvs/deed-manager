@@ -152,6 +152,13 @@
 .calendar-day:hover {
   background-color: #2a2a2a;
   border-color: #5a9fd4;
+  transform: scale(1.02);
+}
+}
+
+.calendar-day:hover {
+  background-color: #2a2a2a;
+  border-color: #5a9fd4;
 }
 
 .calendar-day.other-month {
@@ -400,6 +407,153 @@
   border: 1px solid rgba(90, 159, 212, 0.4);
 }
 
+/* Modal de Nota */
+.calendar-note-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.calendar-note-modal {
+  background: #2a2a2a;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+.calendar-note-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.calendar-note-modal-header h3 {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 1.25rem;
+}
+
+.calendar-note-modal .btn-close {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  border-radius: 4px;
+}
+
+.calendar-note-modal .btn-close:hover {
+  color: #e0e0e0;
+  background-color: #3a3a3a;
+}
+
+.calendar-note-form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.calendar-note-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.calendar-note-form .form-group label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.calendar-note-form .form-group input,
+.calendar-note-form .form-group textarea,
+.calendar-note-form .form-group select {
+  background-color: #1e1e1e;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.calendar-note-form .form-group input:focus,
+.calendar-note-form .form-group textarea:focus,
+.calendar-note-form .form-group select:focus {
+  outline: none;
+  border-color: #5a9fd4;
+}
+
+.calendar-note-form .form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.calendar-note-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.calendar-note-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #3a3a3a;
+}
+
+.calendar-note-modal-footer .btn-cancel,
+.calendar-note-modal-footer .btn-save {
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.calendar-note-modal-footer .btn-cancel {
+  background-color: #4a4a4a;
+  color: #e0e0e0;
+}
+
+.calendar-note-modal-footer .btn-cancel:hover {
+  background-color: #5a5a5a;
+}
+
+.calendar-note-modal-footer .btn-save {
+  background-color: #5a9fd4;
+  color: white;
+}
+
+.calendar-note-modal-footer .btn-save:hover {
+  background-color: #6aaff4;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .calendar-day {
@@ -417,6 +571,10 @@
   
   .calendar-month-year {
     font-size: 1.2rem;
+  }
+
+  .calendar-note-form .form-row {
+    grid-template-columns: 1fr;
   }
 }
 

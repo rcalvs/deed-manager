@@ -6,20 +6,24 @@ import (
 
 // App struct
 type App struct {
-	ctx           context.Context
-	stockService  *StockService
-	notesService  *NotesService
-	updateService *UpdateService
-	logsService   *LogsService
+	ctx             context.Context
+	stockService    *StockService
+	notesService    *NotesService
+	updateService   *UpdateService
+	logsService     *LogsService
+	husbandryService *HusbandryService
+	husbandryBindings *HusbandryBindings
 }
 
 // NewApp cria uma nova instância da aplicação
-func NewApp(stockService *StockService, notesService *NotesService, updateService *UpdateService, logsService *LogsService) *App {
+func NewApp(stockService *StockService, notesService *NotesService, updateService *UpdateService, logsService *LogsService, husbandryService *HusbandryService) *App {
 	return &App{
-		stockService:  stockService,
-		notesService:  notesService,
-		updateService: updateService,
-		logsService:   logsService,
+		stockService:     stockService,
+		notesService:     notesService,
+		updateService:    updateService,
+		logsService:      logsService,
+		husbandryService: husbandryService,
+		husbandryBindings: NewHusbandryBindings(husbandryService),
 	}
 }
 
@@ -33,6 +37,9 @@ func (a *App) startup(ctx context.Context) {
 	if err := a.notesService.Initialize(); err != nil {
 		panic(err)
 	}
+	if err := a.husbandryService.Initialize(); err != nil {
+		panic(err)
+	}
 }
 
 // shutdown é chamado quando a aplicação fecha
@@ -42,6 +49,9 @@ func (a *App) shutdown(ctx context.Context) {
 		panic(err)
 	}
 	if err := a.notesService.Close(); err != nil {
+		panic(err)
+	}
+	if err := a.husbandryService.Close(); err != nil {
 		panic(err)
 	}
 }

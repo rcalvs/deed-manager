@@ -230,6 +230,72 @@ export const api = {
     }
     throw new Error('Backend não disponível')
   },
+
+  // ========== HUSBANDRY (Criação de Animais) ==========
+  
+  // Criar animal
+  createAnimal: async (name, type, gender, age, condition, father, mother, traits, notes) => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.CreateAnimal(name, type, gender, age, condition, father, mother, traits, notes)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Obter todos os animais
+  getAllAnimals: async () => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.GetAllAnimals()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Obter um animal por ID
+  getAnimal: async (id) => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.GetAnimal(id)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Atualizar animal
+  updateAnimal: async (id, name, type, gender, age, condition, father, mother, traits, notes) => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.UpdateAnimal(id, name, type, gender, age, condition, father, mother, traits, notes)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Deletar animal
+  deleteAnimal: async (id) => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.DeleteAnimal(id)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Definir acasalamento
+  setBreeding: async (femaleID, maleID, days, hours) => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.SetBreeding(femaleID, maleID, days, hours)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Limpar status de grávida
+  clearBreeding: async (animalID) => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.ClearBreeding(animalID)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  // Obter fêmeas grávidas
+  getPregnantAnimals: async () => {
+    if (window.go && window.go.main && window.go.main.HusbandryBindings) {
+      return await window.go.main.HusbandryBindings.GetPregnantAnimals()
+    }
+    throw new Error('Backend não disponível')
+  },
 }
 
 

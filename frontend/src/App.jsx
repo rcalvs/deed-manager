@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AiOutlineStock } from "react-icons/ai"
-import { FaBell, FaCalendarAlt, FaStickyNote } from "react-icons/fa"
+import { FaBell, FaCalendarAlt, FaPaw, FaStickyNote } from "react-icons/fa"
 import './App.css'
 import { api } from './api'
 import CalendarTab from './components/CalendarTab'
 import EventsTab from './components/EventsTab'
+import HusbandryTab from './components/HusbandryTab'
 import NotesTab from './components/NotesTab'
 import NotificationCenter from './components/NotificationCenter'
 import Settings from './components/Settings'
@@ -140,6 +141,11 @@ function App() {
       icon: <AiOutlineStock />,
     },
     {
+      id: 'husbandry',
+      label: t('app.tabs.husbandry'),
+      icon: <FaPaw />,
+    },
+    {
       id: 'notes',
       label: t('app.tabs.notes'),
       icon: <FaStickyNote />,
@@ -194,6 +200,7 @@ function App() {
           onTabChange={setActiveTab}
         >
           {activeTab === 'stock' && <StockTab developerMode={developerMode} />}
+          {activeTab === 'husbandry' && <HusbandryTab />}
           {activeTab === 'notes' && <NotesTab />}
           {activeTab === 'calendar' && <CalendarTab developerMode={developerMode} />}
           {activeTab === 'events' && <EventsTab />}

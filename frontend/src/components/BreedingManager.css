@@ -1,0 +1,145 @@
+.breeding-manager {
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breeding-manager h3 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.breeding-selectors {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+}
+
+.breeding-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.breeding-selector label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.breeding-selector select {
+  padding: 0.5rem 0.75rem;
+  background-color: #1e1e1e;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  height: 2rem; 
+}
+
+.breeding-selector select:focus {
+  outline: none;
+  border-color: #5a9fd4;
+}
+
+.selected-animal-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background-color: #1e1e1e;
+  border-radius: 4px;
+  border: 1px solid #4a4a4a;
+}
+
+.selected-animal-info .animal-name {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.selected-animal-info .animal-traits {
+  background-color: rgba(90, 159, 212, 0.2);
+  color: #90ee90;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(90, 159, 212, 0.4);
+}
+
+.pregnancy-time {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pregnancy-time label {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.time-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.time-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.time-input label {
+  color: #b0b0b0;
+  font-size: 0.85rem;
+}
+
+.time-input input {
+  padding: 0.5rem 0.75rem;
+  background-color: #1e1e1e;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.time-input input:focus {
+  outline: none;
+  border-color: #5a9fd4;
+}
+
+.btn-breed {
+  padding: 0.75rem 1.5rem;
+  background-color: #5a9fd4;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-breed:hover:not(:disabled) {
+  background-color: #4a8fc4;
+}
+
+.btn-breed:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+

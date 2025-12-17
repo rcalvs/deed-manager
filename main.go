@@ -37,8 +37,11 @@ func main() {
 	// Criar instância do serviço de logs
 	logsService := NewLogsService()
 
+	// Criar instância do serviço de husbandry
+	husbandryService := NewHusbandryService()
+
 	// Criar instância da aplicação
-	app := NewApp(stockService, notesService, updateService, logsService)
+	app := NewApp(stockService, notesService, updateService, logsService, husbandryService)
 
 	// Configurar opções da aplicação
 	appOptions := &options.App{
@@ -48,7 +51,7 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
-		Bind:             []interface{}{app},
+		Bind:             []interface{}{app, app.husbandryBindings},
 	}
 
 	// Configurar AssetServer

@@ -488,6 +488,12 @@ function EventsTab() {
               updateBalance(msg)
               processTimeCommand(msg)
             })
+            // Disparar evento para componentes que escutam mensagens de Events
+            if (lines.length > 0) {
+              window.dispatchEvent(new CustomEvent('events-message-received', {
+                detail: { messages: lines }
+              }))
+            }
           } else {
             const lastKnownMessage = eventsMessages[eventsMessages.length - 1]
             const lastNewMessage = lines[lines.length - 1]
@@ -505,22 +511,27 @@ function EventsTab() {
                   processTimeCommand(msg)
                 })
               } else {
-                const newMessages = lines.slice(lastKnownIndex + 1)
-                if (newMessages.length > 0) {
-                  checkAlarmForMessages(newMessages, eventsAlarmConfig, eventsAlarmConfig.volume)
-                  
-                  newMessages.forEach(msg => {
-                    updateBalance(msg)
-                    processTimeCommand(msg)
-                  })
-                  
-                  setEventsMessages(prev => {
-                    const combined = [...prev, ...newMessages]
-                    return combined.slice(-50)
-                  })
-                  lastEventsMessageCountRef.current = lines.length
-                  newMessages.forEach(msg => lastCheckedEventsMessagesRef.current.add(msg))
-                }
+                  const newMessages = lines.slice(lastKnownIndex + 1)
+                  if (newMessages.length > 0) {
+                    checkAlarmForMessages(newMessages, eventsAlarmConfig, eventsAlarmConfig.volume)
+                    
+                    newMessages.forEach(msg => {
+                      updateBalance(msg)
+                      processTimeCommand(msg)
+                    })
+                    
+                    // Disparar evento para componentes que escutam mensagens de Events
+                    window.dispatchEvent(new CustomEvent('events-message-received', {
+                      detail: { messages: newMessages }
+                    }))
+                    
+                    setEventsMessages(prev => {
+                      const combined = [...prev, ...newMessages]
+                      return combined.slice(-50)
+                    })
+                    lastEventsMessageCountRef.current = lines.length
+                    newMessages.forEach(msg => lastCheckedEventsMessagesRef.current.add(msg))
+                  }
               }
             }
           }
