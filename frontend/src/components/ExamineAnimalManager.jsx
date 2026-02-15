@@ -13,7 +13,9 @@ function ExamineAnimalManager({ onAnimalAdded }) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [examineEnabled, setExamineEnabled] = useState(() => {
-    return localStorage.getItem(EXAMINE_ENABLED_KEY) === 'true'
+    const enabled = localStorage.getItem(EXAMINE_ENABLED_KEY) === 'true'
+    console.log('[ExamineAnimalManager] examineEnabled inicial:', enabled)
+    return enabled
   })
   const [pendingAnimal, setPendingAnimal] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -25,85 +27,90 @@ function ExamineAnimalManager({ onAnimalAdded }) {
     return logsEnabled && eventsEnabled
   }, [])
 
+
   // Listener para mensagens de Events
   useEffect(() => {
+    console.log('[ExamineAnimalManager] useEffect executado')
+    console.log('[ExamineAnimalManager] examineEnabled:', examineEnabled)
+    console.log('[ExamineAnimalManager] checkEventsEnabled():', checkEventsEnabled())
+    
     if (!examineEnabled || !checkEventsEnabled()) {
+      console.log('[ExamineAnimalManager] Condições não atendidas - examineEnabled:', examineEnabled, 'eventsEnabled:', checkEventsEnabled())
       return
     }
+    
+    console.log('[ExamineAnimalManager] Registrando listener para eventos events-message-received')
 
     const handleEventsMessage = (event) => {
-      // O evento pode conter uma mensagem ou um array de mensagens
-      // Vamos verificar se há novas mensagens de examine
       const messages = event.detail?.messages || []
       
       if (messages.length === 0) {
         return
       }
+      
+      // Verificar rapidamente se alguma mensagem contém o trigger antes de processar
+      const hasTrigger = messages.some(msg => 
+        msg.includes('like this one have many uses')
+      )
+      
+      if (!hasTrigger) {
+        // Não há trigger, ignorar este evento
+        return
+      }
+      
+      console.log('[ExamineAnimalManager] Evento recebido com trigger de examine, processando...')
 
-      // Agrupar mensagens por timestamp (mensagens próximas no tempo são do mesmo examine)
-      // Um examine geralmente tem várias mensagens com o mesmo timestamp ou muito próximas
-      const groupedMessages = []
-      let currentGroup = []
-      let lastTimestamp = null
-
-      messages.forEach(msg => {
-        const timestampMatch = msg.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
-        if (timestampMatch) {
-          const timestamp = timestampMatch[1]
-          
-          // Se a diferença for maior que 2 segundos, é um novo examine
-          if (lastTimestamp && getTimeDifference(lastTimestamp, timestamp) > 2) {
-            if (currentGroup.length > 0) {
-              groupedMessages.push([...currentGroup])
-              currentGroup = []
-            }
-          }
-          
-          currentGroup.push(msg)
-          lastTimestamp = timestamp
-        } else {
-          // Se não tem timestamp, adicionar ao grupo atual
-          if (currentGroup.length > 0) {
-            currentGroup.push(msg)
-          }
+      // Encontrar a mensagem com o trigger e extrair seu timestamp
+      const triggerMsg = messages.find(msg => msg.includes('like this one have many uses'))
+      
+      if (!triggerMsg) {
+        return
+      }
+      
+      const triggerTimestampMatch = triggerMsg.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
+      if (!triggerTimestampMatch) {
+        return
+      }
+      
+      const triggerTimestamp = triggerTimestampMatch[1]
+      console.log(`[ExamineAnimalManager] Trigger encontrado com timestamp: ${triggerTimestamp}`)
+      
+      // Buscar TODAS as mensagens com o mesmo timestamp
+      const examineMessages = messages.filter(msg => {
+        const msgTimestampMatch = msg.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
+        if (msgTimestampMatch) {
+          return msgTimestampMatch[1] === triggerTimestamp
+        }
+        return false
+      })
+      
+      // Garantir que a mensagem do trigger seja a primeira
+      const reorganizedMessages = [triggerMsg]
+      examineMessages.forEach(msg => {
+        if (msg !== triggerMsg) {
+          reorganizedMessages.push(msg)
         }
       })
-
-      // Adicionar o último grupo
-      if (currentGroup.length > 0) {
-        groupedMessages.push(currentGroup)
-      }
-
-      // Processar cada grupo de mensagens
-      for (const group of groupedMessages) {
-        const parsed = parseExamineMessages(group)
-        if (parsed) {
-          // Encontrar um examine válido, mostrar modal de confirmação
-          setPendingAnimal(parsed)
-          setIsModalOpen(true)
-          break // Processar apenas o primeiro examine válido
-        }
+      
+      console.log(`[ExamineAnimalManager] Encontradas ${reorganizedMessages.length} mensagens com timestamp ${triggerTimestamp}`)
+      
+      const parsed = parseExamineMessages(reorganizedMessages)
+      if (parsed) {
+        console.log('[ExamineAnimalManager] Animal parseado:', parsed)
+        setPendingAnimal(parsed)
+        setIsModalOpen(true)
       }
     }
 
     // Escutar eventos customizados do EventsTab
+    console.log('[ExamineAnimalManager] Adicionando event listener')
     window.addEventListener('events-message-received', handleEventsMessage)
 
     return () => {
+      console.log('[ExamineAnimalManager] Removendo event listener (cleanup)')
       window.removeEventListener('events-message-received', handleEventsMessage)
     }
   }, [examineEnabled, checkEventsEnabled, pendingAnimal])
-
-  // Função auxiliar para calcular diferença de tempo em segundos
-  const getTimeDifference = (time1, time2) => {
-    const [h1, m1, s1] = time1.split(':').map(Number)
-    const [h2, m2, s2] = time2.split(':').map(Number)
-    
-    const seconds1 = h1 * 3600 + m1 * 60 + s1
-    const seconds2 = h2 * 3600 + m2 * 60 + s2
-    
-    return Math.abs(seconds2 - seconds1)
-  }
 
   const handleToggleExamine = (e) => {
     e.stopPropagation()

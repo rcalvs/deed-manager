@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { FaChevronDown, FaChevronUp, FaPlus } from 'react-icons/fa'
 import { api } from '../api'
 import { ANIMAL_AGES, ANIMAL_CONDITIONS, ANIMAL_GENDERS, ANIMAL_TRAITS, ANIMAL_TYPES } from '../constants'
-import { parseExamineMessages } from '../utils/examineParser'
+import { parseExamineMessages, hasExamineTrigger } from '../utils/examineParser'
+import ExamineConfirmModal from './ExamineConfirmModal'
 import './HusbandryForm.css'
 
 function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
@@ -32,6 +33,7 @@ function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
   })
   const [pendingAnimal, setPendingAnimal] = useState(null)
   const [isExamineModalOpen, setIsExamineModalOpen] = useState(false)
+  const [lastProcessedTimestamp, setLastProcessedTimestamp] = useState(null)
 
   // Verificar se Events está habilitado
   const checkEventsEnabled = useCallback(() => {
@@ -40,16 +42,6 @@ function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
     return logsEnabled && eventsEnabled
   }, [])
 
-  // Função auxiliar para calcular diferença de tempo em segundos
-  const getTimeDifference = useCallback((time1, time2) => {
-    const [h1, m1, s1] = time1.split(':').map(Number)
-    const [h2, m2, s2] = time2.split(':').map(Number)
-    
-    const seconds1 = h1 * 3600 + m1 * 60 + s1
-    const seconds2 = h2 * 3600 + m2 * 60 + s2
-    
-    return Math.abs(seconds2 - seconds1)
-  }, [])
 
   // Listener para editar animal
   useEffect(() => {
@@ -78,9 +70,17 @@ function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
 
   // Listener para mensagens de Events (Examine)
   useEffect(() => {
+    console.log('[HusbandryForm] useEffect do examine executado')
+    console.log('[HusbandryForm] examineEnabled:', examineEnabled)
+    console.log('[HusbandryForm] checkEventsEnabled():', checkEventsEnabled())
+    console.log('[HusbandryForm] pendingAnimal:', pendingAnimal)
+    
     if (!examineEnabled || !checkEventsEnabled() || pendingAnimal) {
+      console.log('[HusbandryForm] Condições não atendidas - examineEnabled:', examineEnabled, 'eventsEnabled:', checkEventsEnabled(), 'pendingAnimal:', pendingAnimal)
       return
     }
+    
+    console.log('[HusbandryForm] Registrando listener para eventos events-message-received')
 
     const handleEventsMessage = (event) => {
       const messages = event.detail?.messages || []
@@ -88,59 +88,114 @@ function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
       if (messages.length === 0) {
         return
       }
-
-      // Agrupar mensagens por timestamp (mensagens próximas no tempo são do mesmo examine)
-      const groupedMessages = []
-      let currentGroup = []
-      let lastTimestamp = null
-
-      messages.forEach(msg => {
-        const timestampMatch = msg.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
-        if (timestampMatch) {
-          const timestamp = timestampMatch[1]
-          
-          // Se a diferença for maior que 2 segundos, é um novo examine
-          if (lastTimestamp && getTimeDifference(lastTimestamp, timestamp) > 2) {
-            if (currentGroup.length > 0) {
-              groupedMessages.push([...currentGroup])
-              currentGroup = []
-            }
+      
+      console.log('[HusbandryForm] Evento recebido! Total de mensagens:', messages.length)
+      console.log('[HusbandryForm] Primeiras 3 mensagens:', messages.slice(0, 3).map(m => m.substring(0, 80)))
+      
+      // Verificar rapidamente se alguma mensagem contém o trigger antes de processar
+      // Usar função centralizada do examineParser
+      const hasTrigger = messages.some(msg => {
+        if (hasExamineTrigger(msg)) {
+          const lowerMsg = msg.toLowerCase()
+          // Log específico para alguns animais
+          if (lowerMsg.includes('unicorn')) {
+            console.log('[HusbandryForm] Trigger de unicorn encontrado na mensagem:', lowerMsg.substring(0, 80))
+          } else if (lowerMsg.includes('deer')) {
+            console.log('[HusbandryForm] Trigger de deer encontrado na mensagem:', lowerMsg.substring(0, 80))
+          } else if (lowerMsg.includes('bison')) {
+            console.log('[HusbandryForm] Trigger de bison encontrado na mensagem:', lowerMsg.substring(0, 80))
           }
-          
-          currentGroup.push(msg)
-          lastTimestamp = timestamp
-        } else {
-          // Se não tem timestamp, adicionar ao grupo atual
-          if (currentGroup.length > 0) {
-            currentGroup.push(msg)
+          return true
+        }
+        return false
+      })
+      
+      if (!hasTrigger) {
+        // Não há trigger, ignorar este evento
+        console.log('[HusbandryForm] Nenhum trigger encontrado nas mensagens.')
+        return
+      }
+      
+      console.log('[HusbandryForm] Trigger encontrado! Processando mensagens...')
+
+      // Encontrar a mensagem com o trigger e extrair seu timestamp
+      // Usar função centralizada do examineParser
+      const triggerMsg = messages.find(msg => {
+        if (hasExamineTrigger(msg)) {
+          const lowerMsg = msg.toLowerCase()
+          // Log específico para alguns animais
+          if (lowerMsg.includes('unicorn')) {
+            console.log('[HusbandryForm] Mensagem de trigger de unicorn encontrada:', lowerMsg.substring(0, 80))
+          } else if (lowerMsg.includes('deer')) {
+            console.log('[HusbandryForm] Mensagem de trigger de deer encontrada:', lowerMsg.substring(0, 80))
+          } else if (lowerMsg.includes('bison')) {
+            console.log('[HusbandryForm] Mensagem de trigger de bison encontrada:', lowerMsg.substring(0, 80))
           }
+          return true
+        }
+        return false
+      })
+      
+      if (!triggerMsg) {
+        return
+      }
+      
+      const triggerTimestampMatch = triggerMsg.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
+      if (!triggerTimestampMatch) {
+        return
+      }
+      
+      const triggerTimestamp = triggerTimestampMatch[1]
+      
+      // Verificar se já processamos esta mensagem
+      if (lastProcessedTimestamp === triggerTimestamp) {
+        console.log(`[HusbandryForm] Mensagem com timestamp ${triggerTimestamp} já foi processada, ignorando...`)
+        return
+      }
+      
+      console.log(`[HusbandryForm] Trigger encontrado com timestamp: ${triggerTimestamp}`)
+      
+      // Marcar como processado ANTES de processar (para evitar processamento duplicado)
+      setLastProcessedTimestamp(triggerTimestamp)
+      
+      // Buscar TODAS as mensagens com o mesmo timestamp
+      const examineMessages = messages.filter(msg => {
+        const msgTimestampMatch = msg.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
+        if (msgTimestampMatch) {
+          return msgTimestampMatch[1] === triggerTimestamp
+        }
+        return false
+      })
+      
+      // Garantir que a mensagem do trigger seja a primeira
+      const reorganizedMessages = [triggerMsg]
+      examineMessages.forEach(msg => {
+        if (msg !== triggerMsg) {
+          reorganizedMessages.push(msg)
         }
       })
-
-      // Adicionar o último grupo
-      if (currentGroup.length > 0) {
-        groupedMessages.push(currentGroup)
-      }
-
-      // Processar cada grupo de mensagens
-      for (const group of groupedMessages) {
-        const parsed = parseExamineMessages(group)
-        if (parsed) {
-          // Encontrar um examine válido, mostrar modal de confirmação
-          setPendingAnimal(parsed)
-          setIsExamineModalOpen(true)
-          break // Processar apenas o primeiro examine válido
-        }
+      
+      console.log(`[HusbandryForm] Encontradas ${reorganizedMessages.length} mensagens com timestamp ${triggerTimestamp}`)
+      
+      const parsed = parseExamineMessages(reorganizedMessages)
+      if (parsed) {
+        // Adicionar o timestamp usado para buscar as mensagens
+        parsed.examineTimestamp = triggerTimestamp
+        console.log('[HusbandryForm] Animal parseado:', parsed)
+        setPendingAnimal(parsed)
+        setIsExamineModalOpen(true)
       }
     }
 
     // Escutar eventos customizados do EventsTab
+    console.log('[HusbandryForm] Adicionando event listener')
     window.addEventListener('events-message-received', handleEventsMessage)
 
     return () => {
+      console.log('[HusbandryForm] Removendo event listener (cleanup)')
       window.removeEventListener('events-message-received', handleEventsMessage)
     }
-  }, [examineEnabled, checkEventsEnabled, pendingAnimal, getTimeDifference])
+  }, [examineEnabled, checkEventsEnabled, pendingAnimal, lastProcessedTimestamp])
 
   const showMessage = (msg, isError = false) => {
     setMessage(msg)
@@ -251,11 +306,13 @@ function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
   const handleExamineModalClose = () => {
     setIsExamineModalOpen(false)
     setPendingAnimal(null)
+    // Não limpar o timestamp aqui, pois queremos evitar reprocessar mesmo se o modal for fechado
   }
 
   const handleExamineAnimalConfirmed = () => {
     setIsExamineModalOpen(false)
     setPendingAnimal(null)
+    // Não limpar o timestamp aqui também, pois já foi processado
     if (onAnimalAdded) {
       onAnimalAdded()
     }
@@ -519,6 +576,15 @@ function HusbandryForm({ onAnimalAdded, onAnimalUpdated }) {
             </div>
           </form>
         </div>
+      )}
+
+      {pendingAnimal && (
+        <ExamineConfirmModal
+          isOpen={isExamineModalOpen}
+          onClose={handleExamineModalClose}
+          parsedAnimal={pendingAnimal}
+          onConfirm={handleExamineAnimalConfirmed}
+        />
       )}
     </div>
   )

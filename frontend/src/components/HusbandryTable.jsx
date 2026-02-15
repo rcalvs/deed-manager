@@ -260,6 +260,9 @@ function HusbandryTable({ animals, loading, onAnimalDeleted, onAnimalUpdated }) 
                   <td>{getAnimalTypeLabel(animal.type)}</td>
                   <td>{getAnimalGenderLabel(animal.gender)}</td>
                   <td>{getAnimalAgeLabel(animal.age)}</td>
+                  <td>{getAnimalConditionLabel(animal.condition)}</td>
+                  <td>{animal.father || '-'}</td>
+                  <td>{animal.mother || '-'}</td>
                   <td>
                     {(() => {
                       const traitsInfo = formatTraitsAbbreviation(animal.traits)
@@ -280,9 +283,6 @@ function HusbandryTable({ animals, loading, onAnimalDeleted, onAnimalUpdated }) 
                       )
                     })()}
                   </td>
-                  <td>{getAnimalConditionLabel(animal.condition)}</td>
-                  <td>{animal.father || '-'}</td>
-                  <td>{animal.mother || '-'}</td>
                   <td>{animal.notes || '-'}</td>
                   <td>
                     <div className="table-actions">

@@ -4,6 +4,7 @@ import { AiOutlineStock } from "react-icons/ai"
 import { FaBell, FaCalendarAlt, FaPaw, FaStickyNote } from "react-icons/fa"
 import './App.css'
 import { api } from './api'
+import { eventsPollingService } from './services/EventsPollingService'
 import CalendarTab from './components/CalendarTab'
 import EventsTab from './components/EventsTab'
 import HusbandryTab from './components/HusbandryTab'
@@ -65,8 +66,20 @@ function App() {
     const checkLogsEnabled = () => {
       const enabled = localStorage.getItem('wurm_logs_enabled') === 'true'
       setLogsEnabled(enabled)
+      
+      // Iniciar ou parar o serviço de polling global baseado nas configurações
+      const eventsEnabled = localStorage.getItem('wurm_event_enabled') === 'true'
+      if (enabled && eventsEnabled) {
+        eventsPollingService.start()
+      } else {
+        console.log('[App] Parando serviço de polling global de eventos')
+        eventsPollingService.stop()
+      }
     }
 
+    // Verificar na inicialização
+    checkLogsEnabled()
+    
     // Verificar periodicamente (a cada 1 segundo)
     const interval = setInterval(checkLogsEnabled, 1000)
 

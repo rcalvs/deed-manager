@@ -158,8 +158,6 @@ func (ls *LogsService) ReadCurrentTradeLogLastNLines(n int) ([]string, error) {
 	now := time.Now()
 	fileName := filepath.Join(ls.logsPath, "Trade."+now.Format("2006-01")+".txt")
 
-	log.Printf("[LogsService] ReadCurrentTradeLogLastNLines: Lendo últimas %d linhas de %s", n, fileName)
-
 	return ls.ReadLastNLines(fileName, n)
 }
 
@@ -172,8 +170,6 @@ func (ls *LogsService) ReadCurrentEventsLogLastNLines(n int) ([]string, error) {
 	// Construir nome do arquivo baseado na data atual
 	now := time.Now()
 	fileName := filepath.Join(ls.logsPath, "_Event."+now.Format("2006-01")+".txt")
-
-	log.Printf("[LogsService] ReadCurrentEventsLogLastNLines: Lendo últimas %d linhas de %s", n, fileName)
 
 	return ls.ReadLastNLines(fileName, n)
 }

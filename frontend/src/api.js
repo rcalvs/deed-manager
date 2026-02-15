@@ -235,9 +235,19 @@ export const api = {
   
   // Criar animal
   createAnimal: async (name, type, gender, age, condition, father, mother, traits, notes) => {
+    console.log('[API] createAnimal chamado com:', { name, type, gender, age, condition, father, mother, traits, notes })
     if (window.go && window.go.main && window.go.main.HusbandryBindings) {
-      return await window.go.main.HusbandryBindings.CreateAnimal(name, type, gender, age, condition, father, mother, traits, notes)
+      console.log('[API] Backend disponível, chamando HusbandryBindings.CreateAnimal...')
+      try {
+        const result = await window.go.main.HusbandryBindings.CreateAnimal(name, type, gender, age, condition, father, mother, traits, notes)
+        console.log('[API] CreateAnimal retornou:', result)
+        return result
+      } catch (error) {
+        console.error('[API] Erro ao chamar CreateAnimal:', error)
+        throw error
+      }
     }
+    console.error('[API] Backend não disponível')
     throw new Error('Backend não disponível')
   },
 

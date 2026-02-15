@@ -64,9 +64,24 @@ function ExamineConfirmModal({ isOpen, onClose, parsedAnimal, onConfirm }) {
       return
     }
 
+    const animalData = {
+      name,
+      type,
+      gender,
+      age,
+      condition,
+      father: father || 'wild',
+      mother: mother || 'wild',
+      traits: selectedTraits,
+      notes
+    }
+    
+    console.log('[ExamineConfirmModal] Iniciando salvamento do animal:', animalData)
+
     setLoading(true)
     try {
-      await api.createAnimal(
+      console.log('[ExamineConfirmModal] Chamando api.createAnimal...')
+      const result = await api.createAnimal(
         name,
         type,
         gender,
@@ -77,9 +92,15 @@ function ExamineConfirmModal({ isOpen, onClose, parsedAnimal, onConfirm }) {
         selectedTraits,
         notes
       )
+      console.log('[ExamineConfirmModal] Animal salvo com sucesso:', result)
       onConfirm()
     } catch (error) {
-      console.error('Erro ao adicionar animal:', error)
+      console.error('[ExamineConfirmModal] Erro ao adicionar animal:', error)
+      console.error('[ExamineConfirmModal] Detalhes do erro:', {
+        message: error.message,
+        stack: error.stack,
+        error: error
+      })
       alert(`${t('husbandry.error', { defaultValue: 'Erro' })}: ${error.message || t('common.error')}`)
     } finally {
       setLoading(false)
@@ -102,6 +123,11 @@ function ExamineConfirmModal({ isOpen, onClose, parsedAnimal, onConfirm }) {
           <div className="examine-preview">
             <h4>{t('husbandry.examine.extractedData', { defaultValue: 'Dados Extraídos do Examine' })}</h4>
             <div className="preview-info">
+              {parsedAnimal?.examineTimestamp && (
+                <p><strong>{t('husbandry.examine.timestamp', { defaultValue: 'Timestamp' })}:</strong> 
+                  <span style={{ fontFamily: 'monospace', marginLeft: '8px' }}>[{parsedAnimal.examineTimestamp}]</span>
+                </p>
+              )}
               <p><strong>{t('husbandry.type', { defaultValue: 'Tipo' })}:</strong> {
                 ANIMAL_TYPES.find(t => t.value === parsedAnimal?.type)?.label || parsedAnimal?.type
               }</p>

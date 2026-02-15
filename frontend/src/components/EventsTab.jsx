@@ -477,9 +477,11 @@ function EventsTab() {
 
     const pollEventsMessages = async () => {
       try {
-        const lines = await api.readCurrentEventsLogLastNLines(10)
+        // Ler mais linhas para garantir que capturamos o examine completo
+        const lines = await api.readCurrentEventsLogLastNLines(15)
         
         if (lines && lines.length > 0) {
+          console.log('[EventsTab] Primeiras linhas:', lines.slice(0, 3))
           if (eventsMessages.length === 0) {
             setEventsMessages(lines)
             lastEventsMessageCountRef.current = lines.length
@@ -488,8 +490,13 @@ function EventsTab() {
               updateBalance(msg)
               processTimeCommand(msg)
             })
-            // Disparar evento para componentes que escutam mensagens de Events
-            if (lines.length > 0) {
+            // Verificar se há trigger de examine antes de disparar evento (primeira carga)
+            const hasExamineTrigger = lines.some(msg => 
+              msg.includes('like this one have many uses')
+            )
+            
+            if (hasExamineTrigger && lines.length > 0) {
+              console.log('[EventsTab] Trigger de examine encontrado na primeira carga! Disparando evento')
               window.dispatchEvent(new CustomEvent('events-message-received', {
                 detail: { messages: lines }
               }))
@@ -520,10 +527,18 @@ function EventsTab() {
                       processTimeCommand(msg)
                     })
                     
-                    // Disparar evento para componentes que escutam mensagens de Events
-                    window.dispatchEvent(new CustomEvent('events-message-received', {
-                      detail: { messages: newMessages }
-                    }))
+                    // Verificar se há trigger de examine antes de disparar evento
+                    const hasExamineTrigger = newMessages.some(msg => 
+                      msg.includes('like this one have many uses')
+                    )
+                    
+                    if (hasExamineTrigger) {
+                      console.log('[EventsTab] Trigger de examine encontrado! Disparando evento')
+                      // Disparar evento para componentes que escutam mensagens de Events
+                      window.dispatchEvent(new CustomEvent('events-message-received', {
+                        detail: { messages: newMessages }
+                      }))
+                    }
                     
                     setEventsMessages(prev => {
                       const combined = [...prev, ...newMessages]

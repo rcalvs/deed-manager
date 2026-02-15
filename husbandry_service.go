@@ -84,7 +84,7 @@ func (s *HusbandryService) migrateTables() error {
 	err := s.db.QueryRow(`
 		SELECT COUNT(*) FROM pragma_table_info('animals') WHERE name='gender'
 	`).Scan(&count)
-	
+
 	if err != nil {
 		log.Printf("[HusbandryService] Erro ao verificar coluna gender: %v", err)
 		return err
@@ -107,7 +107,7 @@ func (s *HusbandryService) migrateTables() error {
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) FROM pragma_table_info('animals') WHERE name='father'
 	`).Scan(&count)
-	
+
 	if err != nil {
 		log.Printf("[HusbandryService] Erro ao verificar coluna father: %v", err)
 		return err
@@ -128,7 +128,7 @@ func (s *HusbandryService) migrateTables() error {
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) FROM pragma_table_info('animals') WHERE name='mother'
 	`).Scan(&count)
-	
+
 	if err != nil {
 		log.Printf("[HusbandryService] Erro ao verificar coluna mother: %v", err)
 		return err
@@ -150,7 +150,7 @@ func (s *HusbandryService) migrateTables() error {
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) FROM pragma_table_info('animals') WHERE name='is_pregnant'
 	`).Scan(&count)
-	
+
 	if err != nil {
 		log.Printf("[HusbandryService] Erro ao verificar coluna is_pregnant: %v", err)
 		return err
@@ -171,7 +171,7 @@ func (s *HusbandryService) migrateTables() error {
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) FROM pragma_table_info('animals') WHERE name='breeding_male_id'
 	`).Scan(&count)
-	
+
 	if err != nil {
 		log.Printf("[HusbandryService] Erro ao verificar coluna breeding_male_id: %v", err)
 		return err
@@ -192,7 +192,7 @@ func (s *HusbandryService) migrateTables() error {
 	err = s.db.QueryRow(`
 		SELECT COUNT(*) FROM pragma_table_info('animals') WHERE name='breeding_due_date'
 	`).Scan(&count)
-	
+
 	if err != nil {
 		log.Printf("[HusbandryService] Erro ao verificar coluna breeding_due_date: %v", err)
 		return err
@@ -215,27 +215,55 @@ func (s *HusbandryService) migrateTables() error {
 
 // CreateAnimal cria um novo animal
 func (s *HusbandryService) CreateAnimal(name string, animalType AnimalType, gender AnimalGender, age AnimalAge, condition AnimalCondition, father string, mother string, traits []string, notes string) (*Animal, error) {
+	log.Printf("[HusbandryService] CreateAnimal iniciado: name=%s, type=%s, gender=%s, age=%s, condition=%s, father=%s, mother=%s, traits=%v, notes=%s",
+		name, animalType, gender, age, condition, father, mother, traits, notes)
+
 	// Converter traits para JSON
 	traitsJSON, err := json.Marshal(traits)
 	if err != nil {
+		log.Printf("[HusbandryService] Erro ao converter traits para JSON: %v", err)
 		return nil, err
 	}
+	log.Printf("[HusbandryService] Traits convertidos para JSON: %s", string(traitsJSON))
 
 	now := time.Now()
+	log.Printf("[HusbandryService] Preparando INSERT no banco de dados...")
+	log.Printf("[HusbandryService] Valores a serem inseridos:")
+	log.Printf("  name=%s", name)
+	log.Printf("  type=%s", animalType)
+	log.Printf("  gender=%s", gender)
+	log.Printf("  age=%s", age)
+	log.Printf("  condition=%s", condition)
+	log.Printf("  father=%s", father)
+	log.Printf("  mother=%s", mother)
+	log.Printf("  traits=%s", string(traitsJSON))
+	log.Printf("  notes=%s", notes)
+
 	result, err := s.db.Exec(
 		"INSERT INTO animals (name, type, gender, age, condition, father, mother, traits, notes, is_pregnant, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)",
 		name, animalType, gender, age, condition, father, mother, string(traitsJSON), notes, now, now,
 	)
 	if err != nil {
+		log.Printf("[HusbandryService] Erro ao executar INSERT: %v", err)
 		return nil, err
 	}
+	log.Printf("[HusbandryService] INSERT executado com sucesso")
 
 	id, err := result.LastInsertId()
 	if err != nil {
+		log.Printf("[HusbandryService] Erro ao obter LastInsertId: %v", err)
 		return nil, err
 	}
+	log.Printf("[HusbandryService] ID do animal criado: %d", id)
 
-	return s.GetAnimal(int(id))
+	animal, err := s.GetAnimal(int(id))
+	if err != nil {
+		log.Printf("[HusbandryService] Erro ao recuperar animal criado (ID %d): %v", id, err)
+		return nil, err
+	}
+	log.Printf("[HusbandryService] Animal recuperado com sucesso: ID=%d, Name=%s", animal.ID, animal.Name)
+
+	return animal, nil
 }
 
 // GetAnimal obtém um animal por ID
@@ -252,6 +280,18 @@ func (s *HusbandryService) GetAnimal(id int) (*Animal, error) {
 		"SELECT id, name, type, gender, age, condition, father, mother, traits, notes, is_pregnant, breeding_male_id, breeding_due_date, created_at, updated_at FROM animals WHERE id = ?",
 		id,
 	).Scan(&animal.ID, &animal.Name, &animal.Type, &animal.Gender, &animal.Age, &animal.Condition, &animal.Father, &animal.Mother, &traitsJSON, &animal.Notes, &isPregnant, &breedingMaleID, &breedingDueDate, &createdAt, &updatedAt)
+
+	log.Printf("[HusbandryService] GetAnimal - Valores lidos do banco:")
+	log.Printf("  ID=%d", animal.ID)
+	log.Printf("  Name=%s", animal.Name)
+	log.Printf("  Type=%s", animal.Type)
+	log.Printf("  Gender=%s", animal.Gender)
+	log.Printf("  Age=%s", animal.Age)
+	log.Printf("  Condition=%s", animal.Condition)
+	log.Printf("  Father=%s", animal.Father)
+	log.Printf("  Mother=%s", animal.Mother)
+	log.Printf("  TraitsJSON=%s", traitsJSON)
+	log.Printf("  Notes=%s", animal.Notes)
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +343,7 @@ func (s *HusbandryService) GetAllAnimals() ([]*Animal, error) {
 			log.Printf("Erro ao escanear animal: %v", err)
 			continue
 		}
-		
+
 		animal.IsPregnant = isPregnant == 1
 		if breedingMaleID.Valid {
 			maleID := int(breedingMaleID.Int64)
@@ -349,7 +389,7 @@ func (s *HusbandryService) UpdateAnimal(id int, name string, animalType AnimalTy
 // SetBreeding marca uma fêmea como grávida
 func (s *HusbandryService) SetBreeding(femaleID int, maleID int, days int, hours int) error {
 	dueDate := time.Now().AddDate(0, 0, days).Add(time.Duration(hours) * time.Hour)
-	
+
 	_, err := s.db.Exec(
 		"UPDATE animals SET is_pregnant = 1, breeding_male_id = ?, breeding_due_date = ?, updated_at = ? WHERE id = ?",
 		maleID, dueDate, time.Now(), femaleID,
@@ -389,7 +429,7 @@ func (s *HusbandryService) GetPregnantAnimals() ([]*Animal, error) {
 			log.Printf("Erro ao escanear animal grávido: %v", err)
 			continue
 		}
-		
+
 		animal.IsPregnant = isPregnant == 1
 		if breedingMaleID.Valid {
 			maleID := int(breedingMaleID.Int64)
@@ -430,4 +470,3 @@ func (s *HusbandryService) Close() error {
 	}
 	return nil
 }
-

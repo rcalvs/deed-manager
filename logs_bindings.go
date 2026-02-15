@@ -80,15 +80,12 @@ func (a *App) ReadCurrentTradeLogLastNLines(n int) ([]string, error) {
 		return nil, os.ErrNotExist
 	}
 
-	log.Printf("[App] ReadCurrentTradeLogLastNLines: Lendo últimas %d linhas do Trade atual", n)
-
 	lines, err := a.logsService.ReadCurrentTradeLogLastNLines(n)
 	if err != nil {
 		log.Printf("[App] ReadCurrentTradeLogLastNLines: Erro ao ler linhas: %v", err)
 		return nil, err
 	}
 
-	log.Printf("[App] ReadCurrentTradeLogLastNLines: %d linhas lidas com sucesso", len(lines))
 	return lines, nil
 }
 
@@ -100,14 +97,11 @@ func (a *App) ReadCurrentEventsLogLastNLines(n int) ([]string, error) {
 		return nil, os.ErrNotExist
 	}
 
-	log.Printf("[App] ReadCurrentEventsLogLastNLines: Lendo últimas %d linhas do _Event atual", n)
-
 	lines, err := a.logsService.ReadCurrentEventsLogLastNLines(n)
 	if err != nil {
 		log.Printf("[App] ReadCurrentEventsLogLastNLines: Erro ao ler linhas: %v", err)
 		return nil, err
 	}
 
-	log.Printf("[App] ReadCurrentEventsLogLastNLines: %d linhas lidas com sucesso", len(lines))
 	return lines, nil
 }

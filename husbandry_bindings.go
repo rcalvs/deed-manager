@@ -1,5 +1,7 @@
 package main
 
+import "log"
+
 // HusbandryBindings expõe métodos do HusbandryService para o frontend
 type HusbandryBindings struct {
 	service *HusbandryService
@@ -12,7 +14,10 @@ func NewHusbandryBindings(service *HusbandryService) *HusbandryBindings {
 
 // CreateAnimal cria um novo animal
 func (b *HusbandryBindings) CreateAnimal(name string, animalType string, gender string, age string, condition string, father string, mother string, traits []string, notes string) (*Animal, error) {
-	return b.service.CreateAnimal(
+	log.Printf("[HusbandryBindings] CreateAnimal chamado com: name=%s, type=%s, gender=%s, age=%s, condition=%s, father=%s, mother=%s, traits=%v, notes=%s",
+		name, animalType, gender, age, condition, father, mother, traits, notes)
+	
+	animal, err := b.service.CreateAnimal(
 		name,
 		AnimalType(animalType),
 		AnimalGender(gender),
@@ -23,6 +28,14 @@ func (b *HusbandryBindings) CreateAnimal(name string, animalType string, gender 
 		traits,
 		notes,
 	)
+	
+	if err != nil {
+		log.Printf("[HusbandryBindings] CreateAnimal retornou erro: %v", err)
+		return nil, err
+	}
+	
+	log.Printf("[HusbandryBindings] CreateAnimal concluído com sucesso, ID do animal: %d", animal.ID)
+	return animal, nil
 }
 
 // GetAnimal obtém um animal por ID

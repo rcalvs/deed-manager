@@ -390,7 +390,8 @@
       "ready": "Pronto! Examine um animal no jogo para adicioná-lo automaticamente.",
       "confirmTitle": "Confirmar Animal Examinado",
       "extractedData": "Dados Extraídos do Examine",
-      "traitsFound": "traits encontrados"
+      "traitsFound": "traits encontrados",
+      "timestamp": "Timestamp"
     }
   },
   "notifications": {
