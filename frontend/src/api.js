@@ -127,6 +127,51 @@ export const api = {
     throw new Error('Backend não disponível')
   },
 
+  // ========== DEEDS ==========
+  createDeed: async (name, mayor, location, sizeWidth, sizeHeight, coffersIron, upkeepChipsIron, monthlyCostIron, upkeepDays, upkeepHours, upkeepMinutes, rawText) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.CreateDeed(name, mayor || '', location || '', sizeWidth || 0, sizeHeight || 0,
+        coffersIron || 0, upkeepChipsIron || 0, monthlyCostIron || 0, upkeepDays || 0, upkeepHours || 0, upkeepMinutes || 0, rawText || '')
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  getAllDeeds: async () => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetAllDeeds()
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  getDeed: async (id) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.GetDeed(id)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  updateDeed: async (id, name, mayor, location, sizeWidth, sizeHeight, coffersIron, upkeepChipsIron, monthlyCostIron, upkeepDays, upkeepHours, upkeepMinutes, rawText) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.UpdateDeed(id, name, mayor || '', location || '', sizeWidth || 0, sizeHeight || 0,
+        coffersIron || 0, upkeepChipsIron || 0, monthlyCostIron || 0, upkeepDays || 0, upkeepHours || 0, upkeepMinutes || 0, rawText || '')
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  deleteDeed: async (id) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.DeleteDeed(id)
+    }
+    throw new Error('Backend não disponível')
+  },
+
+  addDeedFunds: async (deedId, amountIron, addToCoffers) => {
+    if (window.go && window.go.main && window.go.main.App) {
+      return await window.go.main.App.AddDeedFunds(deedId, amountIron, addToCoffers)
+    }
+    throw new Error('Backend não disponível')
+  },
+
   // ========== LOCALIZAÇÕES ==========
   createLocation: async (name, description, category, mapType, server, x, y) => {
     if (window.go && window.go.main && window.go.main.App) {
@@ -230,6 +275,18 @@ export const api = {
     }
     throw new Error('Backend não disponível')
   },
+
+  // ========== HUSBANDRY (Criação de Animais) - DESABILITADO - mudança de escopo ==========
+  /*
+  createAnimal: async (name, type, gender, age, condition, father, mother, traits, notes) => { ... },
+  getAllAnimals: async () => { ... },
+  getAnimal: async (id) => { ... },
+  updateAnimal: async (...) => { ... },
+  deleteAnimal: async (id) => { ... },
+  setBreeding: async (femaleID, maleID, days, hours) => { ... },
+  clearBreeding: async (animalID) => { ... },
+  getPregnantAnimals: async () => { ... },
+  */
 }
 
 

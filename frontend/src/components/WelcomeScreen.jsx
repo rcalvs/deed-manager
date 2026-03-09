@@ -1,15 +1,15 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AiOutlineStock } from 'react-icons/ai'
-import { FaArrowRight, FaCheckCircle, FaMapMarkerAlt, FaStickyNote } from 'react-icons/fa'
+import { FaArrowRight, FaBell, FaCalendarAlt, FaHome, FaMapMarkerAlt, FaStickyNote } from 'react-icons/fa'
 import { MdShowChart } from 'react-icons/md'
+import DeedForm from './DeedForm'
 import LanguageSelector from './LanguageSelector'
 import './WelcomeScreen.css'
 
 function WelcomeScreen({ onComplete }) {
   const { t } = useTranslation()
-  const [step, setStep] = useState(0) // 0 = welcome, 1 = features, 2 = deed name
-  const [deedName, setDeedName] = useState('')
+  const [step, setStep] = useState(0) // 0 = welcome, 1 = features, 2 = deed setup
 
   const features = [
     {
@@ -23,6 +23,11 @@ function WelcomeScreen({ onComplete }) {
       description: t('welcome.features.charts.description')
     },
     {
+      icon: <FaHome />,
+      title: t('welcome.features.deeds.title'),
+      description: t('welcome.features.deeds.description')
+    },
+    {
       icon: <FaStickyNote />,
       title: t('welcome.features.notes.title'),
       description: t('welcome.features.notes.description')
@@ -31,6 +36,16 @@ function WelcomeScreen({ onComplete }) {
       icon: <FaMapMarkerAlt />,
       title: t('welcome.features.locations.title'),
       description: t('welcome.features.locations.description')
+    },
+    {
+      icon: <FaCalendarAlt />,
+      title: t('welcome.features.calendar.title'),
+      description: t('welcome.features.calendar.description')
+    },
+    {
+      icon: <FaBell />,
+      title: t('welcome.features.events.title'),
+      description: t('welcome.features.events.description')
     }
   ]
 
@@ -42,16 +57,17 @@ function WelcomeScreen({ onComplete }) {
     }
   }
 
-  const handleDeedSubmit = (e) => {
-    e.preventDefault()
-    if (deedName.trim()) {
-      localStorage.setItem('deedName', deedName.trim())
-      onComplete(deedName.trim())
+  const handleDeedCreated = (deed) => {
+    if (deed?.name) {
+      localStorage.setItem('deedName', deed.name)
+      localStorage.setItem('welcomeCompleted', 'true')
+      onComplete(deed.name)
     }
   }
 
   const handleSkip = () => {
     localStorage.setItem('deedName', '')
+    localStorage.setItem('welcomeCompleted', 'true')
     onComplete('')
   }
 
@@ -115,10 +131,10 @@ function WelcomeScreen({ onComplete }) {
     )
   }
 
-  // Tela de nome do Deed
+  // Tela de cadastro do Deed (formulário completo)
   return (
-    <div className="welcome-screen">
-      <div className="welcome-content deed-content">
+    <div className="welcome-screen welcome-deed-step">
+      <div className="welcome-content deed-content deed-content-full">
         <div className="welcome-language-selector">
           <LanguageSelector variant="compact" />
         </div>
@@ -128,47 +144,12 @@ function WelcomeScreen({ onComplete }) {
             {t('welcome.setup.subtitle')}
           </p>
         </div>
-        <form className="deed-form" onSubmit={handleDeedSubmit}>
-          <div className="form-group">
-            <label htmlFor="deedName">{t('welcome.setup.deedName')}</label>
-            <input
-              id="deedName"
-              type="text"
-              value={deedName}
-              onChange={(e) => setDeedName(e.target.value)}
-              placeholder={t('welcome.setup.deedNamePlaceholder')}
-              autoFocus
-              maxLength={50}
-            />
-            <small className="form-hint">
-              {t('welcome.setup.deedNameHint')}
-            </small>
-          </div>
-          <div className="welcome-actions">
-            <button 
-              type="button" 
-              className="btn-welcome-secondary" 
-              onClick={() => setStep(1)}
-            >
-              {t('common.back')}
-            </button>
-            <button 
-              type="button" 
-              className="btn-welcome-link" 
-              onClick={handleSkip}
-            >
-              {t('common.skip')}
-            </button>
-            <button 
-              type="submit" 
-              className="btn-welcome-primary" 
-              disabled={!deedName.trim()}
-            >
-              <FaCheckCircle />
-              {t('common.start')}
-            </button>
-          </div>
-        </form>
+        <DeedForm
+          variant="welcome"
+          onDeedCreated={handleDeedCreated}
+          onBack={() => setStep(1)}
+          onSkip={handleSkip}
+        />
       </div>
     </div>
   )

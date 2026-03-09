@@ -49,14 +49,27 @@
       "locations": {
         "title": "Местоположения на карте",
         "description": "Сохраняйте и организуйте важные местоположения с карты игры"
+      },
+      "deeds": {
+        "title": "Управление поселениями",
+        "description": "Управляйте settlements, добавляйте средства на upkeep, отслеживайте срок. Парсинг текста из игры"
+      },
+      "calendar": {
+        "title": "Календарь",
+        "description": "Время Wurm, сезоны, starfall. Добавляйте заметки с датами начала и конца"
+      },
+      "events": {
+        "title": "События",
+        "description": "Торговые и игровые события из логов. Включите в Настройках"
       }
     },
     "setup": {
-      "title": "Начальная настройка",
-      "subtitle": "Для начала введите название вашего Deed",
+      "title": "Регистрация Deed",
+      "subtitle": "Заполните информацию о вашем Deed. Можно вставить текст из игры и нажать Разобрать.",
       "deedName": "Название Deed",
       "deedNamePlaceholder": "Например: Мой Deed",
-      "deedNameHint": "Это имя будет использоваться для персонализации вашего опыта"
+      "deedNameHint": "Это имя будет использоваться для персонализации вашего опыта",
+      "skip": "Пропустить"
     }
   },
   "app": {
@@ -65,10 +78,61 @@
     "balance": "Баланс",
     "tabs": {
       "stock": "Склад",
+      "deeds": "Усадьбы",
+      "husbandry": "Животноводство",
       "notes": "Заметки",
       "calendar": "Календарь",
       "events": "События"
     }
+  },
+  "deeds": {
+    "title": "Усадьбы",
+    "addDeed": "Добавить",
+    "name": "Название",
+    "namePlaceholder": "Название усадьбы",
+    "nameRequired": "Введите название усадьбы",
+    "mayor": "Мэр",
+    "mayorPlaceholder": "Имя мэра",
+    "location": "Местоположение",
+    "locationPlaceholder": "URL Yaga или Wurmmaps",
+    "pasteInfo": "Вставить информацию об усадьбе",
+    "pastePlaceholder": "Вставьте текст из игры (например: The size of Deed is 32 by 23...)",
+    "parse": "Заполнить",
+    "parseSuccess": "Информация успешно разобрана",
+    "sizeWidth": "Ширина",
+    "sizeHeight": "Высота",
+    "size": "Размер",
+    "coffersIron": "Казна (iron)",
+    "coffers": "Казна",
+    "upkeepChips": "Upkeep chips",
+    "upkeepChipsIron": "Chips (iron)",
+    "gold": "Золото",
+    "silver": "Серебро",
+    "copper": "Медь",
+    "iron": "Железо",
+    "monthlyCostIron": "Месячная плата (iron)",
+    "monthlyCost": "Месячная плата",
+    "upkeepDuration": "Длительность upkeep",
+    "upkeepExpired": "Истекло",
+    "addFunds": "Добавить средства",
+    "addFundsTitle": "Добавить средства",
+    "addFundsDestination": "Назначение",
+    "addFundsConfirm": "Добавить",
+    "upkeepBelow60Notification": "Deed \"{{name}}\": осталось менее 60 дней upkeep",
+    "upkeepBelow30Notification": "Deed \"{{name}}\": осталось менее 30 дней upkeep",
+    "days": "Дней",
+    "hours": "Часов",
+    "minutes": "Минут",
+    "noDeeds": "Нет зарегистрированных усадеб",
+    "noDeedsFiltered": "Усадьбы не найдены",
+    "searchPlaceholder": "Поиск усадеб...",
+    "addSuccess": "Усадьба успешно добавлена",
+    "updateSuccess": "Усадьба успешно обновлена",
+    "saveError": "Ошибка сохранения усадьбы",
+    "deleteConfirm": "Удалить эту усадьбу?",
+    "openMap": "Открыть карту",
+    "unnamed": "Без названия",
+    "error": "Ошибка"
   },
   "stock": {
     "title": "Склад",
@@ -84,6 +148,15 @@
     "noItemsFiltered": "Предметы не найдены с примененными фильтрами",
     "totalItems": "Всего предметов",
     "deleteConfirm": "Вы уверены, что хотите удалить этот предмет?",
+    "deleteModal": {
+      "title": "Изменить склад",
+      "currentStock": "Текущий склад",
+      "newStock": "Новый склад",
+      "hint": "Введите 0 для полного удаления предмета.",
+      "confirm": "Подтвердить",
+      "invalidQuantity": "Введите корректное количество (0 или больше).",
+      "exceedsCurrent": "Новое количество не может превышать текущий склад."
+    },
     "deleteSuccess": "Предмет успешно удален",
     "addSuccess": "Предмет успешно добавлен",
     "removeSuccess": "Предмет успешно удален",
@@ -229,6 +302,7 @@
     "today": "Сегодня",
     "startDate": "Дата начала",
     "endDate": "Дата окончания",
+    "clickToAddNote": "Нажмите, чтобы добавить заметку",
     "legend": {
       "start": "Дата начала",
       "end": "Дата окончания"
@@ -261,6 +335,7 @@
       "season": "Сезон",
       "starfall": "Starfall",
       "week": "Неделя",
+      "day": "День",
       "year": "Год",
       "harvestSeason": "Сезон сбора урожая"
     },
@@ -323,6 +398,72 @@
       "test": "Тест",
       "testTooltip": "Протестировать звук сигнала",
       "configure": "Настроить сигнал"
+    }
+  },
+  "husbandry": {
+    "title": "Животноводство",
+    "addAnimal": "Добавить животное",
+    "editAnimal": "Редактировать животное",
+    "name": "Имя",
+    "namePlaceholder": "Имя животного",
+    "nameRequired": "Пожалуйста, заполните имя",
+    "type": "Тип",
+    "gender": "Пол",
+    "age": "Возраст",
+    "condition": "Состояние",
+    "father": "Отец",
+    "fatherPlaceholder": "Имя отца или \"wild\"",
+    "mother": "Мать",
+    "motherPlaceholder": "Имя матери или \"wild\"",
+    "traits": "Черты",
+    "traitSearchPlaceholder": "Поиск по категории...",
+    "traitSearchResults": "Найдено",
+    "trait": "черта",
+    "noTraitsFound": "Черты с этой категорией не найдены",
+    "notes": "Заметки",
+    "notesPlaceholder": "Дополнительные заметки...",
+    "addSuccess": "Животное успешно добавлено",
+    "updateSuccess": "Животное успешно обновлено",
+    "saveError": "Ошибка при сохранении животного",
+    "deleteConfirm": "Вы уверены, что хотите удалить это животное?",
+    "error": "Ошибка",
+    "noAnimals": "Нет зарегистрированных животных",
+    "noAnimalsFiltered": "Животные не найдены с примененными фильтрами",
+    "searchPlaceholder": "Поиск животных...",
+    "allTypes": "Все типы",
+    "breeding": {
+      "title": "Управление разведением",
+      "selectMale": "Выбрать самца",
+      "selectFemale": "Выбрать самку",
+      "pregnancyTime": "Время беременности",
+      "days": "Дни",
+      "hours": "Часы",
+      "okay": "Порода",
+      "fillAllFields": "Пожалуйста, заполните все поля",
+      "invalidTime": "Пожалуйста, введите допустимые значения для дней и часов (0-23)",
+      "pregnantAnimals": "Беременные самки",
+      "noPregnant": "Нет беременных самок",
+      "male": "Самец",
+      "maleTraits": "Черты самца",
+      "timeUntilBirth": "Время до рождения",
+      "due": "Просрочено",
+      "clear": "Очистить статус беременности",
+      "clearConfirm": "Вы уверены, что хотите очистить статус беременности?",
+      "options": "Опции",
+      "birthModalTitle": "Управление рождением",
+      "newAnimalInfo": "Информация о новом животном",
+      "addNewAnimal": "Добавить новое животное",
+      "cancelPregnancy": "Отменить беременность"
+    },
+    "examine": {
+      "title": "Добавить по событию",
+      "addWithExamine": "Добавить с помощью осмотра",
+      "eventsRequired": "Сначала необходимо включить логи и чат событий на вкладке События.",
+      "ready": "Готово! Осмотрите животное в игре, чтобы добавить его автоматически.",
+      "confirmTitle": "Подтвердить осмотренное животное",
+      "extractedData": "Данные, извлеченные из осмотра",
+      "traitsFound": "найдено черт",
+      "timestamp": "Время"
     }
   },
   "notifications": {

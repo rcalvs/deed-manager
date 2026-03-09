@@ -49,14 +49,27 @@
       "locations": {
         "title": "Map Locations",
         "description": "Save and organize important locations from the game map"
+      },
+      "deeds": {
+        "title": "Deeds Management",
+        "description": "Manage settlements, add funds to upkeep, track duration. Parse info from game text"
+      },
+      "calendar": {
+        "title": "Calendar",
+        "description": "Wurm time, seasons, starfall. Add notes with start and end dates"
+      },
+      "events": {
+        "title": "Events",
+        "description": "Trade and game events from logs. Enable in Settings to use"
       }
     },
     "setup": {
-      "title": "Initial Setup",
-      "subtitle": "To get started, enter your Deed name",
+      "title": "Deed Registration",
+      "subtitle": "Fill in your Deed information to get started. You can paste the game text and click Parse.",
       "deedName": "Deed Name",
       "deedNamePlaceholder": "Ex: My Deed",
-      "deedNameHint": "This name will be used to personalize your experience"
+      "deedNameHint": "This name will be used to personalize your experience",
+      "skip": "Skip"
     }
   },
   "app": {
@@ -65,10 +78,61 @@
     "balance": "Balance",
     "tabs": {
       "stock": "Stock",
+      "deeds": "Deeds",
+      "husbandry": "Husbandry",
       "notes": "Notes",
       "calendar": "Calendar",
       "events": "Events"
     }
+  },
+  "deeds": {
+    "title": "Deeds",
+    "addDeed": "Add",
+    "name": "Name",
+    "namePlaceholder": "Deed name",
+    "nameRequired": "Please enter the deed name",
+    "mayor": "Mayor",
+    "mayorPlaceholder": "Mayor name",
+    "location": "Location",
+    "locationPlaceholder": "Yaga or Wurmmaps URL",
+    "pasteInfo": "Paste deed info",
+    "pastePlaceholder": "Paste game text here (e.g. The size of DEED is 32 by 23...)",
+    "parse": "Fill",
+    "parseSuccess": "Info parsed successfully",
+    "sizeWidth": "Width",
+    "sizeHeight": "Height",
+    "size": "Size",
+    "coffersIron": "Coffers (iron)",
+    "coffers": "Coffers",
+    "upkeepChips": "Upkeep chips",
+    "upkeepChipsIron": "Upkeep chips (iron)",
+    "gold": "Gold",
+    "silver": "Silver",
+    "copper": "Copper",
+    "iron": "Iron",
+    "monthlyCostIron": "Monthly cost (iron)",
+    "monthlyCost": "Monthly cost",
+    "upkeepDuration": "Upkeep duration",
+    "upkeepExpired": "Expired",
+    "addFunds": "Add funds",
+    "addFundsTitle": "Add funds",
+    "addFundsDestination": "Destination",
+    "addFundsConfirm": "Add",
+    "upkeepBelow60Notification": "Deed \"{{name}}\": less than 60 days of upkeep remaining",
+    "upkeepBelow30Notification": "Deed \"{{name}}\": less than 30 days of upkeep remaining",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "noDeeds": "No deeds registered",
+    "noDeedsFiltered": "No deeds found",
+    "searchPlaceholder": "Search deeds...",
+    "addSuccess": "Deed added successfully",
+    "updateSuccess": "Deed updated successfully",
+    "saveError": "Error saving deed",
+    "deleteConfirm": "Delete this deed?",
+    "openMap": "Open map",
+    "unnamed": "Unnamed",
+    "error": "Error"
   },
   "stock": {
     "title": "Stock",
@@ -84,6 +148,15 @@
     "noItemsFiltered": "No items found with applied filters",
     "totalItems": "Total items",
     "deleteConfirm": "Are you sure you want to delete this item?",
+    "deleteModal": {
+      "title": "Adjust Stock",
+      "currentStock": "Current stock",
+      "newStock": "New stock",
+      "hint": "Enter 0 to remove the item completely.",
+      "confirm": "Confirm",
+      "invalidQuantity": "Please enter a valid quantity (0 or greater).",
+      "exceedsCurrent": "New quantity cannot exceed current stock."
+    },
     "deleteSuccess": "Item deleted successfully",
     "addSuccess": "Item added successfully",
     "removeSuccess": "Item removed successfully",
@@ -229,6 +302,7 @@
     "today": "Today",
     "startDate": "Start date",
     "endDate": "End date",
+    "clickToAddNote": "Click to add a note",
     "legend": {
       "start": "Start date",
       "end": "End date"
@@ -261,6 +335,7 @@
       "season": "Season",
       "starfall": "Starfall",
       "week": "Week",
+      "day": "Day",
       "year": "Year",
       "harvestSeason": "Harvest Season"
     },
@@ -323,6 +398,72 @@
       "test": "Test",
       "testTooltip": "Test alarm sound",
       "configure": "Configure Alarm"
+    }
+  },
+  "husbandry": {
+    "title": "Husbandry",
+    "addAnimal": "Add Animal",
+    "editAnimal": "Edit Animal",
+    "name": "Name",
+    "namePlaceholder": "Animal name",
+    "nameRequired": "Please fill in the name",
+    "type": "Type",
+    "gender": "Gender",
+    "age": "Age",
+    "condition": "Condition",
+    "father": "Father",
+    "fatherPlaceholder": "Father name or \"wild\"",
+    "mother": "Mother",
+    "motherPlaceholder": "Mother name or \"wild\"",
+    "traits": "Traits",
+    "traitSearchPlaceholder": "Search by category...",
+    "traitSearchResults": "Found",
+    "trait": "trait",
+    "noTraitsFound": "No traits found with this category",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes...",
+    "addSuccess": "Animal added successfully",
+    "updateSuccess": "Animal updated successfully",
+    "saveError": "Error saving animal",
+    "deleteConfirm": "Are you sure you want to delete this animal?",
+    "error": "Error",
+    "noAnimals": "No animals registered",
+    "noAnimalsFiltered": "No animals found with applied filters",
+    "searchPlaceholder": "Search animals...",
+    "allTypes": "All Types",
+    "breeding": {
+      "title": "Manage Breeding",
+      "selectMale": "Select Male",
+      "selectFemale": "Select Female",
+      "pregnancyTime": "Pregnancy Time",
+      "days": "Days",
+      "hours": "Hours",
+      "okay": "Breed Animal",
+      "fillAllFields": "Please fill all fields",
+      "invalidTime": "Please enter valid values for days and hours (0-23)",
+      "pregnantAnimals": "Pregnant Females",
+      "noPregnant": "No pregnant females",
+      "male": "Male",
+      "maleTraits": "Male Traits",
+      "timeUntilBirth": "Time Until Birth",
+      "due": "Due",
+      "clear": "Clear pregnant status",
+      "clearConfirm": "Are you sure you want to clear the pregnant status?",
+      "options": "Options",
+      "birthModalTitle": "Manage Birth",
+      "newAnimalInfo": "New Animal Information",
+      "addNewAnimal": "Add New Animal",
+      "cancelPregnancy": "Cancel Pregnancy"
+    },
+    "examine": {
+      "title": "Add by Event",
+      "addWithExamine": "Add with Examine",
+      "eventsRequired": "You need to enable logs and Events chat in the Events tab first.",
+      "ready": "Ready! Examine an animal in the game to add it automatically.",
+      "confirmTitle": "Confirm Examined Animal",
+      "extractedData": "Data Extracted from Examine",
+      "traitsFound": "traits found",
+      "timestamp": "Timestamp"
     }
   },
   "notifications": {

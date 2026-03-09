@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaChevronLeft, FaChevronRight, FaCog } from 'react-icons/fa'
+import { FaChevronLeft, FaChevronRight, FaCog, FaTimes } from 'react-icons/fa'
 import { api } from '../api'
 import { calculateWurmTime } from '../utils/wurmTime'
+import { CATEGORIES } from '../constants'
 import './CalendarTab.css'
 import CalibrationModal from './CalibrationModal'
 
@@ -13,6 +14,14 @@ function CalendarTab({ developerMode = false }) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [wurmTime, setWurmTime] = useState(null)
   const [isCalibrationModalOpen, setIsCalibrationModalOpen] = useState(false)
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false)
+  const [noteFormData, setNoteFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    startDate: '',
+    endDate: '',
+  })
 
   // Atualizar tempo do Wurm a cada minuto
   useEffect(() => {
@@ -90,6 +99,60 @@ function CalendarTab({ developerMode = false }) {
   const getNotesForDate = (date) => {
     const dateStr = formatDateForMap(date)
     return notesByDate.get(dateStr) || []
+  }
+
+  // Handler para clicar em um dia do calendário
+  const handleDayClick = (date) => {
+    // Formatar data no formato YYYY-MM-DD para o input date
+    const formattedDate = formatDateForMap(date)
+    
+    // Abrir modal com a data pré-preenchida
+    setNoteFormData({
+      title: '',
+      description: '',
+      category: '',
+      startDate: formattedDate,
+      endDate: '',
+    })
+    setIsNoteModalOpen(true)
+  }
+
+  // Handler para fechar o modal de nota
+  const handleCloseNoteModal = () => {
+    setIsNoteModalOpen(false)
+    setNoteFormData({
+      title: '',
+      description: '',
+      category: '',
+      startDate: '',
+      endDate: '',
+    })
+  }
+
+  // Handler para salvar a nota
+  const handleSaveNote = async (e) => {
+    e.preventDefault()
+    
+    if (!noteFormData.title.trim()) {
+      alert(t('notes.note.titleRequired'))
+      return
+    }
+
+    try {
+      await api.createNote(
+        noteFormData.title,
+        noteFormData.description,
+        noteFormData.category,
+        noteFormData.startDate,
+        noteFormData.endDate
+      )
+      
+      handleCloseNoteModal()
+      loadNotes()
+    } catch (error) {
+      console.error('Erro ao salvar nota:', error)
+      alert(`${t('notes.note.saveError')}: ${error.message || t('common.error')}`)
+    }
   }
 
   // Formatar data para o mapa (YYYY-MM-DD)
@@ -253,6 +316,10 @@ function CalendarTab({ developerMode = false }) {
               <span className="wurm-value">{wurmTime.week}</span>
             </div>
             <div className="wurm-detail-item">
+              <span className="wurm-label">{t('calendar.wurmTime.day', { defaultValue: 'Day' })}:</span>
+              <span className="wurm-value">{wurmTime.dayOfWeekNumber}</span>
+            </div>
+            <div className="wurm-detail-item">
               <span className="wurm-label">{t('calendar.wurmTime.year', { defaultValue: 'Year' })}:</span>
               <span className="wurm-value">{wurmTime.year}</span>
             </div>
@@ -295,6 +362,9 @@ function CalendarTab({ developerMode = false }) {
               <div
                 key={index}
                 className={`calendar-day ${!dayInfo.isCurrentMonth ? 'other-month' : ''} ${dayInfo.isToday ? 'today' : ''} ${hasStartNotes || hasEndNotes ? 'has-notes' : ''}`}
+                onClick={() => handleDayClick(dayInfo.date)}
+                style={{ cursor: 'pointer' }}
+                title={t('calendar.clickToAddNote', { defaultValue: 'Click to add a note' })}
               >
                 <div className="day-number">{dayInfo.date.getDate()}</div>
                 <div className="day-markers">
@@ -345,6 +415,87 @@ function CalendarTab({ developerMode = false }) {
           setWurmTime(calculateWurmTime())
         }}
       />
+
+      {/* Modal para adicionar nota */}
+      {isNoteModalOpen && (
+        <div className="calendar-note-modal-overlay" onClick={handleCloseNoteModal}>
+          <div className="calendar-note-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="calendar-note-modal-header">
+              <h3>{t('notes.newNote')}</h3>
+              <button type="button" className="btn-close" onClick={handleCloseNoteModal}>
+                <FaTimes />
+              </button>
+            </div>
+            <form className="calendar-note-form" onSubmit={handleSaveNote}>
+              <div className="form-group">
+                <label htmlFor="note-title">{t('notes.note.title')} *</label>
+                <input
+                  id="note-title"
+                  type="text"
+                  value={noteFormData.title}
+                  onChange={(e) => setNoteFormData({ ...noteFormData, title: e.target.value })}
+                  required
+                  placeholder={t('notes.note.title')}
+                  autoFocus
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="note-description">{t('notes.note.description')}</label>
+                <textarea
+                  id="note-description"
+                  value={noteFormData.description}
+                  onChange={(e) => setNoteFormData({ ...noteFormData, description: e.target.value })}
+                  placeholder={t('notes.note.description')}
+                  rows="3"
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="note-startDate">{t('notes.note.startDate')}</label>
+                  <input
+                    id="note-startDate"
+                    type="date"
+                    value={noteFormData.startDate}
+                    onChange={(e) => setNoteFormData({ ...noteFormData, startDate: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="note-endDate">{t('notes.note.endDate')}</label>
+                  <input
+                    id="note-endDate"
+                    type="date"
+                    value={noteFormData.endDate}
+                    onChange={(e) => setNoteFormData({ ...noteFormData, endDate: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="note-category">{t('stock.category')}</label>
+                <select
+                  id="note-category"
+                  value={noteFormData.category}
+                  onChange={(e) => setNoteFormData({ ...noteFormData, category: e.target.value })}
+                >
+                  <option value="">{t('stock.allCategories')}</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="calendar-note-modal-footer">
+                <button type="button" className="btn-cancel" onClick={handleCloseNoteModal}>
+                  {t('common.cancel')}
+                </button>
+                <button type="submit" className="btn-save">
+                  {t('common.save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

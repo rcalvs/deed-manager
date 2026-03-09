@@ -33,6 +33,13 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
     })
   }, [searchText])
 
+  // Sincronizar itemType com o filtro: se o item atual não estiver nos resultados, selecionar o primeiro da lista
+  useEffect(() => {
+    if (filteredItems.length > 0 && !filteredItems.some((t) => t.value === itemType)) {
+      setItemType(filteredItems[0].value)
+    }
+  }, [filteredItems, itemType])
+
   // Aplicar QL padrão quando o formulário abrir
   useEffect(() => {
     if (isOpen && isDefaultQualityEnabled() && !quality) {
@@ -76,6 +83,12 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       return
     }
 
+    // Usar o item da lista filtrada: se o selecionado não estiver nos resultados, usar o primeiro
+    const resolvedItemType =
+      filteredItems.length > 0 && !filteredItems.some((t) => t.value === itemType)
+        ? filteredItems[0].value
+        : itemType
+
     setLoading(true)
     try {
       // Preparar data customizada se necessário
@@ -83,7 +96,7 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       // O backend aceita esse formato diretamente
       const dateString = useCustomDate && customDate ? customDate : ''
       
-      await api.addStockItem(itemType, qualityNum, quantityNum, dateString)
+      await api.addStockItem(resolvedItemType, qualityNum, quantityNum, dateString)
       setQuantity('')
       setCustomDate('')
       setUseCustomDate(false)
@@ -131,9 +144,15 @@ function StockForm({ onItemAdded, onItemRemoved, developerMode = false }) {
       return
     }
 
+    // Usar o item da lista filtrada: se o selecionado não estiver nos resultados, usar o primeiro
+    const resolvedItemType =
+      filteredItems.length > 0 && !filteredItems.some((t) => t.value === itemType)
+        ? filteredItems[0].value
+        : itemType
+
     setLoading(true)
     try {
-      await api.removeStockItem(itemType, qualityNum, quantityNum)
+      await api.removeStockItem(resolvedItemType, qualityNum, quantityNum)
       setQuantity('')
       setSearchText('')
       // Manter o campo de qualidade se houver QL padrão configurado

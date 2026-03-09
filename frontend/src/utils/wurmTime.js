@@ -54,7 +54,68 @@ const STARFALLS = [
   'Deer'     // Veado (posição 7) - Autumn
 ]
 
+// Duração de uma colheita em milissegundos (3.5 dias reais = 302400 segundos)
+const HARVEST_DURATION_MS = 302400 * 1000 // 3.5 dias em milissegundos
+
 // Calendário de colheita por starfall e semana
+// Baseado em: https://www.wurmpedia.com/index.php/Harvest_calendar
+// E https://www.wurmnode.com/tool/harvests
+// Cada colheita começa no primeiro dia da semana X da starfall Y e dura 3.5 dias reais
+// Estrutura: Array de objetos com { harvest, starfall, week, startOffset }
+// startOffset: offset em dias Wurm desde o início da semana (0 = primeiro dia)
+const HARVEST_SCHEDULE = [
+  // Bear Starfall - Semana 2: Lavender flowers
+  { harvest: 'Lavender flowers', starfall: 'Bear', week: 2, startOffset: 0 },
+  // Bear Starfall - Semana 3: Rose flowers
+  { harvest: 'Rose flowers', starfall: 'Bear', week: 3, startOffset: 0 },
+  // Bear Starfall - Semana 4: Maple (começa no primeiro dia da semana 4)
+  { harvest: 'Maple', starfall: 'Bear', week: 4, startOffset: 0 },
+  
+  // Snake Starfall - Semana 2: Acorns (começa no primeiro dia da semana 2)
+  { harvest: 'Acorns', starfall: 'Snake', week: 2, startOffset: 0 },
+  // Snake Starfall - Semana 4: Acorns (segunda ocorrência, começa no primeiro dia da semana 4)
+  { harvest: 'Acorns', starfall: 'Snake', week: 4, startOffset: 0 },
+  
+  // Sun Starfall - Semana 1: Cherry
+  { harvest: 'Cherry', starfall: 'Sun', week: 1, startOffset: 0 },
+  
+  // Fire Starfall - Semana 1: Olives
+  { harvest: 'Olives', starfall: 'Fire', week: 1, startOffset: 0 },
+  // Fire Starfall - Semana 2: Blueberries
+  { harvest: 'Blueberries', starfall: 'Fire', week: 2, startOffset: 0 },
+  // Fire Starfall - Semana 3: Hops
+  { harvest: 'Hops', starfall: 'Fire', week: 3, startOffset: 0 },
+  // Fire Starfall - Semana 4: Oranges
+  { harvest: 'Oranges', starfall: 'Fire', week: 4, startOffset: 0 },
+  
+  // Raven Starfall - Semana 1: Grapes
+  { harvest: 'Grapes', starfall: 'Raven', week: 1, startOffset: 0 },
+  // Raven Starfall - Semana 2: Lemons
+  { harvest: 'Lemons', starfall: 'Raven', week: 2, startOffset: 0 },
+  // Raven Starfall - Semana 3: Apples
+  { harvest: 'Apples', starfall: 'Raven', week: 3, startOffset: 0 },
+  // Raven Starfall - Semana 4: Chestnuts
+  { harvest: 'Chestnuts', starfall: 'Raven', week: 4, startOffset: 0 },
+  
+  // Deer Starfall - Semana 1: Raspberries
+  { harvest: 'Raspberries', starfall: 'Deer', week: 1, startOffset: 0 },
+  // Deer Starfall - Semana 2: Walnuts
+  { harvest: 'Walnuts', starfall: 'Deer', week: 2, startOffset: 0 },
+  // Deer Starfall - Semana 3: Hazelnuts
+  { harvest: 'Hazelnuts', starfall: 'Deer', week: 3, startOffset: 0 },
+  // Deer Starfall - Semana 4: Lingonberries
+  { harvest: 'Lingonberries', starfall: 'Deer', week: 4, startOffset: 0 },
+  
+  // Diamond Starfall - Semana 1: Pinenut
+  { harvest: 'Pinenut', starfall: 'Diamond', week: 1, startOffset: 0 },
+  
+  // Leaf Starfall - Semana 2: Oleander
+  { harvest: 'Oleander', starfall: 'Leaf', week: 2, startOffset: 0 },
+  // Leaf Starfall - Semana 4: Camellia
+  { harvest: 'Camellia', starfall: 'Leaf', week: 4, startOffset: 0 },
+]
+
+// Calendário de colheita por starfall e semana (mantido para compatibilidade)
 // Baseado em: https://www.wurmpedia.com/index.php/Harvest_calendar
 // Estrutura: { starfall: { week: [harvests] } }
 const HARVEST_CALENDAR = {
@@ -80,8 +141,8 @@ const HARVEST_CALENDAR = {
     name: 'Bear',
     weeks: {
       1: [],
-      2: ['Lavender'],
-      3: ['Rose'],
+      2: ['Lavender flowers'],
+      3: ['Rose flowers'],
       4: ['Maple']
     }
   },
@@ -97,7 +158,7 @@ const HARVEST_CALENDAR = {
   'Sun': {
     name: 'Sun',
     weeks: {
-      1: ['Cherries'],
+      1: ['Cherry'],
       2: [],
       3: [],
       4: []
@@ -209,6 +270,9 @@ export function calculateWurmTime(realTime = new Date()) {
   const timeInWeek = timeInYear % WURM_WEEK_MS
   const dayOfWeek = Math.floor(timeInWeek / WURM_DAY_MS)
   
+  // Dia da semana como número (1-7, onde 1 = primeiro dia)
+  const dayOfWeekNumber = dayOfWeek + 1
+  
   // Calcular hora do dia (0-23)
   const timeInDay = timeInYear % WURM_DAY_MS
   const hour = Math.floor(timeInDay / WURM_HOUR_MS)
@@ -224,8 +288,8 @@ export function calculateWurmTime(realTime = new Date()) {
   const dayNames = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh']
   const dayName = dayNames[dayOfWeek] || 'Unknown'
   
-  // Obter informações de colheita para a semana atual
-  const harvestInfo = getHarvestInfo(starfall, week)
+  // Obter informações de colheita ativas no momento atual (com sobreposição)
+  const harvestInfo = getActiveHarvests(timeDiff, wurmYear)
   
   // Determinar estação real baseado no starfall e semana
   let season = 'Unknown'
@@ -244,7 +308,8 @@ export function calculateWurmTime(realTime = new Date()) {
     starfall: starfall,
     starfallIndex: starfallIndex,
     week: week,
-    dayOfWeek: dayOfWeek,
+    dayOfWeek: dayOfWeek, // 0-6 (para compatibilidade)
+    dayOfWeekNumber: dayOfWeekNumber, // 1-7 (dia da semana como número)
     dayName: dayName,
     hour: hour,
     minute: minute,
@@ -264,6 +329,66 @@ export function calculateWurmTime(realTime = new Date()) {
  */
 export function formatWurmTime(wurmTime) {
   return `It is ${wurmTime.formattedTime} on ${wurmTime.formattedDate}.`
+}
+
+/**
+ * Calcula quais colheitas estão ativas no momento atual baseado no tempo absoluto
+ * Considera sobreposição de períodos (cada colheita dura 3.5 dias reais)
+ * @param {number} timeDiff - Diferença de tempo em milissegundos desde a época do Wurm
+ * @param {number} wurmYear - Ano atual do Wurm
+ * @returns {Object} Informações de colheita com array de harvests ativas
+ */
+function getActiveHarvests(timeDiff, wurmYear) {
+  const activeHarvests = []
+  
+  // Calcular tempo dentro do ano atual
+  const timeInYear = timeDiff % WURM_YEAR_MS
+  
+  // Para cada colheita no schedule
+  HARVEST_SCHEDULE.forEach(({ harvest, starfall, week, startOffset }) => {
+    // Encontrar o índice do starfall
+    const starfallIndex = STARFALLS.indexOf(starfall)
+    if (starfallIndex === -1) return
+    
+    // Calcular quando a colheita começa (em milissegundos desde o início do ano)
+    // Tempo até o início do starfall
+    const timeToStarfall = starfallIndex * WURM_STARFALL_MS
+    
+    // Tempo até o início da semana (week é 1-4, mas precisamos 0-3)
+    const timeToWeek = (week - 1) * WURM_WEEK_MS
+    
+    // Tempo até o offset do dia (startOffset em dias Wurm)
+    const timeToDay = startOffset * WURM_DAY_MS
+    
+    // Tempo absoluto do início da colheita dentro do ano
+    const harvestStartInYear = timeToStarfall + timeToWeek + timeToDay
+    
+    // Tempo absoluto do fim da colheita (início + duração)
+    let harvestEndInYear = harvestStartInYear + HARVEST_DURATION_MS
+    
+    // Verificar se o tempo atual está dentro do período da colheita
+    let isActive = false
+    
+    // Caso normal: início e fim no mesmo ciclo do ano
+    if (harvestEndInYear <= WURM_YEAR_MS) {
+      // Colheita não cruza o fim do ano
+      isActive = timeInYear >= harvestStartInYear && timeInYear < harvestEndInYear
+    } else {
+      // Colheita cruza o fim do ano (dura mais que o restante do ano)
+      // Verificar se está no início (antes do fim do ano) ou no fim (depois do início do ano)
+      const harvestEndInYearWrapped = harvestEndInYear % WURM_YEAR_MS
+      isActive = timeInYear >= harvestStartInYear || timeInYear < harvestEndInYearWrapped
+    }
+    
+    if (isActive && !activeHarvests.includes(harvest)) {
+      activeHarvests.push(harvest)
+    }
+  })
+  
+  return {
+    name: 'Active Harvests',
+    harvests: activeHarvests
+  }
 }
 
 /**
@@ -326,11 +451,15 @@ export function parseTimeCommand(timeCommand) {
   const cleaned = timeCommand.trim().replace(/\s+/g, ' ')
 
   // Regex para extrair informações
-  // Aceita dois formatos:
+  // Aceita múltiplos formatos:
   // 1. [HH:mm:ss] It is HH:mm:ss on day of the Wurm in week X of the starfall of the Y in the year of Z.
   // 2. [HH:mm:ss] It is HH:mm:ss on day of Awakening in week X of the Y's starfall in the year of Z.
+  // 3. [HH:mm:ss] It is HH:mm:ss on [Nome] day in week X of the Y's starfall in the year of Z.
+  // 4. [HH:mm:ss] It is HH:mm:ss on [Nome] day in week X of the starfall of the Y in the year of Z.
   // Tenta primeiro o formato novo (Y's starfall), depois o formato antigo (starfall of the Y)
-  let regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on day of (?:the Wurm|Awakening) in week (\d+) of (?:the )?(\w+)'s starfall in the year of (\d+)\./i
+  // Aceita "on day of the Wurm", "on day of Awakening", ou "on [Nome] day" (ex: "on Wrath day")
+  // O nome do dia é capturado mas não usado (grupo não capturado para não deslocar índices)
+  let regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on (?:day of (?:the Wurm|Awakening)|(?:\w+) day) in week (\d+) of (?:the )?(\w+)'s starfall in the year of (\d+)\./i
   let match = cleaned.match(regex)
   
   let starfall, year
@@ -340,10 +469,10 @@ export function parseTimeCommand(timeCommand) {
     year = parseInt(match[9], 10)
   } else {
     // Tentar formato antigo: starfall of the Y
-    regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on day of (?:the Wurm|Awakening) in week (\d+) of the starfall of the (\w+) in the year of (\d+)\./i
+    regex = /\[(\d{2}):(\d{2}):(\d{2})\]\s+It is (\d{2}):(\d{2}):(\d{2}) on (?:day of (?:the Wurm|Awakening)|(?:\w+) day) in week (\d+) of the starfall of the (\w+) in the year of (\d+)\./i
     match = cleaned.match(regex)
     if (!match) {
-      throw new Error('Formato inválido. Use o formato: [HH:mm:ss] It is HH:mm:ss on day of the Wurm/Awakening in week X of the starfall of the Y / Y\'s starfall in the year of Z.')
+      throw new Error('Formato inválido. Use o formato: [HH:mm:ss] It is HH:mm:ss on day of the Wurm/Awakening/[Nome] day in week X of the starfall of the Y / Y\'s starfall in the year of Z.')
     }
     starfall = match[8]
     year = parseInt(match[9], 10)

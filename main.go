@@ -16,7 +16,7 @@ var assets embed.FS
 // IMPORTANTE: Atualize esta constante quando criar um novo release
 // A versão deve seguir o formato semver (ex: "0.2.3", "1.0.0")
 // Não inclua o prefixo "v" aqui - ele será adicionado automaticamente na UI
-const AppVersion = "0.3.0"
+const AppVersion = "0.4.0"
 
 // Configuração do repositório GitHub para auto-update
 const (
@@ -31,16 +31,24 @@ func main() {
 	// Criar instância do serviço de notas
 	notesService := NewNotesService()
 
+	// Criar instância do serviço de deeds
+	deedsService := NewDeedsService()
+
 	// Criar instância do serviço de atualização
 	updateService := NewUpdateService(GitHubOwner, GitHubRepo, AppVersion)
 
 	// Criar instância do serviço de logs
 	logsService := NewLogsService()
 
+	// HUSBANDRY DESABILITADO - mudança de escopo
+	// husbandryService := NewHusbandryService()
+
 	// Criar instância da aplicação
-	app := NewApp(stockService, notesService, updateService, logsService)
+	app := NewApp(stockService, notesService, deedsService, updateService, logsService, nil) // husbandryService
 
 	// Configurar opções da aplicação
+	bindList := []interface{}{app}
+	// if app.husbandryBindings != nil { bindList = append(bindList, app.husbandryBindings) }
 	appOptions := &options.App{
 		Title:            "Wurm Manager",
 		Width:            1200,
@@ -48,7 +56,7 @@ func main() {
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
 		OnShutdown:       app.shutdown,
-		Bind:             []interface{}{app},
+		Bind:             bindList,
 	}
 
 	// Configurar AssetServer

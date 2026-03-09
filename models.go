@@ -551,3 +551,102 @@ type Location struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
+
+// Deed representa um settlement/aldeia no Wurm
+type Deed struct {
+	ID                  int64     `json:"id"`
+	Name                string    `json:"name"`
+	Mayor               string    `json:"mayor"`
+	Location            string    `json:"location"`
+	SizeWidth           int       `json:"sizeWidth"`
+	SizeHeight          int       `json:"sizeHeight"`
+	CoffersIron         int64     `json:"coffersIron"`
+	UpkeepChipsIron     int64     `json:"upkeepChipsIron"`
+	MonthlyCostIron     int64     `json:"monthlyCostIron"`
+	UpkeepDays          int       `json:"upkeepDays"`
+	UpkeepHours         int       `json:"upkeepHours"`
+	UpkeepMinutes       int       `json:"upkeepMinutes"`
+	RawText             string    `json:"rawText"`
+	CreatedAt           time.Time `json:"createdAt"`
+	UpdatedAt           time.Time `json:"updatedAt"`
+	LastUpkeepDebitAt   time.Time `json:"lastUpkeepDebitAt"`
+}
+
+// AnimalType representa o tipo de animal
+type AnimalType string
+
+const (
+	AnimalTypeHorse     AnimalType = "horse"
+	AnimalTypeBison     AnimalType = "bison"
+	AnimalTypeHellHorse AnimalType = "hell_horse"
+	AnimalTypeCow       AnimalType = "cow"
+	AnimalTypeBull      AnimalType = "bull"
+	AnimalTypeDonkey    AnimalType = "donkey"
+	AnimalTypeMule      AnimalType = "mule"
+	AnimalTypeRam       AnimalType = "ram"
+	AnimalTypeSheep     AnimalType = "sheep"
+	AnimalTypePig       AnimalType = "pig"
+	AnimalTypeDeer      AnimalType = "deer"
+	AnimalTypePheasant  AnimalType = "pheasant"
+	AnimalTypeHen       AnimalType = "hen"
+	AnimalTypeRooster   AnimalType = "rooster"
+	AnimalTypeDog       AnimalType = "dog"
+	AnimalTypeUnicorn   AnimalType = "unicorn"
+)
+
+// AnimalAge representa a idade do animal
+type AnimalAge string
+
+const (
+	AnimalAgeYoung       AnimalAge = "young"
+	AnimalAgeAdolescent  AnimalAge = "adolescent"
+	AnimalAgeMature      AnimalAge = "mature"
+	AnimalAgeAged        AnimalAge = "aged"
+	AnimalAgeOld         AnimalAge = "old"
+	AnimalAgeVenerable   AnimalAge = "venerable"
+)
+
+// AnimalCondition representa a condição do animal
+type AnimalCondition string
+
+const (
+	AnimalConditionNone     AnimalCondition = "none"
+	AnimalConditionAlert    AnimalCondition = "alert"
+	AnimalConditionAngry    AnimalCondition = "angry"
+	AnimalConditionChampion AnimalCondition = "champion"
+	AnimalConditionFierce   AnimalCondition = "fierce"
+	AnimalConditionGreenish AnimalCondition = "greenish"
+	AnimalConditionHardened AnimalCondition = "hardened"
+	AnimalConditionLurking  AnimalCondition = "lurking"
+	AnimalConditionRaging   AnimalCondition = "raging"
+	AnimalConditionScared   AnimalCondition = "scared"
+	AnimalConditionSlow     AnimalCondition = "slow"
+	AnimalConditionSly      AnimalCondition = "sly"
+)
+
+// AnimalGender representa o sexo do animal
+type AnimalGender string
+
+const (
+	AnimalGenderMale   AnimalGender = "male"
+	AnimalGenderFemale AnimalGender = "female"
+)
+
+// Animal representa um animal no sistema
+type Animal struct {
+	ID              int                `json:"id"`
+	Name            string             `json:"name"`
+	Type            AnimalType         `json:"type"`
+	Gender          AnimalGender       `json:"gender"`
+	Age             AnimalAge          `json:"age"`
+	Condition       AnimalCondition    `json:"condition"`
+	Father          string             `json:"father"` // Nome do pai ou "wild"
+	Mother          string             `json:"mother"` // Nome da mãe ou "wild"
+	Traits          []string           `json:"traits"` // Array de traits como strings
+	Notes           string             `json:"notes"`
+	IsPregnant      bool               `json:"isPregnant"`
+	BreedingMaleID  *int               `json:"breedingMaleId,omitempty"` // ID do macho usado no acasalamento
+	BreedingDueDate *time.Time         `json:"breedingDueDate,omitempty"` // Data prevista para nascimento
+	CreatedAt       time.Time          `json:"createdAt"`
+	UpdatedAt       time.Time          `json:"updatedAt"`
+}
