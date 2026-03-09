@@ -3,13 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { FaCompress, FaExchangeAlt, FaExpand, FaSearch, FaTrashAlt } from "react-icons/fa";
 import { api } from '../api';
 import { CATEGORIES, ITEM_CATEGORIES, ITEM_TYPE_LABELS, isLog, isOre, isShaft } from '../constants';
-import ConvertModal from './ConvertModal';
-import './StockTable.css';
+import ConvertModal from './ConvertModal'
+import DeleteStockModal from './DeleteStockModal'
+import './StockTable.css'
 
 function StockTable({ items, loading, onItemDeleted, selectedCategory, searchText, onCategoryChange, onSearchChange }) {
   const { t } = useTranslation()
   const [convertModalOpen, setConvertModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
+  const [itemToDelete, setItemToDelete] = useState(null)
   const [convertType, setConvertType] = useState(null) // 'ore', 'log-plank', 'log-shaft', 'shaft-peg'
   const [isExpanded, setIsExpanded] = useState(false)
   
@@ -41,41 +44,32 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
     return filtered
   }, [items, selectedCategory, searchText])
   
-  const handleDelete = async (id) => {
-    console.log('[StockTable] handleDelete: Iniciando processo de deleção do item ID=', id)
-    
-    // Encontrar o item para mostrar informações no log
-    const item = items.find(i => i.id === id)
-    if (item) {
-      console.log('[StockTable] handleDelete: Item encontrado:', {
-        id: item.id,
-        type: item.type,
-        quality: item.quality,
-        quantity: item.quantity
-      })
-    } else {
-      console.warn('[StockTable] handleDelete: Item ID=', id, 'não encontrado na lista')
-    }
+  const handleDeleteClick = (item) => {
+    setItemToDelete(item)
+    setDeleteModalOpen(true)
+  }
 
-    if (!confirm(t('stock.deleteConfirm'))) {
-      console.log('[StockTable] handleDelete: Usuário cancelou a deleção do item ID=', id)
-      return
-    }
-
-    console.log('[StockTable] handleDelete: Usuário confirmou, chamando API para deletar item ID=', id)
+  const handleDeleteConfirm = async (newQuantity) => {
+    if (!itemToDelete) return
 
     try {
-      await api.deleteStockItem(id)
-      console.log('[StockTable] handleDelete: Item ID=', id, 'deletado com sucesso, atualizando lista')
+      const currentQty = itemToDelete.quantity || 0
+
+      if (newQuantity === 0) {
+        await api.deleteStockItem(itemToDelete.id)
+      } else {
+        const quantityToRemove = currentQty - newQuantity
+        if (quantityToRemove > 0) {
+          await api.removeStockItem(itemToDelete.type, itemToDelete.quality, quantityToRemove)
+        }
+      }
       onItemDeleted()
     } catch (error) {
-      console.error('[StockTable] handleDelete: Erro ao deletar item ID=', id, ':', error)
-      console.error('[StockTable] handleDelete: Detalhes do erro:', {
-        message: error.message,
-        stack: error.stack,
-        error: error
-      })
+      console.error('[StockTable] Erro ao ajustar estoque:', error)
       alert(`${t('stock.error')}: ${error.message || t('common.error')}`)
+    } finally {
+      setDeleteModalOpen(false)
+      setItemToDelete(null)
     }
   }
 
@@ -220,7 +214,7 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
                       <div className="action-buttons">
                         <button
                           className="btn-delete"
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => handleDeleteClick(item)}
                           title={t('stock.removeItem')}
                         >
                           <FaTrashAlt color='#b0b0b0'/>
@@ -282,6 +276,17 @@ function StockTable({ items, loading, onItemDeleted, selectedCategory, searchTex
           onConvert={handleConvert}
           maxQuantity={selectedItem.quantity || 0}
           convertType={convertType}
+        />
+      )}
+      {itemToDelete && (
+        <DeleteStockModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false)
+            setItemToDelete(null)
+          }}
+          item={itemToDelete}
+          onConfirm={handleDeleteConfirm}
         />
       )}
     </>

@@ -552,6 +552,26 @@ type Location struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
+// Deed representa um settlement/aldeia no Wurm
+type Deed struct {
+	ID                  int64     `json:"id"`
+	Name                string    `json:"name"`
+	Mayor               string    `json:"mayor"`
+	Location            string    `json:"location"`
+	SizeWidth           int       `json:"sizeWidth"`
+	SizeHeight          int       `json:"sizeHeight"`
+	CoffersIron         int64     `json:"coffersIron"`
+	UpkeepChipsIron     int64     `json:"upkeepChipsIron"`
+	MonthlyCostIron     int64     `json:"monthlyCostIron"`
+	UpkeepDays          int       `json:"upkeepDays"`
+	UpkeepHours         int       `json:"upkeepHours"`
+	UpkeepMinutes       int       `json:"upkeepMinutes"`
+	RawText             string    `json:"rawText"`
+	CreatedAt           time.Time `json:"createdAt"`
+	UpdatedAt           time.Time `json:"updatedAt"`
+	LastUpkeepDebitAt   time.Time `json:"lastUpkeepDebitAt"`
+}
+
 // AnimalType representa o tipo de animal
 type AnimalType string
 

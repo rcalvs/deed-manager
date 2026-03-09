@@ -1,138 +1,271 @@
-// Serviço global de polling de eventos que funciona independente da aba ativa
+/**
+ * Serviço global de polling de Trade e Events que funciona independente da aba ativa.
+ * Permite que Trade e Events sejam lidos mesmo quando o usuário está em outra aba.
+ */
 import { hasExamineTrigger } from '../utils/examineParser'
+import {
+  updateBalance,
+  processTimeCommand,
+  checkAlarmForMessages,
+} from '../utils/messageProcessing'
+
+const LOGS_ENABLED_KEY = 'wurm_logs_enabled'
+const TRADE_ENABLED_KEY = 'wurm_trade_enabled'
+const EVENTS_ENABLED_KEY = 'wurm_event_enabled'
+const TRADE_ALARM_KEYWORDS_KEY = 'wurm_trade_alarm_keywords'
+const TRADE_ALARM_ENABLED_KEY = 'wurm_trade_alarm_enabled'
+const TRADE_ALARM_VOLUME_KEY = 'wurm_trade_alarm_volume'
+const EVENTS_ALARM_KEYWORDS_KEY = 'wurm_event_alarm_keywords'
+const EVENTS_ALARM_ENABLED_KEY = 'wurm_event_alarm_enabled'
+const EVENTS_ALARM_VOLUME_KEY = 'wurm_event_alarm_volume'
+const POLLING_INTERVAL = 2000
+
+function getTradeAlarmConfig() {
+  return {
+    keywords: localStorage.getItem(TRADE_ALARM_KEYWORDS_KEY) || '',
+    enabled: localStorage.getItem(TRADE_ALARM_ENABLED_KEY) === 'true',
+    volume: parseInt(localStorage.getItem(TRADE_ALARM_VOLUME_KEY) || '50', 10),
+  }
+}
+
+function getEventsAlarmConfig() {
+  return {
+    keywords: localStorage.getItem(EVENTS_ALARM_KEYWORDS_KEY) || '',
+    enabled: localStorage.getItem(EVENTS_ALARM_ENABLED_KEY) === 'true',
+    volume: parseInt(localStorage.getItem(EVENTS_ALARM_VOLUME_KEY) || '50', 10),
+  }
+}
 
 class EventsPollingService {
   constructor() {
     this.pollingInterval = null
-    this.listeners = new Set()
+    this.tradeListeners = new Set()
+    this.eventsListeners = new Set()
     this.isPolling = false
-    this.lastProcessedTimestamp = null // Timestamp da última mensagem processada
+    this.lastProcessedExamineTimestamp = null
+
+    // Buffer de mensagens (mantidos pelo serviço, independente da aba)
+    this.tradeMessages = []
+    this.eventsMessages = []
+    this.lastCheckedTradeRef = new Set()
+    this.lastCheckedEventsRef = new Set()
   }
 
   start() {
-    if (this.isPolling) {
+    if (this.isPolling) return
+
+    const logsEnabled = localStorage.getItem(LOGS_ENABLED_KEY) === 'true'
+    const tradeEnabled = localStorage.getItem(TRADE_ENABLED_KEY) === 'true'
+    const eventsEnabled = localStorage.getItem(EVENTS_ENABLED_KEY) === 'true'
+
+    if (!logsEnabled || (!tradeEnabled && !eventsEnabled)) {
       return
     }
 
-    console.log('[EventsPollingService] Iniciando polling de eventos')
+    console.log('[EventsPollingService] Iniciando polling de Trade e Events (independente da aba)')
     this.isPolling = true
-    
-    // Polling a cada 2 segundos (mesmo intervalo do EventsTab)
-    const POLLING_INTERVAL = 2000
-    
+
     const poll = async () => {
       try {
-        const logsEnabled = localStorage.getItem('wurm_logs_enabled') === 'true'
-        const eventsEnabled = localStorage.getItem('wurm_event_enabled') === 'true'
-        
-        if (!logsEnabled || !eventsEnabled) {
-          console.log('[EventsPollingService] Logs ou eventos não habilitados, pausando polling')
+        const logsEnabledNow = localStorage.getItem(LOGS_ENABLED_KEY) === 'true'
+        const tradeEnabledNow = localStorage.getItem(TRADE_ENABLED_KEY) === 'true'
+        const eventsEnabledNow = localStorage.getItem(EVENTS_ENABLED_KEY) === 'true'
+
+        if (!logsEnabledNow || (!tradeEnabledNow && !eventsEnabledNow)) {
           this.stop()
           return
         }
 
-        // Usar a API através do módulo api
-        // Ler apenas as últimas 15 linhas para evitar processar examines muito antigos
         const { api } = await import('../api')
-        const lines = await api.readCurrentEventsLogLastNLines(15)
-        
-        if (lines && lines.length > 0) {
-          // Verificar se há algum trigger de examine antes de disparar evento
-          // Usar função centralizada do examineParser
-          const triggerLine = lines.find(line => {
-            if (hasExamineTrigger(line)) {
-              const lowerLine = line.toLowerCase()
-              // Log específico para alguns animais
-              if (lowerLine.includes('unicorn')) {
-                console.log('[EventsPollingService] Trigger de unicorn encontrado!', lowerLine.substring(0, 80))
-              } else if (lowerLine.includes('deer')) {
-                console.log('[EventsPollingService] Trigger de deer encontrado!', lowerLine.substring(0, 80))
-              } else if (lowerLine.includes('bison')) {
-                console.log('[EventsPollingService] Trigger de bison encontrado!', lowerLine.substring(0, 80))
-              }
-              return true
-            }
-            return false
-          })
-          
-          if (triggerLine) {
-            // Extrair timestamp da mensagem do trigger
-            const timestampMatch = triggerLine.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
-            if (timestampMatch) {
-              const currentTimestamp = timestampMatch[1]
-              
-              // Verificar se já processamos esta mensagem
-              if (this.lastProcessedTimestamp === currentTimestamp) {
-                // Já processamos esta mensagem, ignorar
-                return
-              }
-              
-              // Nova mensagem, atualizar timestamp e processar
-              this.lastProcessedTimestamp = currentTimestamp
-              console.log('[EventsPollingService] Trigger de examine encontrado! Timestamp:', currentTimestamp, 'Disparando evento')
-              
-              // Disparar evento global para todos os listeners (incluindo HusbandryForm)
-              window.dispatchEvent(new CustomEvent('events-message-received', {
-                detail: { messages: lines }
-              }))
-            }
-          }
-          
-          // Também chamar listeners diretos se houver
-          this.listeners.forEach(listener => {
-            try {
-              listener(lines)
-            } catch (error) {
-              console.error('[EventsPollingService] Erro ao chamar listener:', error)
-            }
-          })
+
+        if (tradeEnabledNow) {
+          await this.pollTrade(api)
+        }
+
+        if (eventsEnabledNow) {
+          await this.pollEvents(api)
         }
       } catch (error) {
         console.error('[EventsPollingService] Erro no polling:', error)
       }
     }
 
-    // Executar imediatamente
     poll()
-    
-    // Configurar intervalo
     this.pollingInterval = setInterval(poll, POLLING_INTERVAL)
+  }
+
+  async pollTrade(api) {
+    try {
+      const lines = await api.readCurrentTradeLogLastNLines(10)
+      if (!lines || lines.length === 0) {
+        this.tradeMessages = []
+        this.lastCheckedTradeRef.clear()
+        this.notifyTradeListeners([])
+        return
+      }
+
+      if (this.tradeMessages.length === 0) {
+        this.tradeMessages = lines.slice(-50)
+        lines.forEach(msg => {
+          this.lastCheckedTradeRef.add(msg)
+          updateBalance(msg)
+        })
+        this.notifyTradeListeners(this.tradeMessages)
+        return
+      }
+
+      const lastKnown = this.tradeMessages[this.tradeMessages.length - 1]
+      const lastNew = lines[lines.length - 1]
+      if (lastKnown !== lastNew) {
+        const lastKnownIndex = lines.findIndex(msg => msg === lastKnown)
+        if (lastKnownIndex === -1) {
+          this.tradeMessages = lines.slice(-50)
+          this.lastCheckedTradeRef.clear()
+          lines.forEach(msg => {
+            this.lastCheckedTradeRef.add(msg)
+            updateBalance(msg)
+          })
+        } else {
+          const newMessages = lines.slice(lastKnownIndex + 1)
+          if (newMessages.length > 0) {
+            checkAlarmForMessages(newMessages, getTradeAlarmConfig(), getTradeAlarmConfig().volume)
+            newMessages.forEach(msg => updateBalance(msg))
+            this.tradeMessages = [...this.tradeMessages, ...newMessages].slice(-50)
+            newMessages.forEach(msg => this.lastCheckedTradeRef.add(msg))
+            this.notifyTradeListeners(this.tradeMessages)
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[EventsPollingService] Erro ao ler Trade:', err)
+    }
+  }
+
+  async pollEvents(api) {
+    try {
+      const lines = await api.readCurrentEventsLogLastNLines(15)
+      if (!lines || lines.length === 0) {
+        this.eventsMessages = []
+        this.lastCheckedEventsRef.clear()
+        this.notifyEventsListeners([])
+        return
+      }
+
+      if (this.eventsMessages.length === 0) {
+        this.eventsMessages = lines.slice(-50)
+        lines.forEach(msg => {
+          this.lastCheckedEventsRef.add(msg)
+          updateBalance(msg)
+          processTimeCommand(msg)
+        })
+        const hasExamine = lines.some(l => hasExamineTrigger(l))
+        if (hasExamine) this.dispatchExamineEvent(lines)
+        this.notifyEventsListeners(this.eventsMessages)
+        return
+      }
+
+      const lastKnown = this.eventsMessages[this.eventsMessages.length - 1]
+      const lastNew = lines[lines.length - 1]
+      if (lastKnown !== lastNew) {
+        const lastKnownIndex = lines.findIndex(msg => msg === lastKnown)
+        if (lastKnownIndex === -1) {
+          this.eventsMessages = lines.slice(-50)
+          this.lastCheckedEventsRef.clear()
+          lines.forEach(msg => {
+            this.lastCheckedEventsRef.add(msg)
+            updateBalance(msg)
+            processTimeCommand(msg)
+          })
+          this.notifyEventsListeners(this.eventsMessages)
+        } else {
+          const newMessages = lines.slice(lastKnownIndex + 1)
+          if (newMessages.length > 0) {
+            checkAlarmForMessages(newMessages, getEventsAlarmConfig(), getEventsAlarmConfig().volume)
+            newMessages.forEach(msg => {
+              updateBalance(msg)
+              processTimeCommand(msg)
+            })
+            const triggerLine = newMessages.find(l => hasExamineTrigger(l))
+            if (triggerLine) {
+              const m = triggerLine.match(/^\[(\d{2}:\d{2}:\d{2})\]/)
+              const ts = m ? m[1] : null
+              if (ts && ts !== this.lastProcessedExamineTimestamp) {
+                this.lastProcessedExamineTimestamp = ts
+                this.dispatchExamineEvent(lines)
+              }
+            }
+            this.eventsMessages = [...this.eventsMessages, ...newMessages].slice(-50)
+            newMessages.forEach(msg => this.lastCheckedEventsRef.add(msg))
+            this.notifyEventsListeners(this.eventsMessages)
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[EventsPollingService] Erro ao ler Events:', err)
+    }
+  }
+
+  dispatchExamineEvent(lines) {
+    window.dispatchEvent(new CustomEvent('events-message-received', { detail: { messages: lines } }))
+  }
+
+  notifyTradeListeners(messages) {
+    this.tradeListeners.forEach(cb => {
+      try { cb(messages) } catch (e) { console.error('[EventsPollingService] Erro no listener Trade:', e) }
+    })
+  }
+
+  notifyEventsListeners(messages) {
+    this.eventsListeners.forEach(cb => {
+      try { cb(messages) } catch (e) { console.error('[EventsPollingService] Erro no listener Events:', e) }
+    })
   }
 
   stop() {
     if (this.pollingInterval) {
-      console.log('[EventsPollingService] Parando polling de eventos')
+      console.log('[EventsPollingService] Parando polling')
       clearInterval(this.pollingInterval)
       this.pollingInterval = null
       this.isPolling = false
     }
   }
 
-  addListener(listener) {
-    this.listeners.add(listener)
-    console.log('[EventsPollingService] Listener adicionado. Total de listeners:', this.listeners.size)
-    
-    // Se não está polling e os requisitos estão atendidos, iniciar
-    if (!this.isPolling) {
-      const logsEnabled = localStorage.getItem('wurm_logs_enabled') === 'true'
-      const eventsEnabled = localStorage.getItem('wurm_event_enabled') === 'true'
-      
-      if (logsEnabled && eventsEnabled) {
-        this.start()
-      }
-    }
+  getTradeMessages() {
+    return [...this.tradeMessages]
   }
 
-  removeListener(listener) {
-    this.listeners.delete(listener)
-    console.log('[EventsPollingService] Listener removido. Total de listeners:', this.listeners.size)
-    
-    // Se não há mais listeners, parar polling
-    if (this.listeners.size === 0) {
-      this.stop()
+  getEventsMessages() {
+    return [...this.eventsMessages]
+  }
+
+  addTradeListener(callback) {
+    this.tradeListeners.add(callback)
+    if (!this.isPolling) this.maybeStart()
+    callback(this.getTradeMessages())
+  }
+
+  removeTradeListener(callback) {
+    this.tradeListeners.delete(callback)
+  }
+
+  addEventsListener(callback) {
+    this.eventsListeners.add(callback)
+    if (!this.isPolling) this.maybeStart()
+    callback(this.getEventsMessages())
+  }
+
+  removeEventsListener(callback) {
+    this.eventsListeners.delete(callback)
+  }
+
+  maybeStart() {
+    const logsEnabled = localStorage.getItem(LOGS_ENABLED_KEY) === 'true'
+    const tradeEnabled = localStorage.getItem(TRADE_ENABLED_KEY) === 'true'
+    const eventsEnabled = localStorage.getItem(EVENTS_ENABLED_KEY) === 'true'
+    if (logsEnabled && (tradeEnabled || eventsEnabled)) {
+      this.start()
     }
   }
 }
 
-// Exportar instância singleton
 export const eventsPollingService = new EventsPollingService()

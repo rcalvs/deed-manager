@@ -49,14 +49,27 @@
       "locations": {
         "title": "Местоположения на карте",
         "description": "Сохраняйте и организуйте важные местоположения с карты игры"
+      },
+      "deeds": {
+        "title": "Управление поселениями",
+        "description": "Управляйте settlements, добавляйте средства на upkeep, отслеживайте срок. Парсинг текста из игры"
+      },
+      "calendar": {
+        "title": "Календарь",
+        "description": "Время Wurm, сезоны, starfall. Добавляйте заметки с датами начала и конца"
+      },
+      "events": {
+        "title": "События",
+        "description": "Торговые и игровые события из логов. Включите в Настройках"
       }
     },
     "setup": {
-      "title": "Начальная настройка",
-      "subtitle": "Для начала введите название вашего Deed",
+      "title": "Регистрация Deed",
+      "subtitle": "Заполните информацию о вашем Deed. Можно вставить текст из игры и нажать Разобрать.",
       "deedName": "Название Deed",
       "deedNamePlaceholder": "Например: Мой Deed",
-      "deedNameHint": "Это имя будет использоваться для персонализации вашего опыта"
+      "deedNameHint": "Это имя будет использоваться для персонализации вашего опыта",
+      "skip": "Пропустить"
     }
   },
   "app": {
@@ -65,11 +78,61 @@
     "balance": "Баланс",
     "tabs": {
       "stock": "Склад",
+      "deeds": "Усадьбы",
       "husbandry": "Животноводство",
       "notes": "Заметки",
       "calendar": "Календарь",
       "events": "События"
     }
+  },
+  "deeds": {
+    "title": "Усадьбы",
+    "addDeed": "Добавить",
+    "name": "Название",
+    "namePlaceholder": "Название усадьбы",
+    "nameRequired": "Введите название усадьбы",
+    "mayor": "Мэр",
+    "mayorPlaceholder": "Имя мэра",
+    "location": "Местоположение",
+    "locationPlaceholder": "URL Yaga или Wurmmaps",
+    "pasteInfo": "Вставить информацию об усадьбе",
+    "pastePlaceholder": "Вставьте текст из игры (например: The size of Deed is 32 by 23...)",
+    "parse": "Заполнить",
+    "parseSuccess": "Информация успешно разобрана",
+    "sizeWidth": "Ширина",
+    "sizeHeight": "Высота",
+    "size": "Размер",
+    "coffersIron": "Казна (iron)",
+    "coffers": "Казна",
+    "upkeepChips": "Upkeep chips",
+    "upkeepChipsIron": "Chips (iron)",
+    "gold": "Золото",
+    "silver": "Серебро",
+    "copper": "Медь",
+    "iron": "Железо",
+    "monthlyCostIron": "Месячная плата (iron)",
+    "monthlyCost": "Месячная плата",
+    "upkeepDuration": "Длительность upkeep",
+    "upkeepExpired": "Истекло",
+    "addFunds": "Добавить средства",
+    "addFundsTitle": "Добавить средства",
+    "addFundsDestination": "Назначение",
+    "addFundsConfirm": "Добавить",
+    "upkeepBelow60Notification": "Deed \"{{name}}\": осталось менее 60 дней upkeep",
+    "upkeepBelow30Notification": "Deed \"{{name}}\": осталось менее 30 дней upkeep",
+    "days": "Дней",
+    "hours": "Часов",
+    "minutes": "Минут",
+    "noDeeds": "Нет зарегистрированных усадеб",
+    "noDeedsFiltered": "Усадьбы не найдены",
+    "searchPlaceholder": "Поиск усадеб...",
+    "addSuccess": "Усадьба успешно добавлена",
+    "updateSuccess": "Усадьба успешно обновлена",
+    "saveError": "Ошибка сохранения усадьбы",
+    "deleteConfirm": "Удалить эту усадьбу?",
+    "openMap": "Открыть карту",
+    "unnamed": "Без названия",
+    "error": "Ошибка"
   },
   "stock": {
     "title": "Склад",
@@ -85,6 +148,15 @@
     "noItemsFiltered": "Предметы не найдены с примененными фильтрами",
     "totalItems": "Всего предметов",
     "deleteConfirm": "Вы уверены, что хотите удалить этот предмет?",
+    "deleteModal": {
+      "title": "Изменить склад",
+      "currentStock": "Текущий склад",
+      "newStock": "Новый склад",
+      "hint": "Введите 0 для полного удаления предмета.",
+      "confirm": "Подтвердить",
+      "invalidQuantity": "Введите корректное количество (0 или больше).",
+      "exceedsCurrent": "Новое количество не может превышать текущий склад."
+    },
     "deleteSuccess": "Предмет успешно удален",
     "addSuccess": "Предмет успешно добавлен",
     "removeSuccess": "Предмет успешно удален",

@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AiOutlineStock } from "react-icons/ai"
-import { FaBell, FaCalendarAlt, FaPaw, FaStickyNote } from "react-icons/fa"
+import { FaBell, FaCalendarAlt, FaHome, FaStickyNote } from "react-icons/fa"
 import './App.css'
 import { api } from './api'
 import { eventsPollingService } from './services/EventsPollingService'
+import { createNotification } from './utils/messageProcessing'
+import { checkDeedUpkeepNotifications } from './utils/deedUpkeep'
 import CalendarTab from './components/CalendarTab'
 import EventsTab from './components/EventsTab'
-import HusbandryTab from './components/HusbandryTab'
+// HUSBANDRY DESABILITADO - mudança de escopo
+// import HusbandryTab from './components/HusbandryTab'
+import DeedsTab from './components/DeedsTab'
 import NotesTab from './components/NotesTab'
 import NotificationCenter from './components/NotificationCenter'
 import Settings from './components/Settings'
@@ -30,7 +34,7 @@ function App() {
     return localStorage.getItem('wurm_balance') || ''
   })
   const [activeTab, setActiveTab] = useState('stock')
-  const [version, setVersion] = useState('v0.2.5') // Fallback
+  const [version, setVersion] = useState('v0.4.0') // Fallback
   const [developerMode, setDeveloperMode] = useState(() => {
     // Carregar do localStorage
     const saved = localStorage.getItem('developerMode')
@@ -66,25 +70,39 @@ function App() {
     const checkLogsEnabled = () => {
       const enabled = localStorage.getItem('wurm_logs_enabled') === 'true'
       setLogsEnabled(enabled)
-      
-      // Iniciar ou parar o serviço de polling global baseado nas configurações
+
+      // Serviço de polling global: lê Trade e Events mesmo com a aba inativa
+      const tradeEnabled = localStorage.getItem('wurm_trade_enabled') === 'true'
       const eventsEnabled = localStorage.getItem('wurm_event_enabled') === 'true'
-      if (enabled && eventsEnabled) {
+      if (enabled && (tradeEnabled || eventsEnabled)) {
         eventsPollingService.start()
       } else {
-        console.log('[App] Parando serviço de polling global de eventos')
         eventsPollingService.stop()
       }
     }
 
-    // Verificar na inicialização
     checkLogsEnabled()
-    
-    // Verificar periodicamente (a cada 1 segundo)
     const interval = setInterval(checkLogsEnabled, 1000)
-
     return () => clearInterval(interval)
   }, [])
+
+  // Polling a cada 10 min: verificar upkeep dos deeds e enviar notificações (60/30 dias)
+  useEffect(() => {
+    const POLL_INTERVAL_MS = 10 * 60 * 1000
+    const checkDeedUpkeep = async () => {
+      try {
+        const deeds = await api.getAllDeeds()
+        if (deeds?.length) {
+          checkDeedUpkeepNotifications(deeds, t, createNotification)
+        }
+      } catch (err) {
+        console.error('[App] Erro ao verificar upkeep dos deeds:', err)
+      }
+    }
+    checkDeedUpkeep() // Executar ao montar
+    const interval = setInterval(checkDeedUpkeep, POLL_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [t])
 
   // Atualizar Balance quando mudar
   useEffect(() => {
@@ -153,11 +171,18 @@ function App() {
       label: t('app.tabs.stock'),
       icon: <AiOutlineStock />,
     },
+    // HUSBANDRY DESABILITADO - mudança de escopo
     {
-      id: 'husbandry',
-      label: t('app.tabs.husbandry'),
-      icon: <FaPaw />,
+      id: 'deeds',
+      label: t('app.tabs.deeds', { defaultValue: 'Deeds' }),
+      icon: <FaHome />,
     },
+    // HUSBANDRY DESABILITADO
+    // {
+    //   id: 'husbandry',
+    //   label: t('app.tabs.husbandry'),
+    //   icon: <FaPaw />,
+    // },
     {
       id: 'notes',
       label: t('app.tabs.notes'),
@@ -213,7 +238,7 @@ function App() {
           onTabChange={setActiveTab}
         >
           {activeTab === 'stock' && <StockTab developerMode={developerMode} />}
-          {activeTab === 'husbandry' && <HusbandryTab />}
+          {activeTab === 'deeds' && <DeedsTab />}
           {activeTab === 'notes' && <NotesTab />}
           {activeTab === 'calendar' && <CalendarTab developerMode={developerMode} />}
           {activeTab === 'events' && <EventsTab />}

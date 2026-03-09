@@ -1,0 +1,141 @@
+.add-funds-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.add-funds-modal {
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  padding: 0;
+  min-width: 320px;
+  max-width: 400px;
+}
+
+.add-funds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #4a4a4a;
+}
+
+.add-funds-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.1rem;
+}
+
+.add-funds-close {
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+}
+
+.add-funds-close:hover {
+  color: #ffffff;
+}
+
+.add-funds-form {
+  padding: 1.25rem;
+}
+
+.add-funds-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.add-funds-row label {
+  flex: 0 0 70px;
+  color: #b0b0b0;
+  font-size: 0.95rem;
+}
+
+.add-funds-row input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  font-size: 1rem;
+}
+
+.add-funds-destination {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.add-funds-destination > label {
+  display: block;
+  color: #b0b0b0;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.add-funds-radio-group {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.add-funds-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.add-funds-radio input {
+  cursor: pointer;
+}
+
+.add-funds-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.add-funds-actions .btn-cancel {
+  padding: 0.5rem 1rem;
+  background-color: #4a4a4a;
+  color: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-funds-actions .btn-cancel:hover:not(:disabled) {
+  background-color: #5a5a5a;
+}
+
+.add-funds-actions .btn-confirm {
+  padding: 0.5rem 1rem;
+  background-color: #5a9fd4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-funds-actions .btn-confirm:hover:not(:disabled) {
+  background-color: #6aaff4;
+}
+
+.add-funds-actions .btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

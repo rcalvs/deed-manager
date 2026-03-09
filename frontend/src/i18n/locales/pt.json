@@ -49,14 +49,27 @@
       "locations": {
         "title": "Localizações do Mapa",
         "description": "Salve e organize localizações importantes do mapa do jogo"
+      },
+      "deeds": {
+        "title": "Gerenciamento de Deeds",
+        "description": "Gerencie settlements, adicione fundos ao upkeep e acompanhe a duração. Parse do texto do jogo"
+      },
+      "calendar": {
+        "title": "Calendário",
+        "description": "Tempo do Wurm, estações, starfall. Adicione notas com datas de início e fim"
+      },
+      "events": {
+        "title": "Eventos",
+        "description": "Eventos de Trade e do jogo a partir dos logs. Habilite nas Configurações"
       }
     },
     "setup": {
-      "title": "Configuração Inicial",
-      "subtitle": "Para começar, informe o nome do seu Deed",
+      "title": "Cadastro do Deed",
+      "subtitle": "Preencha as informações do seu Deed para começar. Você pode colar o texto do jogo e clicar em Parsear.",
       "deedName": "Nome do Deed",
       "deedNamePlaceholder": "Ex: Meu Deed",
-      "deedNameHint": "Este nome será usado para personalizar sua experiência"
+      "deedNameHint": "Este nome será usado para personalizar sua experiência",
+      "skip": "Pular"
     }
   },
   "app": {
@@ -65,11 +78,61 @@
     "balance": "Balance",
     "tabs": {
       "stock": "Estoque",
+      "deeds": "Deeds",
       "husbandry": "Criação",
       "notes": "Notas",
       "calendar": "Calendário",
       "events": "Eventos"
     }
+  },
+  "deeds": {
+    "title": "Deeds",
+    "addDeed": "Adicionar",
+    "name": "Nome",
+    "namePlaceholder": "Nome do deed",
+    "nameRequired": "Por favor, preencha o nome do deed",
+    "mayor": "Prefeito",
+    "mayorPlaceholder": "Nome do prefeito",
+    "location": "Localização",
+    "locationPlaceholder": "URL Yaga ou Wurmmaps",
+    "pasteInfo": "Colar informações do deed",
+    "pastePlaceholder": "Cole aqui o texto do jogo (ex: The size of DEED is 32 by 23...)",
+    "parse": "Preencher",
+    "parseSuccess": "Informações parseadas com sucesso",
+    "sizeWidth": "Largura",
+    "sizeHeight": "Altura",
+    "size": "Tamanho",
+    "coffersIron": "Cofre (iron)",
+    "coffers": "Cofre",
+    "upkeepChips": "Upkeep chips",
+    "upkeepChipsIron": "Upkeep chips (iron)",
+    "gold": "Gold",
+    "silver": "Silver",
+    "copper": "Copper",
+    "iron": "Iron",
+    "monthlyCostIron": "Custo mensal (iron)",
+    "monthlyCost": "Custo mensal",
+    "upkeepDuration": "Duração upkeep",
+    "upkeepExpired": "Expirado",
+    "addFunds": "Adicionar fundos",
+    "addFundsTitle": "Adicionar fundos",
+    "addFundsDestination": "Destino",
+    "addFundsConfirm": "Adicionar",
+    "upkeepBelow60Notification": "Deed \"{{name}}\": menos de 60 dias de upkeep restante",
+    "upkeepBelow30Notification": "Deed \"{{name}}\": menos de 30 dias de upkeep restante",
+    "days": "Dias",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "noDeeds": "Nenhum deed cadastrado",
+    "noDeedsFiltered": "Nenhum deed encontrado",
+    "searchPlaceholder": "Buscar deeds...",
+    "addSuccess": "Deed adicionado com sucesso",
+    "updateSuccess": "Deed atualizado com sucesso",
+    "saveError": "Erro ao salvar deed",
+    "deleteConfirm": "Excluir este deed?",
+    "openMap": "Abrir mapa",
+    "unnamed": "Sem nome",
+    "error": "Erro"
   },
   "stock": {
     "title": "Estoque",
@@ -85,6 +148,15 @@
     "noItemsFiltered": "Nenhum item encontrado com os filtros aplicados",
     "totalItems": "Total de itens",
     "deleteConfirm": "Tem certeza que deseja excluir este item?",
+    "deleteModal": {
+      "title": "Ajustar Estoque",
+      "currentStock": "Estoque atual",
+      "newStock": "Novo estoque",
+      "hint": "Digite 0 para remover o item completamente.",
+      "confirm": "Confirmar",
+      "invalidQuantity": "Insira uma quantidade válida (0 ou maior).",
+      "exceedsCurrent": "A nova quantidade não pode ser maior que o estoque atual."
+    },
     "deleteSuccess": "Item excluído com sucesso",
     "addSuccess": "Item adicionado com sucesso",
     "removeSuccess": "Item removido com sucesso",

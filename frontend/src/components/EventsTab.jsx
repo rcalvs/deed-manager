@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaBell, FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { api } from '../api'
-import { calculateEpochFromCalibration, parseTimeCommand } from '../utils/wurmTime'
+import { eventsPollingService } from '../services/EventsPollingService'
 import AlarmConfigModal from './AlarmConfigModal'
 import './EventsTab.css'
 import LogsConfigModal from './LogsConfigModal'
@@ -16,7 +16,6 @@ const ALARM_VOLUME_KEY = 'wurm_trade_alarm_volume'
 const EVENTS_ALARM_KEYWORDS_KEY = 'wurm_event_alarm_keywords'
 const EVENTS_ALARM_ENABLED_KEY = 'wurm_event_alarm_enabled'
 const EVENTS_ALARM_VOLUME_KEY = 'wurm_event_alarm_volume'
-const POLLING_INTERVAL = 2000 // 2 segundos
 
 function EventsTab() {
   const { t } = useTranslation()
@@ -55,312 +54,28 @@ function EventsTab() {
   })
   const messagesEndRef = useRef(null)
   const eventsMessagesEndRef = useRef(null)
-  const pollingIntervalRef = useRef(null)
-  const eventsPollingIntervalRef = useRef(null)
-  const lastMessageCountRef = useRef(0)
-  const lastCheckedMessagesRef = useRef(new Set())
-  const lastEventsMessageCountRef = useRef(0)
-  const lastCheckedEventsMessagesRef = useRef(new Set())
 
-  // Função para tocar som de alarme
-  const playAlarmSound = React.useCallback((volume) => {
-    try {
-      const volumeLevel = ((volume || 50) / 100) * 0.3
-      
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
-      
-      oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
-      
-      oscillator.frequency.value = 800
-      oscillator.type = 'sine'
-      
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime)
-      gainNode.gain.linearRampToValueAtTime(volumeLevel, audioContext.currentTime + 0.01)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
-      
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + 0.2)
-    } catch (err) {
-      console.error('Erro ao tocar alarme:', err)
+  // Assinar serviço de polling global (lê Trade/Events mesmo com aba inativa)
+  const onTradeUpdate = useCallback((messages) => setTradeMessages(messages || []), [])
+  const onEventsUpdate = useCallback((messages) => setEventsMessages(messages || []), [])
+
+  useEffect(() => {
+    if (tradeEnabled) {
+      eventsPollingService.addTradeListener(onTradeUpdate)
+      return () => eventsPollingService.removeTradeListener(onTradeUpdate)
+    } else {
+      setTradeMessages([])
     }
-  }, [])
+  }, [tradeEnabled, onTradeUpdate])
 
-  // Função para criar notificação
-  const createNotification = React.useCallback((message) => {
-    try {
-      const notifications = JSON.parse(
-        localStorage.getItem('wurm_notifications') || '[]'
-      )
-      
-      const newNotification = {
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-        message: message,
-        timestamp: new Date().toISOString()
-      }
-      
-      notifications.unshift(newNotification)
-      const limited = notifications.slice(0, 100)
-      
-      localStorage.setItem('wurm_notifications', JSON.stringify(limited))
-      window.dispatchEvent(new Event('wurm-new-notification'))
-    } catch (err) {
-      console.error('Erro ao criar notificação:', err)
+  useEffect(() => {
+    if (eventsEnabled) {
+      eventsPollingService.addEventsListener(onEventsUpdate)
+      return () => eventsPollingService.removeEventsListener(onEventsUpdate)
+    } else {
+      setEventsMessages([])
     }
-  }, [])
-
-  // Função para converter moedas para iron (base)
-  const convertToIron = React.useCallback((gold, silver, copper, iron) => {
-    return (gold || 0) * 1000000 + (silver || 0) * 10000 + (copper || 0) * 100 + (iron || 0)
-  }, [])
-
-  // Função para converter iron para formato legível
-  const formatBalance = React.useCallback((totalIron) => {
-    const gold = Math.floor(totalIron / 1000000)
-    const silver = Math.floor((totalIron % 1000000) / 10000)
-    const copper = Math.floor((totalIron % 10000) / 100)
-    const iron = totalIron % 100
-    
-    const parts = []
-    if (gold > 0) parts.push(`${gold}g`)
-    if (silver > 0) parts.push(`${silver}s`)
-    if (copper > 0) parts.push(`${copper}c`)
-    if (iron > 0) parts.push(`${iron}i`)
-    
-    return parts.length > 0 ? parts.join(', ') : '0i'
-  }, [])
-
-  // Função para parsear valores de moedas de uma string
-  const parseCurrency = React.useCallback((text) => {
-    let gold = 0, silver = 0, copper = 0, iron = 0
-    
-    // Padrões para formato abreviado: "1g, 32s, 45c, 21i"
-    const abbreviatedPatterns = [
-      { regex: /(\d+)\s*g\b/gi, type: 'gold' },
-      { regex: /(\d+)\s*s\b/gi, type: 'silver' },
-      { regex: /(\d+)\s*c\b/gi, type: 'copper' },
-      { regex: /(\d+)\s*i\b/gi, type: 'iron' }
-    ]
-    
-    // Padrões para formato por extenso: "1 gold, 32 silver, 45 copper, 21 iron"
-    const fullPatterns = [
-      { regex: /(\d+)\s+gold/gi, type: 'gold' },
-      { regex: /(\d+)\s+silver/gi, type: 'silver' },
-      { regex: /(\d+)\s+copper/gi, type: 'copper' },
-      { regex: /(\d+)\s+iron/gi, type: 'iron' }
-    ]
-    
-    // Tentar primeiro formato abreviado
-    abbreviatedPatterns.forEach(({ regex, type }) => {
-      const matches = Array.from(text.matchAll(regex))
-      matches.forEach(match => {
-        const value = parseInt(match[1], 10)
-        if (type === 'gold') gold += value
-        else if (type === 'silver') silver += value
-        else if (type === 'copper') copper += value
-        else if (type === 'iron') iron += value
-      })
-    })
-    
-    // Se não encontrou nada no formato abreviado, tentar formato por extenso
-    if (gold === 0 && silver === 0 && copper === 0 && iron === 0) {
-      fullPatterns.forEach(({ regex, type }) => {
-        const matches = Array.from(text.matchAll(regex))
-        matches.forEach(match => {
-          const value = parseInt(match[1], 10)
-          if (type === 'gold') gold += value
-          else if (type === 'silver') silver += value
-          else if (type === 'copper') copper += value
-          else if (type === 'iron') iron += value
-        })
-      })
-    }
-    
-    return { gold, silver, copper, iron }
-  }, [])
-
-  // Função para obter balance atual do localStorage
-  const getCurrentBalance = React.useCallback(() => {
-    const balanceStr = localStorage.getItem('wurm_balance') || '0i'
-    const parsed = parseCurrency(balanceStr)
-    return convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-  }, [parseCurrency, convertToIron])
-
-  // Função para atualizar Balance no header
-  const updateBalance = React.useCallback((message) => {
-    let newBalance = null
-    let shouldNotify = false
-    
-    // Padrão 1: "Bank balance: 1g, 32s, 45c, 21i"
-    const bankBalanceMatch = message.match(/[Bb]ank\s+balance[:\s]+(.+?)(?:\.|$)/i)
-    if (bankBalanceMatch) {
-      const currencyStr = bankBalanceMatch[1]
-      const parsed = parseCurrency(currencyStr)
-      newBalance = convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-    }
-    
-    // Padrão 2: "You now have 1 gold, 32 silver, 43 copper and 21 iron in the bank."
-    if (newBalance === null) {
-      const youNowHaveMatch = message.match(/[Yy]ou\s+now\s+have\s+(.+?)\s+in\s+the\s+bank/i)
-      if (youNowHaveMatch) {
-        const currencyStr = youNowHaveMatch[1]
-        const parsed = parseCurrency(currencyStr)
-        newBalance = convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-      }
-    }
-    
-    // Padrão 2b: "Your available money in the bank is now 2 silver, 5 copper and 41 iron."
-    if (newBalance === null) {
-      const availableMoneyMatch = message.match(/[Yy]our\s+available\s+money\s+in\s+the\s+bank\s+is\s+now\s+(.+?)(?:\.|$)/i)
-      if (availableMoneyMatch) {
-        const currencyStr = availableMoneyMatch[1]
-        const parsed = parseCurrency(currencyStr)
-        // Sempre atualizar, mesmo se não encontrar moedas (pode ser que o parseCurrency precise melhorar)
-        newBalance = convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-        shouldNotify = true // Enviar notificação para este tipo de atualização
-      }
-    }
-    
-    // Padrão 2c: "New balance: 1 silver, 5 copper and 41 iron."
-    if (newBalance === null) {
-      const newBalanceMatch = message.match(/[Nn]ew\s+balance[:\s]+(.+?)(?:\.|$)/i)
-      if (newBalanceMatch) {
-        const currencyStr = newBalanceMatch[1]
-        const parsed = parseCurrency(currencyStr)
-        newBalance = convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-      }
-    }
-    
-    // Padrão 3: "You have been charged 1 copper."
-    if (newBalance === null) {
-      const chargedMatch = message.match(/[Yy]ou\s+have\s+been\s+charged\s+(.+?)(?:\.|$)/i)
-      if (chargedMatch && !message.toLowerCase().includes('the items are now available')) {
-        const currencyStr = chargedMatch[1]
-        const parsed = parseCurrency(currencyStr)
-        const chargeAmount = convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-        const currentBalance = getCurrentBalance()
-        newBalance = Math.max(0, currentBalance - chargeAmount)
-      }
-    }
-    
-    // Padrão 4: "The items are now available and you have been charged 1 silver and 1 copper."
-    if (newBalance === null) {
-      const itemsAvailableMatch = message.match(/[Tt]he\s+items\s+are\s+now\s+available\s+and\s+you\s+have\s+been\s+charged\s+(.+?)(?:\.|$)/i)
-      if (itemsAvailableMatch) {
-        const currencyStr = itemsAvailableMatch[1]
-        const parsed = parseCurrency(currencyStr)
-        const chargeAmount = convertToIron(parsed.gold, parsed.silver, parsed.copper, parsed.iron)
-        const currentBalance = getCurrentBalance()
-        newBalance = Math.max(0, currentBalance - chargeAmount)
-        shouldNotify = true // Notificar para este tipo de cobrança
-      }
-    }
-    
-    if (newBalance !== null && !isNaN(newBalance)) {
-      const formattedBalance = formatBalance(newBalance)
-      // Garantir que seja uma string
-      const balanceString = String(formattedBalance)
-      localStorage.setItem('wurm_balance', balanceString)
-      window.dispatchEvent(new Event('wurm-balance-updated'))
-      
-      // Criar notificação se necessário
-      if (shouldNotify) {
-        createNotification(message)
-      }
-    }
-    
-    // Verificar mensagens que precisam de notificação mas não atualizam balance
-    // Padrão: "You realize that you have developed an affinity for XXXX."
-    const affinityMatch = message.match(/[Yy]ou\s+realize\s+that\s+you\s+have\s+developed\s+an\s+affinity\s+for\s+(.+?)(?:\.|$)/i)
-    if (affinityMatch) {
-      createNotification(message)
-    }
-  }, [parseCurrency, convertToIron, formatBalance, getCurrentBalance, createNotification])
-
-  // Função para detectar e processar comando /time para calibração automática
-  const processTimeCommand = React.useCallback((message) => {
-    try {
-      // Verificar se a mensagem contém o padrão do comando /time
-      // Formato: "[HH:mm:ss] It is HH:mm:ss on day of ..."
-      if (!message.includes('It is') || !message.includes('starfall')) {
-        return
-      }
-
-      // Tentar parsear o comando /time
-      const parsed = parseTimeCommand(message)
-      if (!parsed) {
-        return
-      }
-
-      // Extrair timestamp do PC da mensagem (o que está entre colchetes)
-      const pcTimeMatch = message.match(/\[(\d{2}):(\d{2}):(\d{2})\]/)
-      if (!pcTimeMatch) {
-        return
-      }
-
-      // Usar a data/hora atual do PC (assumindo que a mensagem foi recebida agora)
-      // Ou podemos usar o timestamp extraído da mensagem com a data atual
-      const now = new Date()
-      const pcHour = parseInt(pcTimeMatch[1], 10)
-      const pcMinute = parseInt(pcTimeMatch[2], 10)
-      const pcSecond = parseInt(pcTimeMatch[3], 10)
-      
-      // Criar data com o horário do timestamp e a data atual
-      const pcDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pcHour, pcMinute, pcSecond)
-
-      // Calcular nova época
-      const newEpoch = calculateEpochFromCalibration(
-        pcDateTime,
-        parsed.hour,
-        parsed.minute,
-        parsed.second,
-        parsed.week,
-        parsed.starfall,
-        parsed.year
-      )
-
-      // Salvar no localStorage (mesma chave usada pelo CalibrationModal)
-      const STORAGE_KEY = 'wurm_calibrated_epoch'
-      localStorage.setItem(STORAGE_KEY, newEpoch.toISOString())
-
-      // Disparar evento para atualizar o calendário
-      window.dispatchEvent(new Event('wurm-epoch-updated'))
-
-      // Criar notificação informando que a calibração foi feita
-      createNotification(`Calibração automática realizada: ${parsed.starfall}, semana ${parsed.week}, ano ${parsed.year}`)
-    } catch (err) {
-      // Silenciosamente ignorar erros de parsing (pode não ser um comando /time válido)
-      console.debug('[EventsTab] Erro ao processar comando /time:', err)
-    }
-  }, [createNotification])
-
-  // Função para verificar alarme em mensagens
-  const checkAlarmForMessages = React.useCallback((messages, config, volume) => {
-    if (!config.enabled || !config.keywords.trim()) {
-      return
-    }
-
-    const keywords = config.keywords
-      .split(',')
-      .map(k => k.trim().toLowerCase())
-      .filter(k => k.length > 0)
-
-    if (keywords.length === 0) {
-      return
-    }
-
-    messages.forEach(message => {
-      const messageLower = message.toLowerCase()
-      const foundKeyword = keywords.find(keyword => messageLower.includes(keyword))
-      
-      if (foundKeyword) {
-        playAlarmSound(volume)
-        createNotification(message)
-      }
-    })
-  }, [playAlarmSound, createNotification])
+  }, [eventsEnabled, onEventsUpdate])
 
   // Verificar se logs estão habilitados
   useEffect(() => {
@@ -383,193 +98,6 @@ function EventsTab() {
     const interval = setInterval(checkLogsEnabled, 1000)
     return () => clearInterval(interval)
   }, [tradeEnabled, eventsEnabled])
-
-  // Polling de mensagens de Trade
-  useEffect(() => {
-    if (!logsEnabled || !tradeEnabled) {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current)
-        pollingIntervalRef.current = null
-      }
-      return
-    }
-
-    const pollTradeMessages = async () => {
-      try {
-        setLoading(true)
-        setError('')
-        
-        const lines = await api.readCurrentTradeLogLastNLines(10)
-        
-        if (lines && lines.length > 0) {
-          if (tradeMessages.length === 0) {
-            setTradeMessages(lines)
-            lastMessageCountRef.current = lines.length
-            lines.forEach(msg => {
-              lastCheckedMessagesRef.current.add(msg)
-              updateBalance(msg)
-            })
-          } else {
-            const lastKnownMessage = tradeMessages[tradeMessages.length - 1]
-            const lastNewMessage = lines[lines.length - 1]
-            
-            if (lastKnownMessage !== lastNewMessage) {
-              const lastKnownIndex = lines.findIndex(msg => msg === lastKnownMessage)
-              
-              if (lastKnownIndex === -1) {
-                setTradeMessages(lines)
-                lastMessageCountRef.current = lines.length
-                lastCheckedMessagesRef.current.clear()
-                lines.forEach(msg => {
-                  lastCheckedMessagesRef.current.add(msg)
-                  updateBalance(msg)
-                })
-              } else {
-                const newMessages = lines.slice(lastKnownIndex + 1)
-                if (newMessages.length > 0) {
-                  checkAlarmForMessages(newMessages, alarmConfig, alarmConfig.volume)
-                  
-                  newMessages.forEach(msg => updateBalance(msg))
-                  
-                  setTradeMessages(prev => {
-                    const combined = [...prev, ...newMessages]
-                    return combined.slice(-50)
-                  })
-                  lastMessageCountRef.current = lines.length
-                  newMessages.forEach(msg => lastCheckedMessagesRef.current.add(msg))
-                }
-              }
-            }
-          }
-        } else if (lines && lines.length === 0) {
-          setTradeMessages([])
-          lastMessageCountRef.current = 0
-          lastCheckedMessagesRef.current.clear()
-        }
-      } catch (err) {
-        console.error('Erro ao ler mensagens de Trade:', err)
-        setError(err.message || t('events.trade.readError', { defaultValue: 'Erro ao ler mensagens de Trade' }))
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    pollTradeMessages()
-    pollingIntervalRef.current = setInterval(pollTradeMessages, POLLING_INTERVAL)
-
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current)
-        pollingIntervalRef.current = null
-      }
-    }
-  }, [logsEnabled, tradeEnabled, t, checkAlarmForMessages, alarmConfig, tradeMessages, updateBalance])
-
-  // Polling de mensagens de Events
-  useEffect(() => {
-    if (!logsEnabled || !eventsEnabled) {
-      if (eventsPollingIntervalRef.current) {
-        clearInterval(eventsPollingIntervalRef.current)
-        eventsPollingIntervalRef.current = null
-      }
-      return
-    }
-
-    const pollEventsMessages = async () => {
-      try {
-        // Ler mais linhas para garantir que capturamos o examine completo
-        const lines = await api.readCurrentEventsLogLastNLines(15)
-        
-        if (lines && lines.length > 0) {
-          console.log('[EventsTab] Primeiras linhas:', lines.slice(0, 3))
-          if (eventsMessages.length === 0) {
-            setEventsMessages(lines)
-            lastEventsMessageCountRef.current = lines.length
-            lines.forEach(msg => {
-              lastCheckedEventsMessagesRef.current.add(msg)
-              updateBalance(msg)
-              processTimeCommand(msg)
-            })
-            // Verificar se há trigger de examine antes de disparar evento (primeira carga)
-            const hasExamineTrigger = lines.some(msg => 
-              msg.includes('like this one have many uses')
-            )
-            
-            if (hasExamineTrigger && lines.length > 0) {
-              console.log('[EventsTab] Trigger de examine encontrado na primeira carga! Disparando evento')
-              window.dispatchEvent(new CustomEvent('events-message-received', {
-                detail: { messages: lines }
-              }))
-            }
-          } else {
-            const lastKnownMessage = eventsMessages[eventsMessages.length - 1]
-            const lastNewMessage = lines[lines.length - 1]
-            
-            if (lastKnownMessage !== lastNewMessage) {
-              const lastKnownIndex = lines.findIndex(msg => msg === lastKnownMessage)
-              
-              if (lastKnownIndex === -1) {
-                setEventsMessages(lines)
-                lastEventsMessageCountRef.current = lines.length
-                lastCheckedEventsMessagesRef.current.clear()
-                lines.forEach(msg => {
-                  lastCheckedEventsMessagesRef.current.add(msg)
-                  updateBalance(msg)
-                  processTimeCommand(msg)
-                })
-              } else {
-                  const newMessages = lines.slice(lastKnownIndex + 1)
-                  if (newMessages.length > 0) {
-                    checkAlarmForMessages(newMessages, eventsAlarmConfig, eventsAlarmConfig.volume)
-                    
-                    newMessages.forEach(msg => {
-                      updateBalance(msg)
-                      processTimeCommand(msg)
-                    })
-                    
-                    // Verificar se há trigger de examine antes de disparar evento
-                    const hasExamineTrigger = newMessages.some(msg => 
-                      msg.includes('like this one have many uses')
-                    )
-                    
-                    if (hasExamineTrigger) {
-                      console.log('[EventsTab] Trigger de examine encontrado! Disparando evento')
-                      // Disparar evento para componentes que escutam mensagens de Events
-                      window.dispatchEvent(new CustomEvent('events-message-received', {
-                        detail: { messages: newMessages }
-                      }))
-                    }
-                    
-                    setEventsMessages(prev => {
-                      const combined = [...prev, ...newMessages]
-                      return combined.slice(-50)
-                    })
-                    lastEventsMessageCountRef.current = lines.length
-                    newMessages.forEach(msg => lastCheckedEventsMessagesRef.current.add(msg))
-                  }
-              }
-            }
-          }
-        } else if (lines && lines.length === 0) {
-          setEventsMessages([])
-          lastEventsMessageCountRef.current = 0
-          lastCheckedEventsMessagesRef.current.clear()
-        }
-      } catch (err) {
-        console.error('Erro ao ler mensagens de Events:', err)
-      }
-    }
-
-    pollEventsMessages()
-    eventsPollingIntervalRef.current = setInterval(pollEventsMessages, POLLING_INTERVAL)
-
-    return () => {
-      if (eventsPollingIntervalRef.current) {
-        clearInterval(eventsPollingIntervalRef.current)
-        eventsPollingIntervalRef.current = null
-      }
-    }
-  }, [logsEnabled, eventsEnabled, checkAlarmForMessages, eventsAlarmConfig, eventsMessages, updateBalance, processTimeCommand])
 
   // Scroll automático
   useEffect(() => {
@@ -632,12 +160,7 @@ function EventsTab() {
 
     setTradeEnabled(newValue)
     localStorage.setItem(TRADE_ENABLED_KEY, newValue.toString())
-    
-    if (!newValue) {
-      setTradeMessages([])
-      lastMessageCountRef.current = 0
-      lastCheckedMessagesRef.current.clear()
-    }
+    if (!newValue) setTradeMessages([])
   }
 
   const handleEventsToggle = async (e) => {
@@ -670,12 +193,7 @@ function EventsTab() {
 
     setEventsEnabled(newValue)
     localStorage.setItem(EVENTS_ENABLED_KEY, newValue.toString())
-    
-    if (!newValue) {
-      setEventsMessages([])
-      lastEventsMessageCountRef.current = 0
-      lastCheckedEventsMessagesRef.current.clear()
-    }
+    if (!newValue) setEventsMessages([])
   }
 
   const handleAlarmConfigSave = (config) => {
